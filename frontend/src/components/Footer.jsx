@@ -44,15 +44,15 @@ const Footer = () => {
   const year = new Date().getFullYear()
   return (
     <div className='min-h-[50vh] mt-6 flex flex-col items-center justify-center' >
-      <div className='w-11/12  grid grid-cols-6 gap-2 place-items-center  border-black border-y py-10'>
+      <div className='w-11/12  grid grid-cols-3 md:grid-cols-6 gap-2 md:place-items-center  border-black border-y py-10'>
        {
         LINKS.map((link, index) => (
           <div key={index} className='flex flex-col gap-2 h-full'>
-            <h3 className='font-bold text-lg'>{link.name}</h3>
+            <h3 className='font-bold text-sm  md:text-lg'>{link.name}</h3>
             <ul className='flex flex-col gap-1'>
               {link.links.map((l, i) => (
                 <li key={i} className='text-sm hover:underline cursor-pointer'>
-                  <a href={l.path} className='capitalize'>{l.lienName}</a>
+                  <a href={l.path} className='capitalize text-xs md:text-sm'>{l.lienName}</a>
                 </li>
               ))}
             </ul>
@@ -60,9 +60,9 @@ const Footer = () => {
         ))
        }
       </div>
-      <div className='flex flex-row-reverse justify-between items-center w-11/12 mt-6'>
+      <div className='flex flex-col flex-col-reverse md:flex-row-reverse justify-between items-center w-11/12 mt-6'>
         <p className='text-center text-sm mt-4'>© {year} Nazra Sunglasses. All rights reserved.</p>
-        <img src="/Main-logo.jpeg" className='w-[100px] object-cover' alt="NAZRA" />
+        <img src="/Main-logo.jpeg" className='w-[100px] mx-auto md:m-0 object-cover' alt="NAZRA" />
       </div>
     </div>
   )
