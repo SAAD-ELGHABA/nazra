@@ -1,9 +1,16 @@
+import { RouterProvider } from "react-router-dom";
 import "./App.css";
+import { Router } from "./Router";
 import React from "react";
+
+
+
+
 function App() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <h1 className="font-black text-xl">NAZRA</h1>
+    <div>
+      <RouterProvider router={Router} />
+      
     </div>
   );
 }
