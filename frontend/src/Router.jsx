@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import Layout from "./Layout";
 import React from "react";
 import NotFound from "./pages/NotFound";
+import AboutPage from "./pages/AboutPage";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -10,6 +11,10 @@ export const Router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
       },
       {
         path: "*",

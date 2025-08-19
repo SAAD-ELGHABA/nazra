@@ -57,7 +57,7 @@ function MarkVid() {
             ))}
           </div>
 
-          <button className="mt-4 px-6 py-3 rounded-lg shadow hover:bg-black hover:text-white transition border">
+          <button className="mt-2 px-6 py-3 rounded-lg shadow hover:bg-black hover:text-white transition border">
             Shop Now
           </button>
         </div>

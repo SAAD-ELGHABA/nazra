@@ -40,7 +40,7 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <Link to={"#"} className="hover:text-gray-600">
+            <Link to={"/about"} className="hover:text-gray-600">
               About Us
             </Link>
           </li>

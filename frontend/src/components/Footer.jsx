@@ -77,7 +77,7 @@ const Footer = () => {
           <p>Stay stylish and informed with our latest collections.</p>
         </div>
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             <input
               type="email"
               name=""
