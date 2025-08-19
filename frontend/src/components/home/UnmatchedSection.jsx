@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 function UnmatchedSection() {
   return (
-    <div className="p-10 w-full min-h-screen overflow-hidden">
+    <div className="md:p-10 p-4  w-full min-h-screen overflow-hidden">
       <div className="flex flex-col items-center justify-center gap-6 text-center md:text-left">
         <h5>Elevate</h5>
         <h1
@@ -39,7 +39,7 @@ function UnmatchedSection() {
             </Link>
             <Link
               to="/learn"
-              className="px-6 py-3 rounded transition-all duration-300 transform hover:scale-105 hover:bg-black/10 "
+              className="px-6 py-3 rounded transition-all duration-300 transform  hover:bg-black/10 "
             >
               Learn &gt;
             </Link>
