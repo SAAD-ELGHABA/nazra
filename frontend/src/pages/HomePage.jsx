@@ -6,6 +6,8 @@ import DiscoverSection from "../components/home/DiscoverSection";
 import WebflowSection from "../components/home/WebflowSection";
 import ElevateSection from "../components/home/ElevateSection";
 import OurTeam from "../components/home/OurTeam";
+import FAQs from "../components/FAQs";
+import MarkVid from "../components/home/MarkVid";
 
 const HomePage = () => {
   return (
@@ -13,10 +15,12 @@ const HomePage = () => {
       <HeroSection />
       <UnmatchedSection />
       <ExperinceSection />
+      <MarkVid/>
       <DiscoverSection />
       <WebflowSection />
       <ElevateSection />
       <OurTeam />
+      <FAQs/>
     </div>
   );
 };
