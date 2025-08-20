@@ -226,7 +226,18 @@
       }
     }
   }
-
+,
+"store": {
+  "title": "منتجاتنا",
+  "description": "اكتشف مجموعتنا من النظارات الشمسية الفاخرة.",
+  "trendingProducts": "المنتجات الرائجة",
+  "newArrivals": "وصل حديثًا",
+  "bestSellers": "الأكثر مبيعًا",
+  "allProducts": "جميع المنتجات",
+  "viewDetails": "عرض التفاصيل",
+  "addToCart": "أضف إلى السلة",
+  "outOfStock": "غير متوفر"
+}
 
 
 

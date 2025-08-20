@@ -230,6 +230,18 @@
       }
     }
   }
+,
+"store": {
+  "title": "Nos Produits",
+  "description": "Découvrez nos collections de lunettes de soleil de luxe.",
+  "trendingProducts": "Produits Tendance",
+  "newArrivals": "Nouveautés",
+  "bestSellers": "Meilleures Ventes",
+  "allProducts": "Tous les Produits",
+  "viewDetails": "Voir les Détails",
+  "addToCart": "Ajouter au Panier",
+  "outOfStock": "Rupture de Stock"
+}
 
 
 

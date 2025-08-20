@@ -4,6 +4,7 @@ import Layout from "./Layout";
 import React from "react";
 import NotFound from "./pages/NotFound";
 import AboutPage from "./pages/AboutPage";
+import StorePage from "./pages/StorePage";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -15,6 +16,10 @@ export const Router = createBrowserRouter([
       {
         path: "/about",
         element: <AboutPage />,
+      },
+      {
+        path: "/store",
+        element: <StorePage />,
       },
       {
         path: "*",

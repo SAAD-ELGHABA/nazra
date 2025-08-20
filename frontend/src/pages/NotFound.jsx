@@ -6,6 +6,7 @@ function NotFound() {
   const { t } = useTranslation();
 
   useEffect(() => {
+    document.title = "Page Not Found - Nazra";
     window.scrollTo({
       top: 0,
       behavior: "smooth",

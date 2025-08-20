@@ -227,7 +227,18 @@
       }
     }
   }
-
+,
+"store": {
+    "title": "Our Products",
+    "description": "Discover our collections of Luxurious Sunglasses.",
+    "trendingProducts": "Trending Products",
+    "newArrivals": "New Arrivals",
+    "bestSellers": "Best Sellers",
+    "allProducts": "All Products",
+    "viewDetails": "View Details",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock"
+  }
 
 
 

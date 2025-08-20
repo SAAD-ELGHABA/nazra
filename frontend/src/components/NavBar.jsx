@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, ChevronDown, Menu, X, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,7 +6,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const handleClickCart = () => {
     console.log("i clicked");
@@ -18,11 +18,6 @@ const NavBar = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem("lng", lng);
   };
 
   return (
@@ -43,7 +38,7 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <Link to={"#"} className="hover:text-gray-600">
+            <Link to={"/store"} className="hover:text-gray-600">
               {t("navbar.shop")}
             </Link>
           </li>
@@ -70,10 +65,8 @@ const NavBar = () => {
               onClick={handleClickHeart}
             />
           </Link>
-          <Link
-            onClick={handleClickCart}
-          >
-            <ShoppingCart className="hover:fill-black"/>
+          <Link onClick={handleClickCart}>
+            <ShoppingCart className="hover:fill-black" />
           </Link>
 
           <LanguageSwitcher />
@@ -98,7 +91,7 @@ const NavBar = () => {
             </li>
             <li>
               <Link
-                to={"#"}
+                to={"/store"}
                 className="block py-2 hover:text-gray-600"
                 onClick={toggleMobileMenu}
               >
