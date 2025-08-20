@@ -1,38 +1,36 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const teamMembers = [
   {
     name: "Achraf Ouahmane",
-    role: "Lead Designer",
-    description:
-      "Crafting timeless designs that elevate your style and confidence.",
+    roleKey: "team.roles.leadDesigner",
+    descriptionKey: "team.descriptions.achraf",
     image: "/OurTeam/Achraf.jpeg",
   },
   {
     name: "Adil Nmili",
-    role: "Product Manager",
-    description:
-      "Ensuring every pair meets our high standards of quality and luxury.",
+    roleKey: "team.roles.productManager",
+    descriptionKey: "team.descriptions.adil",
     image: "/OurTeam/Adil.jpeg",
   },
   {
     name: "Saad Elghaba",
-    role: "Marketing Director",
-    description:
-      "Connecting our brand with fashion enthusiasts around the globe.",
+    roleKey: "team.roles.marketingDirector",
+    descriptionKey: "team.descriptions.saad",
     image: "/OurTeam/Saad.jpg",
   },
 ];
 
 const OurTeam = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="md:p-10 p-4 bg-white">
       <div className="text-center mb-12">
-        <p className="text-sm text-gray-500">Excellence</p>
-        <h2 className="text-3xl font-bold mt-2">Our Team</h2>
-        <p className="text-gray-600 mt-2">
-          Meet the creative minds behind our luxurious sunglasses.
-        </p>
+        <p className="text-sm text-gray-500">{t("team.subtitle")}</p>
+        <h2 className="text-3xl font-bold mt-2">{t("team.title")}</h2>
+        <p className="text-gray-600 mt-2">{t("team.description")}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
@@ -44,8 +42,8 @@ const OurTeam = () => {
               className="w-20 h-20 mx-auto rounded-full object-cover"
             />
             <h3 className="font-bold mt-4">{member.name}</h3>
-            <p className="text-sm text-gray-500">{member.role}</p>
-            <p className="text-gray-600 mt-2 text-sm">{member.description}</p>
+            <p className="text-sm text-gray-500">{t(member.roleKey)}</p>
+            <p className="text-gray-600 mt-2 text-sm">{t(member.descriptionKey)}</p>
             <div className="flex justify-center mt-4 space-x-3 text-gray-600">
               <a href="#">
                 <img

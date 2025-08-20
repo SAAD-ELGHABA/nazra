@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 function LuxurySection() {
   return (
     <div className="flex flex-col md:flex-row p-4 md:p-10 gap-6 items-center justify-center">
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
         <h1
-          className="font-bold text-[28px] md:text-left md:text-[46px]"
+          className="font-bold text-[28px] md:text-left md:text-[56px]"
           style={{ lineHeight: "1.2", letterSpacing: "4px" }}
         >
           Luxury Redefined in Every Frame

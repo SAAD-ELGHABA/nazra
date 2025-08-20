@@ -3,7 +3,7 @@ import React from "react";
 function StorySection() {
   return (
     <div className="flex flex-col md:flex-row p-4 md:p-10 gap-6 items-center justify-center">
-      <div className="md:w-1/2">
+      <div className="md:w-1/2 md:h-100 overflow-hidden flex items-center">
         <img src="/About/about-story-img.png" alt="luxury-img" />
       </div>
       <div className="flex flex-col gap-4 md:w-1/2">

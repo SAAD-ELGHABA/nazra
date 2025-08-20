@@ -1,18 +1,15 @@
 import React from "react";
 import { ShieldCheck, Truck, CreditCard, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function MarkVid() {
+  const { t } = useTranslation();
+
   const features = [
-    { icon: <ShieldCheck className="w-5 h-5 " />, text: "100% UV Protection" },
-    { icon: <Truck className="w-5 h-5 " />, text: "Free & Fast Shipping" },
-    {
-      icon: <CreditCard className="w-5 h-5 " />,
-      text: "COD Cash On Delivery",
-    },
-    {
-      icon: <Star className="w-5 h-5 " />,
-      text: "Trusted by Thousands of Customers",
-    },
+    { icon: <ShieldCheck className="w-5 h-5" />, text: t("markVid.features.uvProtection") },
+    { icon: <Truck className="w-5 h-5" />, text: t("markVid.features.shipping") },
+    { icon: <CreditCard className="w-5 h-5" />, text: t("markVid.features.cod") },
+    { icon: <Star className="w-5 h-5" />, text: t("markVid.features.trusted") },
   ];
 
   return (
@@ -20,11 +17,10 @@ function MarkVid() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div className="flex flex-col gap-6 justify-center">
           <h2
-            c
             className="font-bold text-[25px] md:text-[36px] lg:text-[46px]"
             style={{ lineHeight: "1.2", letterSpacing: "4px" }}
           >
-            Discover Our Premium Sunglasses
+            {t("markVid.title")}
           </h2>
           <video
             src="https://res.cloudinary.com/dmiaxmuiy/video/upload/v1755626196/video-ad_b79qe2.mp4"
@@ -39,11 +35,7 @@ function MarkVid() {
         </div>
 
         <div className="flex flex-col justify-center space-y-6">
-          <p >
-            Experience unmatched quality, comfort, and style. Designed to
-            protect your eyes while keeping you trendy, our sunglasses are the
-            perfect blend of fashion and function.
-          </p>
+          <p>{t("markVid.description")}</p>
 
           <div className="space-y-3">
             {features.map((item, index) => (
@@ -58,7 +50,7 @@ function MarkVid() {
           </div>
 
           <button className="mt-2 px-6 py-3 rounded-lg shadow hover:bg-black hover:text-white transition border">
-            Shop Now
+            {t("markVid.shopButton")}
           </button>
         </div>
       </div>

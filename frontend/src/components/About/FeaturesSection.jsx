@@ -6,7 +6,7 @@ function FeaturesSection() {
     <div className="flex flex-col p-4 md:p-10 gap-6 items-center justify-center">
       <div>
         <h1
-          className="font-bold text-[32px] text-center md:text-left md:text-[56px]"
+          className="font-bold text-[28px] md:text-left md:text-[56px]"
           style={{ lineHeight: "1.2", letterSpacing: "4px" }}
         >
           FEATURES

@@ -1,0 +1,139 @@
+{
+  "navbar": {
+    "home": "Page d'accueil",
+    "shop": "Acheter maintenant",
+    "about": "À propos de nous",
+    "collection": "Collection",
+    "cart": "Panier",
+    "wishlist": "Liste de souhaits"
+  },
+  "hero": {
+    "title": "Élevez votre style avec nos lunettes de soleil luxueuses",
+    "description": "Découvrez le mélange parfait d'élégance et de protection avec nos lunettes de soleil haut de gamme. Fabriquées avec un souci du détail méticuleux, chaque paire offre un style inégalé et une protection UV.",
+    "shop": "Acheter maintenant",
+    "learnMore": "En savoir plus"
+  },
+  "unmatched": {
+    "intro": "Élevez",
+    "title": "Un style inégalé vous attend",
+    "subtitle": "Découvrez le parfait mélange de mode et de fonctionnalité.",
+    "cards": {
+      "crafted": {
+        "title": "Conçu pour vous",
+        "description": "Nos lunettes de soleil sont conçues avec précision et élégance pour les amateurs de mode exigeants.",
+        "shop": "Acheter",
+        "learnMore": "En savoir plus >"
+      },
+      "why": {
+        "title": "Pourquoi choisir nos lunettes ?",
+        "description": "Des lunettes élégantes, durables et protectrices pour toutes les occasions.",
+        "discover": "Découvrir"
+      },
+      "protect": {
+        "title": "Protégez vos yeux avec style",
+        "description": "Profitez d'une protection UV à 100% sans compromettre le style.",
+        "explore": "Explorer"
+      }
+    }
+  },
+  "experience": {
+    "title": "Découvrez un style et une protection inégalés avec notre collection de lunettes de soleil haut de gamme",
+    "subtitle": "Nos lunettes de soleil sont conçues pour améliorer votre style tout en protégeant vos yeux des rayons UV nocifs. Fabriquées avec des matériaux durables, elles allient luxe et longue durée.",
+    "list": [
+      "Élevez votre style avec nos lunettes de soleil chics.",
+      "Un artisanat durable pour une élégance et un confort quotidiens.",
+      "Protégez vos yeux sans compromettre le style."
+    ]
+  },
+  "markVid": {
+    "title": "Découvrez nos lunettes de soleil haut de gamme",
+    "description": "Découvrez une qualité, un confort et un style inégalés. Conçues pour protéger vos yeux tout en restant tendance, nos lunettes de soleil allient parfaitement mode et fonctionnalité.",
+    "features": {
+      "uvProtection": "Protection UV à 100%",
+      "shipping": "Livraison gratuite et rapide",
+      "cod": "Paiement à la livraison",
+      "trusted": "Approuvé par des milliers de clients"
+    },
+    "shopButton": "Acheter maintenant"
+  }
+  ,
+  "discover": {
+    "title": "Découvrez notre collection exclusive de lunettes de soleil les plus vendues pour chaque occasion",
+    "subtitle": "Élevez votre style avec nos lunettes de soleil haut de gamme qui allient luxe et fonctionnalité. Chaque paire est conçue pour offrir une protection UV exceptionnelle tout en faisant une déclaration de mode audacieuse.",
+    "features": [
+      {
+        "title": "Styles tendance",
+        "description": "Découvrez nos meilleurs choix qui redéfinissent l'élégance et la sophistication des lunettes."
+      },
+      {
+        "title": "Savoir-faire de qualité",
+        "description": "Découvrez une qualité inégalée avec des lunettes conçues pour la durabilité et le style."
+      }
+    ]
+  }
+  ,
+  "webflow": {
+    "platform": "Webflow",
+    "testimonial": {
+      "text": "Ces lunettes de soleil non seulement rehaussent mon style mais offrent également une protection UV exceptionnelle. Je ne peux pas imaginer mon été sans elles !",
+      "name": "Emily Johnson",
+      "role": "Blogueuse mode"
+    }
+  }
+,
+  "elevate": {
+    "title": "Élevez votre style dès aujourd'hui",
+    "subtitle": "Découvrez notre collection exclusive de lunettes de soleil luxueuses conçues pour les personnes à la pointe de la mode.",
+    "shop": "Acheter",
+    "join": "Rejoindre"
+  }
+,
+  "team": {
+    "subtitle": "Excellence",
+    "title": "Notre Équipe",
+    "description": "Rencontrez les esprits créatifs derrière nos lunettes de soleil luxueuses.",
+    "roles": {
+      "leadDesigner": "Chef Designer",
+      "productManager": "Chef de Produit",
+      "marketingDirector": "Directeur Marketing"
+    },
+    "descriptions": {
+      "achraf": "Créer des designs intemporels qui élèvent votre style et votre confiance.",
+      "adil": "Assurer que chaque paire répond à nos normes élevées de qualité et de luxe.",
+      "saad": "Connecter notre marque avec les passionnés de mode du monde entier."
+    }
+  }
+,
+  "faqs": {
+    "title": "FAQ",
+    "subtitle": "Trouvez des réponses à vos questions les plus fréquentes sur nos lunettes de soleil et services.",
+    "stillQuestions": "Vous avez encore des questions ?",
+    "helpText": "Nous sommes là pour vous aider !",
+    "contact": "Contact",
+    "q1": {
+      "question": "Qu'est-ce que la protection UV ?",
+      "answer": "La protection UV est essentielle pour protéger vos yeux des rayons nocifs. Nos lunettes offrent une protection UV à 100 %, assurant la sécurité de vos yeux tout en restant stylé. Profitez du soleil sans souci !"
+    },
+    "q2": {
+      "question": "Comment se fait la livraison ?",
+      "answer": "Nous proposons des options de livraison rapides et fiables pour toutes les commandes. La livraison standard prend généralement 3 à 5 jours ouvrables. Vous recevrez un numéro de suivi une fois votre commande expédiée."
+    },
+    "q3": {
+      "question": "Quelle est votre politique de retour ?",
+      "answer": "Nous acceptons les retours dans les 30 jours suivant l'achat. Les articles doivent être non portés et dans leur emballage d'origine. Veuillez contacter notre équipe de support pour les instructions de retour."
+    },
+    "q4": {
+      "question": "Comment entretenir les lunettes de soleil ?",
+      "answer": "Pour entretenir vos lunettes, nettoyez les verres avec un chiffon en microfibre. Évitez d'utiliser des produits chimiques agressifs ou des matériaux abrasifs. Rangez-les dans un étui protecteur lorsqu'elles ne sont pas utilisées."
+    },
+    "q5": {
+      "question": "Offrez-vous des garanties ?",
+      "answer": "Oui, nous proposons une garantie d'un an contre les défauts de fabrication. Cette garantie couvre les réparations ou remplacements pour tout problème survenant en usage normal. Veuillez conserver votre reçu pour les demandes de garantie."
+    }
+  }
+
+
+
+
+
+}

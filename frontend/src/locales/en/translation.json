@@ -1,0 +1,138 @@
+{
+  "navbar": {
+    "home": "Home Page",
+    "shop": "Shop Now",
+    "about": "About Us",
+    "collection": "Collection",
+    "cart": "Cart",
+    "wishlist": "Wishlist"
+  },
+  "hero": {
+    "title": "Elevate Your Style with Our Luxurious Sunglasses",
+    "description": "Discover the perfect blend of elegance and protection with our premium sunglasses. Crafted with meticulous attention to detail, each pair offers unparalleled style and UV defense.",
+    "shop": "Shop Now",
+    "learnMore": "Learn More"
+  },
+  "unmatched": {
+    "intro": "Elevate",
+    "title": "Unmatched Style Awaits",
+    "subtitle": "Experience the perfect blend of fashion and function.",
+    "cards": {
+      "crafted": {
+        "title": "Crafted for You",
+        "description": "Our sunglasses are designed with precision and elegance for the discerning fashion lover.",
+        "shop": "Shop",
+        "learnMore": "Learn >"
+      },
+      "why": {
+        "title": "Why Choose Our Sunglasses?",
+        "description": "Stylish, durable, and protective eyewear for every occasion.",
+        "discover": "Discover"
+      },
+      "protect": {
+        "title": "Protect Your Eyes in Style",
+        "description": "Enjoy 100% UV protection without compromising on style.",
+        "explore": "Explore"
+      }
+    }
+  },
+  "experience": {
+    "title": "Experience Unmatched Style and Protection with Our Premium Sunglasses Collection",
+    "subtitle": "Our sunglasses are designed to elevate your fashion game while ensuring your eyes are protected from harmful UV rays. Crafted from durable materials, they combine luxury with long-lasting wear.",
+    "list": [
+      "Elevate your style with our chic sunglasses.",
+      "Durable craftsmanship for everyday elegance and comfort.",
+      "Protect your eyes without compromising on style."
+    ]
+  },
+  "markVid": {
+    "title": "Discover Our Premium Sunglasses",
+    "description": "Experience unmatched quality, comfort, and style. Designed to protect your eyes while keeping you trendy, our sunglasses are the perfect blend of fashion and function.",
+    "features": {
+      "uvProtection": "100% UV Protection",
+      "shipping": "Free & Fast Shipping",
+      "cod": "COD Cash On Delivery",
+      "trusted": "Trusted by Thousands of Customers"
+    },
+    "shopButton": "Shop Now"
+  }
+,
+  "discover": {
+    "title": "Discover Our Exclusive Collection of Best-Selling Sunglasses for Every Occasion",
+    "subtitle": "Elevate your style with our premium sunglasses that blend luxury and functionality. Each pair is crafted to provide exceptional UV protection while making a bold fashion statement.",
+    "features": [
+      {
+        "title": "Trending Styles",
+        "description": "Explore our top picks that redefine elegance and sophistication in eyewear."
+      },
+      {
+        "title": "Quality Craftsmanship",
+        "description": "Experience unparalleled quality with sunglasses designed for durability and style."
+      }
+    ]
+  },
+  "webflow": {
+    "platform": "Webflow",
+    "testimonial": {
+      "text": "These sunglasses not only elevate my style but also provide exceptional UV protection. I can't imagine my summer without them!",
+      "name": "Emily Johnson",
+      "role": "Fashion Blogger"
+    }
+  }
+  ,
+  "elevate": {
+    "title": "Elevate Your Style Today",
+    "subtitle": "Discover our exclusive collection of luxurious sunglasses designed for the fashion-forward individual.",
+    "shop": "Shop",
+    "join": "Join"
+  },
+  "team": {
+    "subtitle": "Excellence",
+    "title": "Our Team",
+    "description": "Meet the creative minds behind our luxurious sunglasses.",
+    "roles": {
+      "leadDesigner": "Lead Designer",
+      "productManager": "Product Manager",
+      "marketingDirector": "Marketing Director"
+    },
+    "descriptions": {
+      "achraf": "Crafting timeless designs that elevate your style and confidence.",
+      "adil": "Ensuring every pair meets our high standards of quality and luxury.",
+      "saad": "Connecting our brand with fashion enthusiasts around the globe."
+    }
+  }
+,
+  "faqs": {
+    "title": "FAQs",
+    "subtitle": "Find answers to your most common questions about our sunglasses and services.",
+    "stillQuestions": "Still have questions?",
+    "helpText": "We're here to help!",
+    "contact": "Contact",
+    "q1": {
+      "question": "What is UV protection?",
+      "answer": "UV protection is essential for safeguarding your eyes from harmful rays. Our sunglasses provide 100% UV protection, ensuring your eyes stay safe while looking stylish. Enjoy the sun without worry!"
+    },
+    "q2": {
+      "question": "How is shipping handled?",
+      "answer": "We offer fast and reliable shipping options for all orders. Standard shipping typically takes 3-5 business days. You will receive a tracking number once your order is shipped."
+    },
+    "q3": {
+      "question": "What is your return policy?",
+      "answer": "We accept returns within 30 days of purchase. Items must be unworn and in their original packaging. Please contact our support team for return instructions."
+    },
+    "q4": {
+      "question": "How to care for sunglasses?",
+      "answer": "To maintain your sunglasses, clean the lenses with a microfiber cloth. Avoid using harsh chemicals or abrasive materials. Store them in a protective case when not in use."
+    },
+    "q5": {
+      "question": "Do you offer warranties?",
+      "answer": "Yes, we provide a one-year warranty against manufacturing defects. This warranty covers repairs or replacements for any issues that arise during normal use. Please keep your receipt for warranty claims."
+    }
+  }
+
+
+
+
+
+
+}
