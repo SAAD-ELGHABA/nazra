@@ -20,7 +20,6 @@ function UnmatchedSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-4 w-full mt-6">
-        {/* First Card */}
         <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 border p-6 flex flex-col justify-between w-full">
           <div className="flex flex-col gap-4">
             <DraftingCompass className="h-10 w-10" />
@@ -37,7 +36,7 @@ function UnmatchedSection() {
           <div className="flex flex-wrap items-center gap-4 mt-4">
             <Link
               to="/shop"
-              className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-black hover:text-white"
+              className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black"
             >
               {t("unmatched.cards.crafted.shop")}
             </Link>
@@ -49,8 +48,6 @@ function UnmatchedSection() {
             </Link>
           </div>
         </div>
-
-        {/* Second Card */}
         <div className="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 border p-6 flex flex-col justify-between w-full">
           <div className="flex flex-col gap-4">
             <Glasses className="h-10 w-10" />
@@ -66,13 +63,12 @@ function UnmatchedSection() {
           </div>
           <Link
             to="/discover"
-            className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-black hover:text-white text-center mt-4"
+            className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
           >
             {t("unmatched.cards.why.discover")}
           </Link>
         </div>
 
-        {/* Third Card */}
         <div className="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 border p-6 flex flex-col justify-between w-full">
           <div className="flex flex-col gap-4">
             <Kanban className="h-10 w-10" />
@@ -88,7 +84,7 @@ function UnmatchedSection() {
           </div>
           <Link
             to="/explore"
-            className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-black hover:text-white text-center mt-4"
+            className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
           >
             {t("unmatched.cards.protect.explore")}
           </Link>

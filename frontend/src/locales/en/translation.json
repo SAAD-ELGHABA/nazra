@@ -130,7 +130,103 @@
     }
   }
 
+,
+  "luxury": {
+    "title": "Luxury Redefined in Every Frame",
+    "subtitle": "Crafting timeless eyewear with unmatched quality and UV protection",
+    "exploreButton": "EXPLORE OUR COLLECTION"
+  }
 
+,
+  "story": {
+    "title": "About Our Story",
+    "paragraph1": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+    "paragraph2": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+  }
+,
+  "features": {
+    "title": "FEATURES",
+    "materials": {
+      "title": "Premium Materials",
+      "description": "Crafted with the finest materials for durability and elegance."
+    },
+    "handcrafted": {
+      "title": "Handcrafted Quality",
+      "description": "Expertly crafted with attention to detail."
+    },
+    "uv": {
+      "title": "UV Protection",
+      "description": "Advanced UV protection for your eyes."
+    }
+  }
+,
+  "notFound": {
+    "message": "Oops! The page you’re looking for doesn’t exist.",
+    "goBack": "Go Back Home"
+  }
+,
+  "footer": {
+    "subscribeTitle": "Subscribe to updates",
+    "subscribeSubtitle": "Stay stylish and informed with our latest collections.",
+    "emailPlaceholder": "Your Email Here",
+    "join": "Join",
+    "privacyNotice": "We respect your privacy and protect your information.",
+    "rights": "All rights reserved.",
+    "links": {
+      "quickLinks": {
+        "title": "Quick Links",
+        "items": {
+          "aboutUs": "About Us",
+          "contactUs": "Contact Us",
+          "shopNow": "Shop Now",
+          "returnsPolicy": "Returns Policy"
+        }
+      },
+      "customerService": {
+        "title": "Customer Service",
+        "items": {
+          "helpCenter": "Help Center",
+          "shippingInfo": "Shipping Info",
+          "giftCard": "Gift Card",
+          "termsOfUse": "Terms of Use"
+        }
+      },
+      "followUs": {
+        "title": "Follow Us",
+        "items": {
+          "instagram": "Instagram",
+          "facebook": "Facebook",
+          "twitter": "Twitter",
+          "pinterest": "Pinterest"
+        }
+      },
+      "legal": {
+        "title": "Legal",
+        "items": {
+          "privacyPolicy": "Privacy Policy",
+          "termsAndConditions": "Terms and Conditions",
+          "accessibilityStatement": "Accessibility Statement"
+        }
+      },
+      "stayConnected": {
+        "title": "Stay Connected",
+        "items": {
+          "subscribeNewsletter": "Subscribe to Newsletter",
+          "exclusiveOffers": "Exclusive Offers",
+          "joinCommunity": "Join Our Community",
+          "feedback": "Feedback"
+        }
+      },
+      "contactUs": {
+        "title": "Contact Us",
+        "items": {
+          "emailUs": "Email Us",
+          "callUs": "Call Us",
+          "liveChat": "Live Chat"
+        }
+      }
+    }
+  }
 
 
 

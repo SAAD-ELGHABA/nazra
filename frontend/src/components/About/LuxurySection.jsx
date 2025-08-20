@@ -1,7 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function LuxurySection() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col md:flex-row p-4 md:p-10 gap-6 items-center justify-center">
       <div className="flex flex-col gap-8">
@@ -9,17 +12,15 @@ function LuxurySection() {
           className="font-bold text-[28px] md:text-left md:text-[56px]"
           style={{ lineHeight: "1.2", letterSpacing: "4px" }}
         >
-          Luxury Redefined in Every Frame
+          {t("luxury.title")}
         </h1>
-        <p>
-          Crafting timeless eyewear with unmatched quality and UV protection
-        </p>
+        <p>{t("luxury.subtitle")}</p>
         <div>
           <Link
             to="/shop"
-            className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-black hover:text-white"
+            className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
           >
-            EXPLORE OUR COLLECTION
+            {t("luxury.exploreButton")}
           </Link>
         </div>
       </div>

@@ -1,69 +1,66 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const LINKS = [
   {
-    name: "Quick Links",
+    key: "quickLinks",
     links: [
-      { lienName: "about us", path: "/about" },
-      { lienName: "contact us", path: "/contact" },
-      { lienName: "shop now", path: "/shop" },
-      { lienName: "returns policy", path: "/returns-policy" },
+      { key: "aboutUs", path: "/about" },
+      { key: "contactUs", path: "/contact" },
+      { key: "shopNow", path: "/shop" },
+      { key: "returnsPolicy", path: "/returns-policy" },
     ],
   },
   {
-    name: "Customer Service",
+    key: "customerService",
     links: [
-      { lienName: "help center", path: "/help-center" },
-      { lienName: "shipping info", path: "/shipping-info" },
-      { lienName: "gift card", path: "/gift-card" },
-      { lienName: "terms of use", path: "/terms-of-use" },
+      { key: "helpCenter", path: "/help-center" },
+      { key: "shippingInfo", path: "/shipping-info" },
+      { key: "giftCard", path: "/gift-card" },
+      { key: "termsOfUse", path: "/terms-of-use" },
     ],
   },
   {
-    name: "Follow Us",
+    key: "followUs",
     links: [
-      {
-        lienName: "instagram",
-        path: "https://www.instagram.com/nazra.sunglasses/",
-      },
-      {
-        lienName: "facebook",
-        path: "https://www.facebook.com/nazra.sunglasses/",
-      },
-      { lienName: "twitter", path: "https://twitter.com/nazra_sunglasses" },
-      { lienName: "Pinterest", path: "https://pinterest.com/nazra_sunglasses" },
+      { key: "instagram", path: "https://www.instagram.com/nazra.sunglasses/" },
+      { key: "facebook", path: "https://www.facebook.com/nazra.sunglasses/" },
+      { key: "twitter", path: "https://twitter.com/nazra_sunglasses" },
+      { key: "pinterest", path: "https://pinterest.com/nazra_sunglasses" },
     ],
   },
   {
-    name: "Legal",
+    key: "legal",
     links: [
-      { lienName: "privacy policy", path: "/privacy-policy" },
-      { lienName: "terms and conditions", path: "/terms-and-conditions" },
-      { lienName: "accessibility statement", path: "/accessibility-statement" },
+      { key: "privacyPolicy", path: "/privacy-policy" },
+      { key: "termsAndConditions", path: "/terms-and-conditions" },
+      { key: "accessibilityStatement", path: "/accessibility-statement" },
     ],
   },
   {
-    name: "Stay Connected",
+    key: "stayConnected",
     links: [
-      { lienName: "subscribe to newsletter", path: "/subscribe" },
-      { lienName: "Exclusive Offers", path: "/offers" },
-      { lienName: "join our community", path: "/community" },
-      { lienName: "feedback", path: "/feedback" },
+      { key: "subscribeNewsletter", path: "/subscribe" },
+      { key: "exclusiveOffers", path: "/offers" },
+      { key: "joinCommunity", path: "/community" },
+      { key: "feedback", path: "/feedback" },
     ],
   },
   {
-    name: "Contact Us",
+    key: "contactUs",
     links: [
-      { lienName: "email us", path: "/email-us" },
-      { lienName: "call us", path: "/call-us" },
-      { lienName: "live chat", path: "/live-chat" },
+      { key: "emailUs", path: "/email-us" },
+      { key: "callUs", path: "/call-us" },
+      { key: "liveChat", path: "/live-chat" },
     ],
   },
 ];
 
 const Footer = () => {
+  const { t } = useTranslation();
   const year = new Date().getFullYear();
+
   return (
     <div className="min-h-[50vh] mt-12 flex flex-col items-center justify-center">
       <div className="flex flex-col md:flex-row md:items-center justify-between w-11/12 mb-4 gap-6">
@@ -72,37 +69,36 @@ const Footer = () => {
             className="font-bold text-[15px] md:text-[26px] lg:text-[26px]"
             style={{ lineHeight: "1.2", letterSpacing: "4px" }}
           >
-            Subscribe to updates
+            {t("footer.subscribeTitle")}
           </h3>
-          <p>Stay stylish and informed with our latest collections.</p>
+          <p>{t("footer.subscribeSubtitle")}</p>
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 ">
             <input
               type="email"
-              name=""
-              id=""
-              className="py-3 px-2 border hover:outline-none outline-none"
-              placeholder="Your Email Here"
+              className="py-3 px-2 border hover:outline-none outline-none rounded"
+              placeholder={t("footer.emailPlaceholder")}
             />
-            <button className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-black hover:text-white">
-              Join
+            <button className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black">
+              {t("footer.join")}
             </button>
           </div>
           <div className="text-sm">
-            <Link>We respect your privacy and protect your information.</Link>
+            <Link>{t("footer.privacyNotice")}</Link>
           </div>
         </div>
       </div>
-      <div className="w-11/12  grid grid-cols-3 md:grid-cols-6 gap-2 md:place-items-center  border-black border-y py-10">
-        {LINKS.map((link, index) => (
-          <div key={index} className="flex flex-col gap-2 h-full">
-            <h3 className="font-bold text-sm  md:text-lg">{link.name}</h3>
+
+      <div className="w-11/12 grid grid-cols-3 md:grid-cols-6 gap-2 md:place-items-center border-black border-y py-10">
+        {LINKS.map((section, idx) => (
+          <div key={idx} className="flex flex-col gap-2 h-full">
+            <h3 className="font-bold text-sm md:text-lg">{t(`footer.links.${section.key}.title`)}</h3>
             <ul className="flex flex-col gap-1">
-              {link.links.map((l, i) => (
+              {section.links.map((link, i) => (
                 <li key={i} className="text-sm hover:underline cursor-pointer">
-                  <a href={l.path} className="capitalize text-xs md:text-sm">
-                    {l.lienName}
+                  <a href={link.path} className="capitalize text-xs md:text-sm">
+                    {t(`footer.links.${section.key}.items.${link.key}`)}
                   </a>
                 </li>
               ))}
@@ -110,9 +106,10 @@ const Footer = () => {
           </div>
         ))}
       </div>
-      <div className="flex flex-col flex-col-reverse md:flex-row-reverse justify-between items-center w-11/12 mt-6">
+
+      <div className="flex flex-col-reverse md:flex-row-reverse justify-between items-center w-11/12 mt-6">
         <p className="text-center text-sm mt-4">
-          © {year} Nazra Sunglasses. All rights reserved.
+          © {year} Nazra Sunglasses. {t("footer.rights")}
         </p>
         <img
           src="/Main-logo.jpeg"

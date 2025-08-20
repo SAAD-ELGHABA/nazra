@@ -132,7 +132,104 @@
     }
   }
 
+,
+  "luxury": {
+    "title": "Le luxe redéfini dans chaque monture",
+    "subtitle": "Création de lunettes intemporelles avec une qualité inégalée et une protection UV",
+    "exploreButton": "DÉCOUVRIR NOTRE COLLECTION"
+  }
 
+,
+  "story": {
+    "title": "À propos de notre histoire",
+    "paragraph1": "Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page. Lorem Ipsum est le texte factice standard de l'industrie depuis les années 1500, lorsqu'un imprimeur inconnu a pris une galère de caractères et les a mélangés pour en faire un livre d'échantillons.",
+    "paragraph2": "Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page. Lorem Ipsum est le texte factice standard de l'industrie depuis les années 1500, lorsqu'un imprimeur inconnu a pris une galère de caractères et les a mélangés pour en faire un livre d'échantillons."
+  }
+
+,
+  "features": {
+    "title": "CARACTÉRISTIQUES",
+    "materials": {
+      "title": "Matériaux Premium",
+      "description": "Fabriqué avec les meilleurs matériaux pour la durabilité et l'élégance."
+    },
+    "handcrafted": {
+      "title": "Qualité Artisanale",
+      "description": "Conçu avec soin et attention aux détails."
+    },
+    "uv": {
+      "title": "Protection UV",
+      "description": "Protection UV avancée pour vos yeux."
+    }
+  }
+  ,
+  "notFound": {
+    "message": "Oups ! La page que vous recherchez n'existe pas.",
+    "goBack": "Retour à l'accueil"
+  }
+,
+  "footer": {
+    "subscribeTitle": "Abonnez-vous aux mises à jour",
+    "subscribeSubtitle": "Restez élégant et informé avec nos dernières collections.",
+    "emailPlaceholder": "Votre email ici",
+    "join": "Rejoindre",
+    "privacyNotice": "Nous respectons votre vie privée et protégeons vos informations.",
+    "rights": "Tous droits réservés.",
+    "links": {
+      "quickLinks": {
+        "title": "Liens rapides",
+        "items": {
+          "aboutUs": "À propos de nous",
+          "contactUs": "Contactez-nous",
+          "shopNow": "Acheter maintenant",
+          "returnsPolicy": "Politique de retour"
+        }
+      },
+      "customerService": {
+        "title": "Service client",
+        "items": {
+          "helpCenter": "Centre d'aide",
+          "shippingInfo": "Informations sur la livraison",
+          "giftCard": "Carte cadeau",
+          "termsOfUse": "Conditions d'utilisation"
+        }
+      },
+      "followUs": {
+        "title": "Suivez-nous",
+        "items": {
+          "instagram": "Instagram",
+          "facebook": "Facebook",
+          "twitter": "Twitter",
+          "pinterest": "Pinterest"
+        }
+      },
+      "legal": {
+        "title": "Légal",
+        "items": {
+          "privacyPolicy": "Politique de confidentialité",
+          "termsAndConditions": "Conditions générales",
+          "accessibilityStatement": "Déclaration d'accessibilité"
+        }
+      },
+      "stayConnected": {
+        "title": "Restez connecté",
+        "items": {
+          "subscribeNewsletter": "Abonnez-vous à la newsletter",
+          "exclusiveOffers": "Offres exclusives",
+          "joinCommunity": "Rejoignez notre communauté",
+          "feedback": "Retour d'information"
+        }
+      },
+      "contactUs": {
+        "title": "Contactez-nous",
+        "items": {
+          "emailUs": "Envoyez-nous un email",
+          "callUs": "Appelez-nous",
+          "liveChat": "Chat en direct"
+        }
+      }
+    }
+  }
 
 
 

@@ -13,7 +13,7 @@ function ElevateSection() {
         className="w-full h-full object-cover"
       />
 
-      <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center text-center px-6 text-white">
+      <div className="absolute inset-0 bg-black/70 flex flex-col justify-center items-center text-center px-6 text-white">
         <h3
           className="font-bold text-[24px] md:text-[40px] max-w-3xl mb-4"
           style={{ lineHeight: "1.2", letterSpacing: "4px" }}
@@ -27,13 +27,13 @@ function ElevateSection() {
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
             to="/shop"
-            className="px-6 py-3 border border-white rounded transition-colors duration-300 hover:bg-black hover:text-white bg-white text-black"
+            className="px-6 py-3 border border-white rounded transition-colors duration-300  bg-white text-black text-center hover:bg-transparent hover:text-white"
           >
             {t("elevate.shop")}
           </Link>
           <Link
             to="/join"
-            className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-black hover:text-white"
+            className="px-6 py-3 border rounded transition-colors duration-300 hover:bg-white hover:text-black border-white"
           >
             {t("elevate.join")}
           </Link>

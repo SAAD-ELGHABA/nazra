@@ -30,7 +30,7 @@ function FAQs() {
       <div className="mt-12">
         <h2 className="text-xl font-semibold mb-2">{t("faqs.stillQuestions")}</h2>
         <p className="text-gray-600 mb-4">{t("faqs.helpText")}</p>
-        <Link className="border border-gray-700 px-6 py-2 rounded hover:bg-black hover:text-white transition">
+        <Link className="px-6 py-2 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black mt-2">
           {t("faqs.contact")}
         </Link>
       </div>
