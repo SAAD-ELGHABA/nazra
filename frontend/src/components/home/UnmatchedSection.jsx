@@ -20,7 +20,7 @@ function UnmatchedSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-4 w-full mt-6">
-        <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 border p-6 flex flex-col justify-between w-full">
+        <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 border p-6 flex flex-col justify-between w-full gap-2">
           <div className="flex flex-col gap-4">
             <DraftingCompass className="h-10 w-10" />
             <h2
@@ -33,7 +33,7 @@ function UnmatchedSection() {
               {t("unmatched.cards.crafted.description")}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-4 mt-4">
+          <div className="flex flex-wrap items-center gap-2 mt-4">
             <Link
               to="/shop"
               className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black"
@@ -48,7 +48,7 @@ function UnmatchedSection() {
             </Link>
           </div>
         </div>
-        <div className="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 border p-6 flex flex-col justify-between w-full">
+        <div className="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 border p-6 flex flex-col justify-between w-full gap-2">
           <div className="flex flex-col gap-4">
             <Glasses className="h-10 w-10" />
             <h2
@@ -69,7 +69,7 @@ function UnmatchedSection() {
           </Link>
         </div>
 
-        <div className="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 border p-6 flex flex-col justify-between w-full">
+        <div className="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 border p-6 flex flex-col justify-between w-full gap-2">
           <div className="flex flex-col gap-4">
             <Kanban className="h-10 w-10" />
             <h2

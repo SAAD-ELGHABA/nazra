@@ -18,13 +18,13 @@ const HeroSection = () => {
         </p>
         <div className="flex gap-4 md:self-start">
           <button
-            className="bg-black border border-white text-sm p-2 md:p-4 text-white capitalize cursor-pointer hover:bg-transparent hover:text-black hover:border-black transition-all duration-300 ease-in"
+            className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center "
             style={{ letterSpacing: "2px" }}
           >
             {t("hero.shop")}
           </button>
           <button
-            className="bg-transparent border border-black p-2 text-sm md:p-4 text-black capitalize cursor-pointer hover:bg-black hover:text-white transition-all duration-300 ease-in"
+            className="px-6 py-3 text-black  rounded transition-colors duration-300 hover:bg-black border bg-white hover:text-white text-center cursor-pointer"
             style={{ letterSpacing: "2px" }}
           >
             {t("hero.learnMore")}
