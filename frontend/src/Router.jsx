@@ -5,6 +5,7 @@ import React from "react";
 import NotFound from "./pages/NotFound";
 import AboutPage from "./pages/AboutPage";
 import StorePage from "./pages/StorePage";
+import ProductPage from "./pages/ProductPage";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -20,6 +21,10 @@ export const Router = createBrowserRouter([
       {
         path: "/store",
         element: <StorePage />,
+      },
+      {
+        path: "/product/:slug",
+        element: <ProductPage />,
       },
       {
         path: "*",

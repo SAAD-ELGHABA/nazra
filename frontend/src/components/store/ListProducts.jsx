@@ -16,23 +16,22 @@ function ListProducts({ products }) {
   const { t } = useTranslation();
   return (
     <div className="w-[90%] mx-auto my-8">
-      <h4 className="underline text-xl mb-6">
-        {t("store.allProducts")}
-      </h4>
+      <h4 className="underline text-xl mb-6">{t("store.allProducts")}</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => (
           <Link
             key={product.id}
-            className="relative rounded-lg overflow-hidden shadow hover:shadow-lg transition group"
+            className="relative rounded-lg  shadow hover:shadow-lg transition group"
+            to={`/product/${product?.slug}`}
           >
             <div className="relative">
               <img
-                src={product.image}
+                src={product?.colors[0]?.images[0]}
                 alt={product.name}
                 className="w-full h-60 object-cover"
               />
 
-              <div className="absolute top-0 right-0 flex gap-2 opacity-0 group-hover:opacity-100 transition w-full bg-black/50 h-full transation-all  items-center justify-center duration-300">
+              <div className="absolute top-0 right-0 flex gap-2 opacity-0 group-hover:opacity-100 transition w-full bg-black/50 h-full transation-all  items-center justify-center duration-300 ">
                 <button className="p-1 bg-black/50 text-white rounded-full shadow hover:bg-black/70">
                   <Heart size={26} />
                 </button>
@@ -45,12 +44,12 @@ function ListProducts({ products }) {
                 MAD {product.sale_price}
               </p>
             </div>
-            <div className="flex flex-col gap-2 w-full mt-2 p-2">
+            <div className="flex flex-col gap-2 w-full mt-2">
               <div className="flex items-center justify-between">
                 <h5 className="font-semibold">{product.name}</h5>
                 <div className="flex items-center gap-1">
                   {product?.rating}
-                    <Star size={12} className="fill-black" />
+                  <Star size={12} className="fill-black" />
                 </div>
               </div>
               <button className="w-full py-2 text-sm text-black rounded transition-colors duration-300 hover:bg-black border bg-white hover:text-white text-center cursor-pointer">

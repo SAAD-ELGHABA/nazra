@@ -23,7 +23,7 @@ function StorePage() {
             {t("store.description")}
         </p>
       </div>
-      <TrendingProducts products={products?.slice(29, 39)} />
+      <TrendingProducts products={products?.slice(products?.length-10,products?.length-1)} />
       <ListProducts products={products} />
     </div>
   );
