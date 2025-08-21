@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import LoginPage from "./pages/Login";
 
 
+import ProductPage from "./pages/ProductPage";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -30,6 +31,14 @@ export const Router = createBrowserRouter([
       {
         path: "/store",
         element: <StorePage />,
+      },
+      {
+        path: "/product/:slug",
+        element: <ProductPage />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
     ],
   },
