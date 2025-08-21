@@ -239,7 +239,10 @@
     "addToCart": "Add to Cart",
     "outOfStock": "Out of Stock"
   }
-
+,
+"product":{
+  "note":"Enjoy free shipping! Your item will arrive in 24–48 hours."
+}
 
 
 }

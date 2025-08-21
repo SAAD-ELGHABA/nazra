@@ -3,6 +3,8 @@ import ProductPreview from "../components/ProductDetails/ProductPreview";
 import { useParams } from "react-router-dom";
 import products from "../assets/products.json";
 import ProductInfo from "../components/ProductDetails/ProductInfo";
+import { useTranslation } from "react-i18next";
+import { BadgeCheck } from "lucide-react";
 function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -21,8 +23,15 @@ function ProductPage() {
     };
     getProduct();
   }, []);
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen">
+      <div className="flex items-center gap-2 justify-center w-full py-2 bg-black">
+        <BadgeCheck className="text-white h-4 w-4" />
+        <h1 className="text-white text-xs md:text-sm text-center">
+          {t("product.note")}
+        </h1>
+      </div>
       <div className="py-4 px-4 flex flex-col md:flex-row ">
         <div className="flex flex-col md:flex-row items-start justify-center  md:w-2/3 w-full">
           <ProductPreview product={product} selectedColor={selectedColor} />

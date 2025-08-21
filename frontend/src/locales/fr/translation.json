@@ -242,7 +242,10 @@
   "addToCart": "Ajouter au Panier",
   "outOfStock": "Rupture de Stock"
 }
-
+,
+"product":{
+  "note":"Livraison gratuite en 24-48h !."
+}
 
 
 }

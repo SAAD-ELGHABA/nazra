@@ -9,3 +9,70 @@
   -ms-overflow-style: none; 
   scrollbar-width: none;   
 }
+
+
+.slider-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 25s linear infinite;
+}
+
+.slider-item {
+  flex: 0 0 auto;
+  min-width: 150px;   /* phones */
+  margin-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .slider-item {
+    min-width: 200px; /* small tablets */
+  }
+}
+
+@media (min-width: 768px) {
+  .slider-item {
+    min-width: 250px; /* tablets */
+  }
+}
+
+@media (min-width: 1024px) {
+  .slider-item {
+    min-width: 280px; /* desktops */
+  }
+}
+
+/* Infinite scroll keyframes */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Fade edges */
+.fade-left,
+.fade-right {
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.fade-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.fade-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.7), transparent);
+}

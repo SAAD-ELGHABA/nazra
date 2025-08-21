@@ -31,7 +31,7 @@ function ProductPreview({ product, selectedColor }) {
                 <img
                 src={image}
                 alt={product?.name}
-                loading="lazy"
+                loading="eager"
                 className={`w-full h-full object-cover rounded border-2 cursor-pointer
                 ${selectedImage === image ? "border-black" : "border-transparent"}
                 hover:border-black
