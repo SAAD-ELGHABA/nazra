@@ -8,7 +8,7 @@ function TrendingProducts({ products }) {
 
   return (
     <div className="my-8 w-full overflow-hidden">
-      <h4 className="underline text-xl mb-4">
+      <h4 className="underline text-sm mb-4">
         {t("store.trendingProducts")}
       </h4>
 

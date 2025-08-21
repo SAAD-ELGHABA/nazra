@@ -1,11 +1,20 @@
 import { Glasses, Heart, Star } from "lucide-react";
 import React, { useState } from "react";
+import { useFavorites } from "../../context/FavoritesContext";
 
 function ProductInfo({ product, selectedColor, setSelectedColor }) {
   const [quantity, setQuantity] = useState(1);
-
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   const increment = () => setQuantity((prev) => prev + 1);
   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const toggleFavorite = (e) => {
+    e.preventDefault();
+    if (isFavorite(product?.id)) {
+      removeFavorite(product?.id);
+    } else {
+      addFavorite(product);
+    }
+  };
   return (
     <div className="md:h-[80vh] flex flex-col justify-between relative p-2 md:p-4">
       <div className="w-full max-w-2xl mx-auto flex-1">
@@ -16,8 +25,19 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           >
             {product?.name}
           </h1>
-          <button>
-            <Heart className="hover:fill-black cursor-pointer" />
+          <button onClick={toggleFavorite} className="p-1 rounded-full">
+            <Heart
+              size={26}
+              className={`
+          cursor-pointer 
+          transition-colors duration-300
+          ${
+            isFavorite(product?.id)
+              ? "fill-black"
+              : "fill-transparent hover:fill-black"
+          }
+        `}
+            />
           </button>
         </div>
 
@@ -92,7 +112,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
 
         <div className="md:absolute sticky bottom-0 bg-white p-4 border-t flex items-center justify-between w-full">
           <p
-            className="font-bold text-[18px] w-1/2 text-center md:text-left md:text-[26px]"
+            className="font-bold text-[18px] w-1/2 text-center md:text-left md:text-[22px]"
             style={{ lineHeight: "1.2" }}
           >
             MAD {product?.sale_price}

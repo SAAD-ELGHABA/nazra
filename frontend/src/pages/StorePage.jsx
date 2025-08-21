@@ -16,7 +16,7 @@ function StorePage() {
     <div className="min-h-screen flex flex-col py-10 px-4">
       <div className="w-full flex flex-col items-center justify-center gap-5">
         <h1
-          className="font-bold text-[32px] text-center md:text-left md:text-[56px]"
+          className="font-bold text-[16px] text-center md:text-left md:text-[36px]"
           style={{ lineHeight: "1.2", letterSpacing: "4px" }}
         >
           {t("store.title")}

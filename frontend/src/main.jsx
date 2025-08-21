@@ -4,9 +4,12 @@ import "./index.css";
 import App from "./App.jsx";
 import React from "react";
 import "./i18n";
+import { FavoritesProvider } from "./context/FavoritesContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <FavoritesProvider>
+      <App />
+    </FavoritesProvider>
   </StrictMode>
 );

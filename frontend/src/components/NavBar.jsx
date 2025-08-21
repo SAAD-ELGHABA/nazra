@@ -3,14 +3,13 @@ import { Link } from "react-router-dom";
 import { Heart, ChevronDown, Menu, X, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useFavorites } from "../context/FavoritesContext";
+import CardModal from "./CardModal";
+import CollectionDropdown from "./CollectionDropdown";
 
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
-
-  const handleClickCart = () => {
-    console.log("i clicked");
-  };
 
   const handleClickHeart = () => {
     console.log("handle click");
@@ -19,7 +18,8 @@ const NavBar = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
-
+  const { favorites } = useFavorites();
+  const [toggleCart, setToggleCart] = useState(false);
   return (
     <header className="h-[60px] w-full flex items-center justify-between px-4 md:px-6 bg-white shadow-md sticky top-0 z-50">
       <Link className="overflow-hidden h-full">
@@ -48,26 +48,31 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <Link
-              to={"#"}
-              className="flex items-center gap-1 hover:text-gray-600"
-            >
-              {t("navbar.collection")} <ChevronDown size={16} />
-            </Link>
+            <CollectionDropdown />
           </li>
         </ul>
 
         <div className="flex items-center gap-4">
-          <Link>
+          <Link className="relative" to={"/favorites"}>
             <Heart
               className="cursor-pointer hover:fill-black"
               color="black"
               onClick={handleClickHeart}
             />
+            {favorites.length > 0 && (
+              <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
+                {favorites.length}
+              </span>
+            )}
           </Link>
-          <Link onClick={handleClickCart}>
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              setToggleCart(!toggleCart);
+            }}
+          >
             <ShoppingCart className="hover:fill-black" />
-          </Link>
+          </button>
 
           <LanguageSwitcher />
         </div>
@@ -129,8 +134,8 @@ const NavBar = () => {
             <button
               className="bg-black text-white px-4 py-2 shadow-sm hover:text-black border border-black hover:bg-transparent transition-colors duration-300 flex-1"
               onClick={() => {
-                handleClickCart();
                 toggleMobileMenu();
+                setToggleCart(!toggleCart);
               }}
             >
               {t("navbar.cart")}
@@ -139,6 +144,12 @@ const NavBar = () => {
 
           <LanguageSwitcher />
         </div>
+      )}
+
+      {toggleCart && (
+        <CardModal isOpen={toggleCart} onClose={() => setToggleCart(false)}>
+          <p>This is the content of your card modal.</p>
+        </CardModal>
       )}
     </header>
   );

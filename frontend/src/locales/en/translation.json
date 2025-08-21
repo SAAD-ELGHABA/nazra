@@ -3,7 +3,9 @@
     "home": "Home Page",
     "shop": "Shop Now",
     "about": "About Us",
-    "collection": "Collection",
+        "collection": "Collection",
+    "eyeglasses": "Eyeglasses",
+    "sunglasses": "Sunglasses",
     "cart": "Cart",
     "wishlist": "Wishlist"
   },

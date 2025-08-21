@@ -5,6 +5,7 @@ import products from "../assets/products.json";
 import ProductInfo from "../components/ProductDetails/ProductInfo";
 import { useTranslation } from "react-i18next";
 import { BadgeCheck } from "lucide-react";
+import Suggestions from "../components/ProductDetails/Suggestions";
 function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -22,7 +23,7 @@ function ProductPage() {
       }
     };
     getProduct();
-  }, []);
+  }, [slug]);
   const { t } = useTranslation();
   return (
     <div className="min-h-screen">
@@ -40,6 +41,15 @@ function ProductPage() {
           product={product}
           selectedColor={selectedColor}
           setSelectedColor={setSelectedColor}
+        />
+      </div>
+      <div>
+        <Suggestions
+          products={products
+            ?.filter(
+              (p) => p.type === product?.type && p.slug !== product?.slug
+            )
+            ?.slice(0, 4)}
         />
       </div>
     </div>

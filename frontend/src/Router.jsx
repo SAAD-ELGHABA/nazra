@@ -16,6 +16,7 @@ import LoginPage from "./pages/Login";
 
 
 import ProductPage from "./pages/ProductPage";
+import Favorites from "./pages/Favorites";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -35,6 +36,10 @@ export const Router = createBrowserRouter([
       {
         path: "/product/:slug",
         element: <ProductPage />,
+      },
+      {
+        path: "/favorites",
+        element: <Favorites />,
       },
       {
         path: "*",

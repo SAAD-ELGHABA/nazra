@@ -3,7 +3,9 @@
     "home": "Page d'accueil",
     "shop": "Acheter maintenant",
     "about": "À propos de nous",
-    "collection": "Collection",
+        "collection": "Collection",
+    "eyeglasses": "Lunettes de vue",
+    "sunglasses": "Lunettes de soleil",
     "cart": "Panier",
     "wishlist": "Liste de souhaits"
   },

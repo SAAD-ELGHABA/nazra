@@ -1,26 +1,23 @@
-import React, { useState } from "react";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import { useFavorites } from "../../context/FavoritesContext";
-function ListProducts({ products }) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 8;
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-  const totalPages = Math.ceil(products.length / productsPerPage);
-  const { t } = useTranslation();
+function Suggestions({ products }) {
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+
   return (
-    <div className="w-[90%] mx-auto my-8">
-      <h4 className="underline text-sm mb-6">{t("store.allProducts")}</h4>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {currentProducts.map((product) => (
+    <div className="my-20 px-4 mx-auto">
+      <div>
+        <h2
+          className="font-bold text-[18px] text-center md:text-left md:text-[30px]"
+          style={{ lineHeight: "1.2", letterSpacing: "4px" }}
+        >
+          You might also like
+        </h2>
+      </div>
+      <div className="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        {products.map((product) => (
           <Link
             key={product.id}
             className="relative rounded-lg  shadow hover:shadow-lg transition group"
@@ -35,9 +32,9 @@ function ListProducts({ products }) {
 
               <div
                 className="absolute top-0 right-0 flex gap-2 w-full h-full p-3 items-start justify-end 
-                lg:bg-black/50 lg:p-0 lg:items-center lg:justify-center 
-                opacity-100 lg:opacity-0 lg:group-hover:opacity-100 
-                transition-all duration-300"
+                              lg:bg-black/50 lg:p-0 lg:items-center lg:justify-center 
+                              opacity-100 lg:opacity-0 lg:group-hover:opacity-100 
+                              transition-all duration-300"
               >
                 <button
                   className={`p-1 ${
@@ -83,24 +80,8 @@ function ListProducts({ products }) {
           </Link>
         ))}
       </div>
-
-      <div className="flex justify-center mt-6 gap-2">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-          <button
-            key={number}
-            onClick={() => setCurrentPage(number)}
-            className={`px-4 py-2 border rounded ${
-              currentPage === number
-                ? "bg-black text-white"
-                : "bg-white text-black hover:bg-gray-200"
-            }`}
-          >
-            {number}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
 
-export default ListProducts;
+export default Suggestions;
