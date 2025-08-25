@@ -3,7 +3,6 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
-  // Load favorites from localStorage or default to empty array
   const [favorites, setFavorites] = useState(() => {
     try {
       const stored = localStorage.getItem("favorites");
@@ -14,7 +13,6 @@ export const FavoritesProvider = ({ children }) => {
     }
   });
 
-  // Save favorites to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
@@ -43,6 +41,5 @@ export const FavoritesProvider = ({ children }) => {
   );
 };
 
-// Custom hook
 // eslint-disable-next-line react-refresh/only-export-components
 export const useFavorites = () => useContext(FavoritesContext);

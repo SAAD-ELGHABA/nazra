@@ -245,6 +245,33 @@
 "product":{
   "note":"Enjoy free shipping! Your item will arrive in 24–48 hours."
 }
-
+,
+"cart":{
+  "yourCart": "Your Cart",
+  "addToBag": "Add to Bag",
+  "empty": "Your cart is currently empty.",
+  "total": "Total",
+  "checkout": "Checkout",
+  "continueShopping": "Continue Shopping",
+  "remove": "Remove",
+  "quantity": "Quantity",
+  "item": "Item",
+  "price": "Price",
+  "subtotal": "Subtotal",
+  "update": "Update",
+  "cartUpdated": "Cart updated successfully!",
+  "removeItem": "Item removed from cart.",
+  "addItem": "Item added to cart."
+}
+,
+  "checkout": {
+    "title": "Checkout",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Telephone",
+    "address": "Address",
+    "submit": "Place Order",
+    "formSubmitted": "Your order has been submitted!"
+  }
 
 }

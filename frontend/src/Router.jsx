@@ -17,6 +17,7 @@ import LoginPage from "./pages/Login";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
+import CheckoutCard from "./pages/CheckoutCard";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -40,6 +41,10 @@ export const Router = createBrowserRouter([
       {
         path: "/favorites",
         element: <Favorites />,
+      },
+      {
+        path: "/checkout-card",
+        element: <CheckoutCard />,
       },
       {
         path: "*",

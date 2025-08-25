@@ -1,7 +1,9 @@
 import { Glasses, Heart, Star } from "lucide-react";
 import React, { useState } from "react";
 import { useFavorites } from "../../context/FavoritesContext";
-
+import { useCard } from "../../context/CardContext";
+import {toast} from "sonner"
+import { useTranslation } from "react-i18next";
 function ProductInfo({ product, selectedColor, setSelectedColor }) {
   const [quantity, setQuantity] = useState(1);
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
@@ -14,6 +16,19 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
     } else {
       addFavorite(product);
     }
+  };
+  const {t} = useTranslation()
+  const { addToCard } = useCard();
+  const AddItemToCard = (product) => {
+    const choosedItem = {
+      ...product,
+      colors: selectedColor ? [selectedColor] : [product.colors[0]],
+      quantiy: quantity,
+    };
+    addToCard(choosedItem);
+    toast.success(
+      t("cart.addItem"),
+    );
   };
   return (
     <div className="md:h-[80vh] flex flex-col justify-between relative p-2 md:p-4">
@@ -54,7 +69,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
               </div>
               <div className="flex items-center gap-2 mb-4">
                 {product.colors.map((color) => (
-                  <div
+                  <button
                     key={color.name}
                     style={{ backgroundColor: color.hex }}
                     className={`
@@ -67,7 +82,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
                   hover:border-black transition-colors duration-300
                 `}
                     onClick={() => setSelectedColor(color)}
-                  ></div>
+                  ></button>
                 ))}
               </div>
             </div>
@@ -117,7 +132,13 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           >
             MAD {product?.sale_price}
           </p>
-          <button className="py-2 text-sm text-white bg-black rounded transition-colors duration-300 hover:bg-transparent border hover:text-black w-1/2">
+          <button
+            className="py-2 text-sm text-white bg-black rounded transition-colors duration-300 hover:bg-transparent border hover:text-black w-1/2"
+            onClick={(e) => {
+              e.preventDefault();
+              AddItemToCard(product);
+            }}
+          >
             Add To Bag
           </button>
         </div>

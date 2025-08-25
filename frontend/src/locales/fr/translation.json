@@ -248,6 +248,34 @@
 "product":{
   "note":"Livraison gratuite en 24-48h !."
 }
+,
+"cart": {
+  "yourCart": "Votre Panier",
+  "addToBag": "Ajouter au Sac",
+  "empty": "Votre panier est actuellement vide.",
+  "total": "Total",
+  "checkout": "Commander",
+  "continueShopping": "Continuer vos achats",
+  "remove": "Supprimer",
+  "quantity": "Quantité",
+  "item": "Article",
+  "price": "Prix",
+  "subtotal": "Sous-total",
+  "update": "Mettre à jour",
+  "cartUpdated": "Panier mis à jour avec succès !",
+  "removeItem": "Article supprimé du panier.",
+  "addItem": "Article ajouté au panier."
+}
+,
+  "checkout": {
+    "title": "Paiement",
+    "fullName": "Nom complet",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "submit": "Passer la commande",
+    "formSubmitted": "Votre commande a été envoyée !"
+  }
 
 
 }

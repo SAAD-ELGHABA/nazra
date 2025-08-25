@@ -8,7 +8,7 @@ const CollectionDropdown = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <li className="relative">
+    <div className="relative">  {/* changed from <li> to <div> */}
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors font-medium"
@@ -19,7 +19,11 @@ const CollectionDropdown = () => {
       <div
         className={`absolute top-full left-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50
                     transition-all duration-200 transform origin-top 
-                    ${open ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+                    ${
+                      open
+                        ? "scale-100 opacity-100"
+                        : "scale-95 opacity-0 pointer-events-none"
+                    }`}
       >
         <ul className="py-1">
           <li>
@@ -47,7 +51,7 @@ const CollectionDropdown = () => {
           onClick={() => setOpen(false)}
         ></div>
       )}
-    </li>
+    </div>
   );
 };
 
