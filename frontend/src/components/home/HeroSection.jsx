@@ -34,6 +34,7 @@ const HeroSection = () => {
       <img
         src="/hero-section-img-2_LE_upscale_ultra_x4_strength_100_similarity_100_remove_background_general_clip_to_object_off.png"
         alt="Hero-Section"
+        loading="lazy"
         className="w-full h-screen object-cover"
       />
     </div>

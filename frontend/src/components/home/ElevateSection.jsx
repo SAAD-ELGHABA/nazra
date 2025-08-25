@@ -10,6 +10,8 @@ function ElevateSection() {
       <img
         src="/elevate-section-img.png"
         alt="Elevate Section"
+          loading="lazy"
+
         className="w-full h-full object-cover"
       />
 

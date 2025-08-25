@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFavorites } from "../context/FavoritesContext";
 import { CircleMinus, HeartOff } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -16,6 +16,11 @@ function Favorites() {
     addToCard(choosedItem);
     toast.success(t("cart.addItem"));
   };
+  useEffect(() => {
+    document.title = "Store - Nazra";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // here the promise ...
+  }, []);
   if (favorites.length === 0) {
     return (
       <div className="min-h-screen flex gap-4 flex-col items-center justify-center  text-lg">

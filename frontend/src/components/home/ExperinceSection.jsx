@@ -30,6 +30,8 @@ function ExperinceSection() {
         <img
           src="/experience-section.png"
           alt="exp-section-img"
+          loading="lazy"
+
           className="w-full object-cover"
         />
       </div>
