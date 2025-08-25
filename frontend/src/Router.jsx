@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Layout from "./Layout";
 import React from "react";
@@ -17,6 +17,20 @@ import LoginPage from "./pages/Login";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
+
+const ProtectedRoutes = ({children}) => {
+  const localToken = localStorage.getItem("User_Data_token")
+  const localUserData = localStorage.getItem("User_Data")
+  if (!localToken) {
+    if(localUserData) {
+      localStorage.removeItem("User_Data")
+    } 
+    return <Navigate to={'/login'} replace={true} />
+
+  }
+  return children
+}
+
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -48,7 +62,11 @@ export const Router = createBrowserRouter([
     ],
   },
   {
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoutes>
+        <DashboardLayout />,
+      </ProtectedRoutes>
+    ),
     children: [
       {
         path: "/dashboard",

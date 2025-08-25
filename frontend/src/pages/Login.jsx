@@ -1,16 +1,27 @@
 import React, { useState } from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 
 export default function LoginPage() {
-    const [data,setData] = useState({
-        email:'',
-        password:''
+    const [dataUser,setDataUser] = useState({
+        // name:'',
+        email:'adil.nmili19@gmail.com',
+        password:'password123456'
     })
     const [error, setError] = useState('')
 
-    const handleSubmit = (e) => {
+    const navigate = useNavigate()
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log(data)
+       const response = await axios.post("http://localhost:5000/api/auth/login",dataUser)
+       if (response.status === 200){
+        localStorage.setItem('User_Data',JSON.stringify(response.data))
+        // localStorage.setItem('User_Data_token',JSON.stringify(response.data.token))
+        localStorage.setItem('User_Data_token', response.data.token);
+        navigate('/dashboard')
+       }
     }
 
 
@@ -30,13 +41,26 @@ export default function LoginPage() {
         {/* Form */}
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
+          {/* <div>
+            <label className="block text-sm font-medium text-black mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={dataUser.name}
+              onChange={e => setData({...data,name:e.target.value})}
+              placeholder="Enter your Name"
+              className="w-full px-4 py-2 border border-black/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
+            />
+          </div> */}
           <div>
             <label className="block text-sm font-medium text-black mb-1">
               Email
             </label>
             <input
               type="email"
-              onChange={e => setData({...data,email:e.target.value})}
+              value={dataUser.email}
+              onChange={e => setDataUser({...dataUser,email:e.target.value})}
               placeholder="Enter your email"
               className="w-full px-4 py-2 border border-black/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
             />
@@ -49,7 +73,8 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
-              onChange={e => setData({...data,password:e.target.value})}
+              value={dataUser.password}
+              onChange={e => setDataUser({...dataUser,password:e.target.value})}
               placeholder="Enter your password"
               className="w-full px-4 py-2 border border-black/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-black placeholder-gray-400"
             />

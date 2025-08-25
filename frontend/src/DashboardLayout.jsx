@@ -1,7 +1,10 @@
 import React from 'react'
+import { useEffect } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 const DashboardLayout = () => {
+    const navigate = useNavigate()
+
     const year = new Date().getFullYear()
     const currentPath = (url) => {
         return useLocation().pathname === url ? 'border-b-2 ' : 'text-black';
@@ -10,7 +13,7 @@ const DashboardLayout = () => {
     const handleLogOut = () => {
         localStorage.removeItem('token');
         console.log('Logged out successfully');
-        useNavigate('/login'); // Redirect to login page after logout
+        navigate('/login'); // Redirect to login page after logout
     }
 
   return (
