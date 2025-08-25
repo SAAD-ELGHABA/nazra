@@ -29,7 +29,7 @@ function CardModal({ isOpen, onClose }) {
 
         <div className="flex-1 overflow-y-auto">
           {cardItems.length === 0 ? (
-            <p className="p-4 text-center">{t("cart.emptyCart")}</p>
+            <p className="p-4 text-center">{t("cart.empty")}</p>
           ) : (
             <ul className="p-4 space-y-4">
               {cardItems.map((item) => (
