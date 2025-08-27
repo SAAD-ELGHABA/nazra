@@ -35,8 +35,13 @@ export const CardProvider = ({ children }) => {
   const isInCard = (id) => {
     return cardItems.some((item) => item.id === id);
   };
-  const removeFromCard = (id) => {
-    setCardItems((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCard = (id, color) => {
+
+    setCardItems((prev) =>
+      prev.filter(
+        (item) => !(item.id === id && item?.colors[0]?.name === color)
+      )
+    );
   };
 
   const updateQuantity = (id, quantity) => {
@@ -49,7 +54,7 @@ export const CardProvider = ({ children }) => {
 
   return (
     <CardContext.Provider
-      value={{ cardItems, addToCard, removeFromCard, updateQuantity , isInCard}}
+      value={{ cardItems, addToCard, removeFromCard, updateQuantity, isInCard }}
     >
       {children}
     </CardContext.Provider>

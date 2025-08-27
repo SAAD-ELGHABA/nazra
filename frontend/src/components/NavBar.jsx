@@ -82,7 +82,12 @@ const NavBar = () => {
       </button>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-[60px] left-0 right-0 bg-white shadow-lg py-4 px-6 z-40">
+        <div
+          className={`
+        md:hidden absolute top-[60px] left-0 right-0 bg-white shadow-lg py-4 px-6 z-40 mobile-menu
+        ${isMobileMenuOpen ? "open" : ""}
+        `}
+        >
           <ul className="flex flex-col gap-4">
             <li>
               <Link
@@ -112,13 +117,7 @@ const NavBar = () => {
               </Link>
             </li>
             <li>
-              <Link
-                to={"#"}
-                className="flex items-center gap-1 py-2 hover:text-gray-600"
-                onClick={toggleMobileMenu}
-              >
-                {t("navbar.collection")} <ChevronDown size={16} />
-              </Link>
+              <CollectionDropdown />
             </li>
           </ul>
           <div className="flex items-center gap-4 mt-4 pt-4 border-t">
@@ -148,8 +147,8 @@ const NavBar = () => {
               )}
             </button>
           </div>
-
           <LanguageSwitcher />
+
         </div>
       )}
 

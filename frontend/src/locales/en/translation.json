@@ -273,5 +273,153 @@
     "submit": "Place Order",
     "formSubmitted": "Your order has been submitted!"
   }
+,
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We’d love to hear from you. Reach out anytime!",
+    "address": "Marrakech, Morocco",
+    "phone": "+212 600 000 000",
+    "email": "nazraglasses@gmail.com",
+    "suggestions": "Have suggestions? Let us know!",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your Name",
+      "email": "Email",
+      "emailPlaceholder": "Your Email",
+      "message": "Message",
+      "messagePlaceholder": "Write your message...",
+      "submit": "Send Message"
+    }
+  }
+  ,
+    "returnsPolicy": {
+    "title": "Returns Policy",
+    "intro": "We want you to be completely satisfied with your purchase. Please review our returns policy below.",
+    "sections": [
+      {
+        "heading": "Eligibility",
+        "content": "Products must be returned within 14 days of delivery in original condition."
+      },
+      {
+        "heading": "Return Process",
+        "content": "To initiate a return, contact our support team via email or phone."
+      },
+      {
+        "heading": "Refunds",
+        "content": "Refunds will be processed to your original payment method within 5 business days after we receive the returned product."
+      },
+      {
+        "heading": "Exclusions",
+        "content": "Certain items, like personalized products, are not eligible for returns."
+      }
+    ],
+    "contactTitle": "Contact for Returns",
+    "contactEmail": "Email",
+    "contactPhone": "Phone"
+  }
+  ,
+  "shippingInfo": {
+    "title": "Shipping Information",
+    "intro": "We are committed to delivering your order safely and on time. Please read our shipping details below.",
+    "sections": [
+      {
+        "heading": "Processing Time",
+        "content": "Orders are processed within 1-2 business days before shipment."
+      },
+      {
+        "heading": "Shipping Methods",
+        "content": "We use standard and express shipping options. Costs vary depending on location and weight."
+      },
+      {
+        "heading": "Delivery Time",
+        "content": "Standard shipping takes 1-2 business days. Express shipping takes 1 business days."
+      },
+      {
+        "heading": "International Shipping",
+        "content": "We ship worldwide. Customs fees may apply depending on the destination country."
+      }
+    ],
+    "contactTitle": "Contact for Shipping",
+    "contactEmail": "Email",
+    "contactPhone": "Phone"
+  }
+  ,
+  "termsOfUse": {
+    "title": "Terms of Use",
+    "intro": "Please read these terms carefully before using our website. Your access constitutes acceptance of these terms.",
+    "sections": [
+      {
+        "heading": "Acceptance of Terms",
+        "content": "By accessing our website, you agree to abide by these terms and all applicable laws."
+      },
+      {
+        "heading": "User Responsibilities",
+        "content": "You are responsible for your actions while using the site, including providing accurate information."
+      },
+      {
+        "heading": "Intellectual Property",
+        "content": "All content on this site is owned by us and protected by copyright laws."
+      },
+      {
+        "heading": "Limitation of Liability",
+        "content": "We are not liable for any damages resulting from the use of this website."
+      }
+    ],
+    "contactTitle": "Contact for Terms Questions",
+    "contactEmail": "Email",
+    "contactPhone": "Phone"
+  }
+  ,
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "intro": "Your privacy is important to us. Please read this policy to understand how we handle your information.",
+    "sections": [
+      {
+        "heading": "Information Collection",
+        "content": "We collect information you provide directly, such as your name, email, and messages."
+      },
+      {
+        "heading": "Use of Information",
+        "content": "Collected information is used to respond to inquiries and improve our services."
+      },
+      {
+        "heading": "Data Security",
+        "content": "We implement security measures to protect your information from unauthorized access."
+      },
+      {
+        "heading": "Third-Party Sharing",
+        "content": "We do not share personal information with third parties except when necessary for services."
+      }
+    ],
+    "contactTitle": "Contact for Privacy Questions",
+    "contactEmail": "Email",
+    "contactPhone": "Phone"
+  }
+  ,
+  "termsAndConditions": {
+    "title": "Terms and Conditions",
+    "intro": "By using our website, you agree to comply with these terms. Please read them carefully.",
+    "sections": [
+      {
+        "heading": "Use of Website",
+        "content": "You may use our website only for lawful purposes and in accordance with these terms."
+      },
+      {
+        "heading": "Intellectual Property",
+        "content": "All content, graphics, and design elements on this site are owned by us and protected by law."
+      },
+      {
+        "heading": "Limitation of Liability",
+        "content": "We are not responsible for any damages or losses arising from the use of this website."
+      },
+      {
+        "heading": "Modifications",
+        "content": "We may modify these terms at any time. Continued use of the website indicates acceptance of changes."
+      }
+    ],
+    "contactTitle": "Contact for Terms Questions",
+    "contactEmail": "Email",
+    "contactPhone": "Phone"
+  }
 
 }

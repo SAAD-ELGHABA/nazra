@@ -85,7 +85,7 @@ function CardModal({ isOpen, onClose }) {
                           {item?.colors[0]?.name}
                         </span>
                         <button
-                          onClick={() => removeFromCard(item?.id)}
+                          onClick={() => removeFromCard(item?.id,item?.colors[0]?.name)}
                           className="text-xs text-red-500 hover:underline mt-1"
                         >
                           {t("cart.remove")}

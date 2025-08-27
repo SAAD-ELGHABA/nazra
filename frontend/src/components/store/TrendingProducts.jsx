@@ -1,14 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-// import "./TrendingProducts.css"; // 👈 import custom CSS
 
 function TrendingProducts({ products }) {
   const { t } = useTranslation();
 
   return (
     <div className="my-8 w-full overflow-hidden">
-      <h4 className="underline text-sm mb-4">
+      <h4 className="underline text-sm mb-4 ms-4">
         {t("store.trendingProducts")}
       </h4>
 
@@ -36,9 +35,7 @@ function TrendingProducts({ products }) {
           ))}
         </div>
 
-        {/* left gradient */}
         <div className="fade-left"></div>
-        {/* right gradient */}
         <div className="fade-right"></div>
       </div>
     </div>

@@ -276,6 +276,153 @@
     "submit": "Passer la commande",
     "formSubmitted": "Votre commande a été envoyée !"
   }
-
+,
+"contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Nous serions ravis de vous entendre. Contactez-nous à tout moment !",
+    "address": "Marrakech, Maroc",
+    "phone": "+212 600 000 000",
+    "email": "nazraglasses@gmail.com",
+    "suggestions": "Des suggestions ? Faites-le nous savoir !",
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Votre nom",
+      "email": "Email",
+      "emailPlaceholder": "Votre email",
+      "message": "Message",
+      "messagePlaceholder": "Écrivez votre message...",
+      "submit": "Envoyer"
+    }
+  }
+  ,
+  "returnsPolicy": {
+    "title": "Politique de retour",
+    "intro": "Nous voulons que vous soyez entièrement satisfait de votre achat. Veuillez consulter notre politique de retour ci-dessous.",
+    "sections": [
+      {
+        "heading": "Éligibilité",
+        "content": "Les produits doivent être retournés dans les 14 jours suivant la livraison en état d'origine."
+      },
+      {
+        "heading": "Processus de retour",
+        "content": "Pour initier un retour, contactez notre équipe d'assistance par email ou par téléphone."
+      },
+      {
+        "heading": "Remboursements",
+        "content": "Les remboursements seront traités sur votre mode de paiement initial dans les 5 jours ouvrables après réception du produit retourné."
+      },
+      {
+        "heading": "Exclusions",
+        "content": "Certains articles, comme les produits personnalisés, ne sont pas éligibles au retour."
+      }
+    ],
+    "contactTitle": "Contact pour les retours",
+    "contactEmail": "Email",
+    "contactPhone": "Téléphone"
+  }
+  ,
+  "shippingInfo": {
+    "title": "Informations sur la livraison",
+    "intro": "Nous nous engageons à livrer votre commande en toute sécurité et à temps. Veuillez lire nos détails de livraison ci-dessous.",
+    "sections": [
+      {
+        "heading": "Temps de traitement",
+        "content": "Les commandes sont traitées sous 1 à 2 jours ouvrables avant l'expédition."
+      },
+      {
+        "heading": "Méthodes d'expédition",
+        "content": "Nous utilisons des options d'expédition standard et express. Les coûts varient selon l'emplacement et le poids."
+      },
+      {
+        "heading": "Délai de livraison",
+        "content": "La livraison standard prend 1 à 2 jours ouvrables. La livraison express prend 1 jours ouvrables."
+      },
+      {
+        "heading": "Livraison internationale",
+        "content": "Nous expédions dans le monde entier. Des frais de douane peuvent s'appliquer selon le pays de destination."
+      }
+    ],
+    "contactTitle": "Contact pour la livraison",
+    "contactEmail": "Email",
+    "contactPhone": "Téléphone"
+  }
+  ,
+  "termsOfUse": {
+    "title": "Conditions d'utilisation",
+    "intro": "Veuillez lire attentivement ces conditions avant d'utiliser notre site. Votre accès constitue l'acceptation de ces conditions.",
+    "sections": [
+      {
+        "heading": "Acceptation des conditions",
+        "content": "En accédant à notre site, vous acceptez de respecter ces conditions et toutes les lois applicables."
+      },
+      {
+        "heading": "Responsabilités de l'utilisateur",
+        "content": "Vous êtes responsable de vos actions lors de l'utilisation du site, y compris de la fourniture d'informations exactes."
+      },
+      {
+        "heading": "Propriété intellectuelle",
+        "content": "Tout le contenu de ce site nous appartient et est protégé par les lois sur le droit d'auteur."
+      },
+      {
+        "heading": "Limitation de responsabilité",
+        "content": "Nous ne sommes pas responsables des dommages résultant de l'utilisation de ce site."
+      }
+    ],
+    "contactTitle": "Contact pour questions sur les conditions",
+    "contactEmail": "Email",
+    "contactPhone": "Téléphone"
+  }
+  ,
+  "privacyPolicy": {
+    "title": "Politique de confidentialité",
+    "intro": "Votre vie privée est importante pour nous. Veuillez lire cette politique pour comprendre comment nous traitons vos informations.",
+    "sections": [
+      {
+        "heading": "Collecte d'informations",
+        "content": "Nous collectons les informations que vous fournissez directement, telles que votre nom, email et messages."
+      },
+      {
+        "heading": "Utilisation des informations",
+        "content": "Les informations collectées sont utilisées pour répondre aux demandes et améliorer nos services."
+      },
+      {
+        "heading": "Sécurité des données",
+        "content": "Nous mettons en place des mesures de sécurité pour protéger vos informations contre tout accès non autorisé."
+      },
+      {
+        "heading": "Partage avec des tiers",
+        "content": "Nous ne partageons pas vos informations personnelles avec des tiers sauf si nécessaire pour fournir nos services."
+      }
+    ],
+    "contactTitle": "Contact pour les questions de confidentialité",
+    "contactEmail": "Email",
+    "contactPhone": "Téléphone"
+  }
+  ,
+   "termsAndConditions": {
+    "title": "Termes et conditions",
+    "intro": "En utilisant notre site, vous acceptez de respecter ces conditions. Veuillez les lire attentivement.",
+    "sections": [
+      {
+        "heading": "Utilisation du site",
+        "content": "Vous pouvez utiliser notre site uniquement à des fins légales et conformément à ces conditions."
+      },
+      {
+        "heading": "Propriété intellectuelle",
+        "content": "Tout le contenu, graphiques et éléments de conception de ce site nous appartiennent et sont protégés par la loi."
+      },
+      {
+        "heading": "Limitation de responsabilité",
+        "content": "Nous ne sommes pas responsables des dommages ou pertes résultant de l'utilisation de ce site."
+      },
+      {
+        "heading": "Modifications",
+        "content": "Nous pouvons modifier ces conditions à tout moment. L'utilisation continue du site indique l'acceptation des changements."
+      }
+    ],
+    "contactTitle": "Contact pour questions sur les conditions",
+    "contactEmail": "Email",
+    "contactPhone": "Téléphone"
+  }
 
 }

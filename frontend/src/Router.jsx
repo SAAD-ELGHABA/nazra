@@ -18,6 +18,13 @@ import LoginPage from "./pages/Login";
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
 import CheckoutCard from "./pages/CheckoutCard";
+import ContactUs from "./pages/ContactUs";
+import HelpCenter from "./pages/HelpCenter";
+import ReturnsPolicy from "./pages/ReturnsPolicy";
+import ShippingInfo from "./pages/ShippingInfo";
+import TermsOfUse from "./pages/TermsOfUse";
+import Privacy from "./pages/Privacy";
+import TermsAndConditions from "./pages/TermsAndConditions";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -45,6 +52,34 @@ export const Router = createBrowserRouter([
       {
         path: "/checkout-card",
         element: <CheckoutCard />,
+      },
+      {
+        path: "/contact-us",
+        element: <ContactUs />,
+      },
+      {
+        path: "/help-center",
+        element: <HelpCenter />,
+      },
+      {
+        path: "/returns-policy",
+        element: <ReturnsPolicy />,
+      },
+      {
+        path: "/shipping-info",
+        element: <ShippingInfo />,
+      },
+      {
+        path: "/terms-of-use",
+        element: <TermsOfUse />,
+      },
+      {
+        path: "/privacy-policy",
+        element: <Privacy />,
+      },
+      {
+        path: "/terms-and-conditions",
+        element: <TermsAndConditions />,
       },
       {
         path: "*",

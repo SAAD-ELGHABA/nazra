@@ -10,27 +10,35 @@ const faqsData = [
   { questionKey: "faqs.q5.question", answerKey: "faqs.q5.answer" },
 ];
 
-function FAQs() {
-  const { t } = useTranslation();
-
+function FAQs({ color = null }) {
+  const { t ,i18n } = useTranslation();
+  const currentLanguage = i18n.language;
   return (
-    <div className="max-w-4xl mx-auto p-6 text-center">
+    <div
+      className="max-w-4xl mx-auto p-6 text-center"
+      dir={currentLanguage === "ar" ? "rtl" : "ltr"}
+    >
       <h1 className="text-3xl font-bold mb-2">{t("faqs.title")}</h1>
-      <p className="text-gray-600 mb-8">{t("faqs.subtitle")}</p>
+      <p className=" mb-8">{t("faqs.subtitle")}</p>
 
       <div className="space-y-6 text-left">
         {faqsData.map((faq, index) => (
           <div key={index}>
             <h3 className="font-semibold">{t(faq.questionKey)}</h3>
-            <p className="text-gray-700 mt-1">{t(faq.answerKey)}</p>
+            <p className=" mt-1">{t(faq.answerKey)}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-12">
-        <h2 className="text-xl font-semibold mb-2">{t("faqs.stillQuestions")}</h2>
-        <p className="text-gray-600 mb-4">{t("faqs.helpText")}</p>
-        <Link className="px-6 py-2 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black mt-2">
+        <h2 className="text-xl font-semibold mb-2">
+          {t("faqs.stillQuestions")}
+        </h2>
+        <p className=" mb-4">{t("faqs.helpText")}</p>
+        <Link
+          to={`/contact-us`}
+          className="px-6 py-2 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black mt-2"
+        >
           {t("faqs.contact")}
         </Link>
       </div>

@@ -165,3 +165,53 @@
   overflow-y: auto;
   flex: 1;
 }
+
+
+.mobile-menu {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 1rem 1.5rem;
+
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* When menu opens */
+.mobile-menu.open {
+  animation: dropdown-open 0.5s ease forwards;
+  pointer-events: auto;
+  overflow: visible;
+}
+
+/* When menu closes */
+.mobile-menu:not(.open) {
+  animation: dropdown-close 0.3s ease forwards;
+}
+
+@keyframes dropdown-open {
+  0% {
+    max-height: 0;
+    opacity: 0;
+  }
+  100% {
+    max-height: 500px; /* adjust if menu is taller */
+    opacity: 1;
+  }
+}
+
+@keyframes dropdown-close {
+  0% {
+    max-height: 500px;
+    opacity: 1;
+  }
+  100% {
+    max-height: 0;
+    opacity: 0;
+  }
+}

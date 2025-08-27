@@ -41,7 +41,7 @@ const LanguageSwitcher = ({ className = "" }) => {
         <ChevronDown size={16} />
       </button>
       {open && (
-        <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 top-full">
+        <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 top-full" style={{zIndex:1000}}>
           {languages.map((lang) => (
             <div
               key={lang.code}
