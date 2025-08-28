@@ -6,19 +6,17 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { useFavorites } from "../context/FavoritesContext";
 import CardModal from "./CardModal";
 import CollectionDropdown from "./CollectionDropdown";
+import { useCard } from "../context/CardContext";
 
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
 
-  const handleClickHeart = () => {
-    console.log("handle click");
-  };
-
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
   const { favorites } = useFavorites();
+  const { cardItems } = useCard();
   const [toggleCart, setToggleCart] = useState(false);
   return (
     <header className="h-[60px] w-full flex items-center justify-between px-4 md:px-6 bg-white shadow-md sticky top-0 z-50">
@@ -54,11 +52,7 @@ const NavBar = () => {
 
         <div className="flex items-center gap-4">
           <Link className="relative" to={"/favorites"}>
-            <Heart
-              className="cursor-pointer hover:fill-black"
-              color="black"
-              onClick={handleClickHeart}
-            />
+            <Heart className="cursor-pointer hover:fill-black" color="black" />
             {favorites.length > 0 && (
               <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
                 {favorites.length}
@@ -66,12 +60,17 @@ const NavBar = () => {
             )}
           </Link>
           <button
-            className="cursor-pointer"
+            className="cursor-pointer relative"
             onClick={() => {
               setToggleCart(!toggleCart);
             }}
           >
             <ShoppingCart className="hover:fill-black" />
+            {cardItems.length > 0 && (
+              <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
+                {cardItems.length}
+              </span>
+            )}
           </button>
 
           <LanguageSwitcher />
@@ -83,7 +82,12 @@ const NavBar = () => {
       </button>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-[60px] left-0 right-0 bg-white shadow-lg py-4 px-6 z-40">
+        <div
+          className={`
+        md:hidden absolute top-[60px] left-0 right-0 bg-white shadow-lg py-4 px-6 z-40 mobile-menu
+        ${isMobileMenuOpen ? "open" : ""}
+        `}
+        >
           <ul className="flex flex-col gap-4">
             <li>
               <Link
@@ -113,24 +117,21 @@ const NavBar = () => {
               </Link>
             </li>
             <li>
-              <Link
-                to={"#"}
-                className="flex items-center gap-1 py-2 hover:text-gray-600"
-                onClick={toggleMobileMenu}
-              >
-                {t("navbar.collection")} <ChevronDown size={16} />
-              </Link>
+              <CollectionDropdown />
             </li>
           </ul>
           <div className="flex items-center gap-4 mt-4 pt-4 border-t">
-            <Heart
-              className="cursor-pointer hover:scale-105"
-              color="black"
-              onClick={() => {
-                handleClickHeart();
-                toggleMobileMenu();
-              }}
-            />
+            <Link className="relative" to={"/favorites"}>
+              <Heart
+                className="cursor-pointer hover:fill-black"
+                color="black"
+              />
+              {favorites.length > 0 && (
+                <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
+                  {favorites.length}
+                </span>
+              )}
+            </Link>
             <button
               className="bg-black text-white px-4 py-2 shadow-sm hover:text-black border border-black hover:bg-transparent transition-colors duration-300 flex-1"
               onClick={() => {
@@ -139,10 +140,15 @@ const NavBar = () => {
               }}
             >
               {t("navbar.cart")}
+              {cardItems.length > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-[12px] rounded-full px-1">
+                  {cardItems.length}
+                </span>
+              )}
             </button>
           </div>
-
           <LanguageSwitcher />
+
         </div>
       )}
 

@@ -35,6 +35,8 @@ function DiscoverSection() {
         <img
           src="/discover-section.png"
           alt="exp-section-img"
+          loading="lazy"
+
           className="w-full object-cover"
         />
       </div>

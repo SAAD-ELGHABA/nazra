@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFavorites } from "../context/FavoritesContext";
 import { CircleMinus, HeartOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star } from "lucide-react";
-
+import { useTranslation } from "react-i18next";
+import { useCard } from "../context/CardContext";
+import { toast } from "sonner";
 function Favorites() {
+  const { t } = useTranslation();
+  const { addToCard } = useCard();
   const { favorites, removeFavorite } = useFavorites();
   const { addFavorite, isFavorite } = useFavorites();
+  const AddItemToCard = (product) => {
+    const choosedItem = { ...product, colors: [product.colors[0]], quantiy: 1 };
+    addToCard(choosedItem);
+    toast.success(t("cart.addItem"));
+  };
+  useEffect(() => {
+    document.title = "Store - Nazra";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // here the promise ...
+  }, []);
   if (favorites.length === 0) {
     return (
       <div className="min-h-screen flex gap-4 flex-col items-center justify-center  text-lg">
@@ -22,33 +36,24 @@ function Favorites() {
   }
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen w-[90%] mx-auto my-8 p-4">
       <h2 className="text-2xl font-bold mb-4">Your Favorites</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {favorites.map((product) => (
           <Link
             key={product.id}
-            className="relative rounded-lg  shadow hover:shadow-lg transition group"
+            className="relative rounded-lg shadow hover:shadow-lg transition group"
             to={`/product/${product?.slug}`}
           >
             <div className="relative">
               <img
                 src={product?.colors[0]?.images[0]}
                 alt={product.name}
-                className="w-full h-60 object-cover"
+                className="w-full h-60 object-cover rounded-t-lg"
               />
 
-              <div
-                className="absolute top-0 right-0 flex gap-2 w-full h-full p-3 items-start justify-end 
-                              lg:bg-black/50 lg:p-0 lg:items-center lg:justify-center 
-                              opacity-100 lg:opacity-0 lg:group-hover:opacity-100 
-                              transition-all duration-300"
-              >
-                <button
-                  className={`p-1 ${
-                    isFavorite(product.id) ? "bg-black/50" : "bg-transparent"
-                  } text-white rounded-full shadow hover:bg-black/70`}
-                >
+              <div className="absolute top-3 right-3 flex gap-2">
+                <button className="p-1 bg-red-500 text-white rounded-full shadow hover:bg-black/70 transition-colors">
                   <Heart
                     size={26}
                     onClick={(e) => {
@@ -60,29 +65,35 @@ function Favorites() {
                       }
                     }}
                     className={`${
-                      isFavorite(product.id) ? "fill-black" : "fill-transparent"
+                      isFavorite(product.id)
+                        ? "fill-red-500"
+                        : "fill-transparent"
                     } hover:fill-black transition-colors duration-300 text-white`}
                   />
                 </button>
-                <button className="p-1 bg-black/50 text-white rounded-full shadow hover:bg-black/70">
-                  <ShoppingCart size={26} />
-                </button>
               </div>
 
-              <p className="text-white font-bold absolute bottom-2 right-2">
+              <p className="text-white font-bold absolute bottom-2 right-2 bg-black/70 px-3 py-1 rounded-lg">
                 MAD {product.sale_price}
               </p>
             </div>
-            <div className="flex flex-col gap-2 w-full mt-2">
+
+            <div className="flex flex-col gap-2 w-full mt-2 p-3">
               <div className="flex items-center justify-between">
-                <h5 className="font-semibold">{product.name}</h5>
-                <div className="flex items-center gap-1">
-                  {product?.rating}
-                  <Star size={12} className="fill-black" />
+                <h5 className="font-semibold text-gray-900">{product.name}</h5>
+                <div className="flex items-center gap-1 text-yellow-500">
+                  {product?.rating} <Star size={12} className="fill-current" />
                 </div>
               </div>
-              <button className="w-full py-2 text-sm text-black rounded transition-colors duration-300 hover:bg-black border bg-white hover:text-white text-center cursor-pointer">
-                Add To Bag
+
+              <button
+                className="mt-2 py-2 w-full text-sm font-medium bg-black text-white rounded-lg hover:bg-transparent hover:text-black border transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  AddItemToCard(product);
+                }}
+              >
+                {t("cart.addToBag")}
               </button>
             </div>
           </Link>

@@ -11,7 +11,7 @@ import MarkVid from "../components/home/MarkVid";
 
 const HomePage = () => {
     useEffect(() => {
-      document.title = "Home Us - Nazra";
+      document.title = "Home Page - Nazra";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, []);
   return (

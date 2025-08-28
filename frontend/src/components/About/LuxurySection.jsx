@@ -18,14 +18,19 @@ function LuxurySection() {
         <div>
           <Link
             to="/shop"
-            className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
+            className="px-6 py-3 text-white rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
           >
             {t("luxury.exploreButton")}
           </Link>
         </div>
       </div>
       <div>
-        <img src="/About/luxury-img.png" alt="luxury-img" />
+        <img
+          src="/About/luxury-img.png"
+          alt="luxury-img"
+          loading="lazy"
+          className="max-w-full h-auto"
+        />
       </div>
     </div>
   );

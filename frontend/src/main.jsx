@@ -5,11 +5,16 @@ import App from "./App.jsx";
 import React from "react";
 import "./i18n";
 import { FavoritesProvider } from "./context/FavoritesContext.jsx";
-
+import { CardProvider } from "./context/CardContext.jsx";
+import { Toaster } from "sonner";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
+    <Toaster/>
     <FavoritesProvider>
-      <App />
+      <CardProvider>
+        <App />
+      </CardProvider>
     </FavoritesProvider>
+    <Toaster />
   </StrictMode>
 );
