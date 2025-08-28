@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGO_URI, {
 // Routes
 app.use('/api/products', require('../routes/products'));
 app.use('/api/auth', require('../routes/authRoutes')); // Your existing auth routes
-
+app.use('/api/orders',require('../routes/ordersRoute'))
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error(error);

@@ -95,10 +95,34 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single product by ID
-router.get('/:id', async (req, res) => {
+// Get all products as Admin
+// Admin route to get all products
+router.get('/admin/all', auth, async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
+    const products = await Product.find()
+      .populate('createdBy', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    console.error('Error fetching all products:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching all products',
+      error: error.message
+    });
+  }
+});
+
+
+
+// Get single product by slug
+router.get('/:slug', async (req, res) => {
+  try {
+    const product = await Product.findOne({ slug: req.params.slug })
       .populate('createdBy', 'name email');
 
     if (!product) {
@@ -121,6 +145,7 @@ router.get('/:id', async (req, res) => {
     });
   }
 });
+
 
 // Update product
 router.put('/:id', auth, async (req, res) => {

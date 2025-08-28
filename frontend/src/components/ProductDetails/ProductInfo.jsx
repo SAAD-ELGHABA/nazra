@@ -35,7 +35,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
       <div className="w-full max-w-2xl mx-auto flex-1">
         <div className="flex items-center justify-between mb-4">
           <h1
-            className="font-bold text-[22px] w-1/2 text-center md:text-left md:text-[36px]"
+            className="font-bold text-[22px] text-center md:text-left md:text-[26px]"
             style={{ lineHeight: "1.2" }}
           >
             {product?.name}
@@ -71,7 +71,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
                 {product.colors.map((color) => (
                   <button
                     key={color.name}
-                    style={{ backgroundColor: color.hex }}
+                    style={{ backgroundColor: color?.value }}
                     className={`
                   w-10 h-10 rounded-full cursor-pointer
                   ${
@@ -127,7 +127,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
 
         <div className="md:absolute sticky bottom-0 bg-white p-4 border-t flex items-center justify-between w-full">
           <p
-            className="font-bold text-[18px] w-1/2 text-center md:text-left md:text-[22px]"
+            className="font-bold text-[16px] w-1/2 text-center md:text-left md:text-[20px]"
             style={{ lineHeight: "1.2" }}
           >
             MAD {product?.sale_price}

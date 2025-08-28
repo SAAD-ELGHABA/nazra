@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from "react";
 import ProductPreview from "../components/ProductDetails/ProductPreview";
 import { useParams } from "react-router-dom";
-import products from "../assets/products.json";
 import ProductInfo from "../components/ProductDetails/ProductInfo";
 import { useTranslation } from "react-i18next";
 import { BadgeCheck } from "lucide-react";
 import Suggestions from "../components/ProductDetails/Suggestions";
+import { getProducts, getSingleProduct } from "../api/api";
 function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [products, setProducts] = useState([]);
   const { slug } = useParams();
   useEffect(() => {
     document.title = "Product - Nazra";
     window.scrollTo({ top: 0, behavior: "smooth" });
+    const getProductsPromise = async () => {
+      const res = await getProducts();
+      setProducts(res?.data?.products);
+    };
+    getProductsPromise();
     const getProduct = async () => {
       try {
-        // here the promise ...
-        setProduct(products.find((p) => p.slug === slug));
-        setSelectedColor(products.find((p) => p.slug === slug)?.colors[0]);
+        const res = await getSingleProduct(slug);
+        setProduct(res?.data?.product);
+        setSelectedColor(res?.data?.product?.colors[0]);
       } catch (error) {
         console.error("Failed to fetch product:", error);
       }

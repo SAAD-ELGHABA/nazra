@@ -36,7 +36,6 @@ export const CardProvider = ({ children }) => {
     return cardItems.some((item) => item.id === id);
   };
   const removeFromCard = (id, color) => {
-
     setCardItems((prev) =>
       prev.filter(
         (item) => !(item.id === id && item?.colors[0]?.name === color)

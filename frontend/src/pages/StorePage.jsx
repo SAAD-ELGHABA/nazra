@@ -1,15 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TrendingProducts from "../components/store/TrendingProducts";
-import products from "../assets/products.json";
 import ListProducts from "../components/store/ListProducts";
 import { useTranslation } from "react-i18next";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { getProducts } from "../api/api";
 function StorePage() {
+  const [products, setProducts] = useState([]);
   useEffect(() => {
     document.title = "Store - Nazra";
     window.scrollTo({ top: 0, behavior: "smooth" });
-    // here the promise ...
+    const getProductsPromise = async () => {
+      const res = await getProducts();
+      setProducts(res?.data?.products);
+    };
+    getProductsPromise();
   }, []);
   const { t } = useTranslation();
   return (

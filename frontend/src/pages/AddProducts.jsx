@@ -1,166 +1,151 @@
-import axios from 'axios';
-import React, { useState } from 'react'
-
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 const AddProducts = () => {
-
-  // const parset =  import.meta.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
-  // const cloud_name =  import.meta.env.REACT_APP_CLOUDINARY_CLOUD_NAME
-  const parset = 'nazra-preset'
-  const cloud_name = 'dpzzuubck'
-  const token = localStorage.getItem('User_Data_token');
-  console.log('Token from storage:', token);
-
-  const [isUploading, setIsUploading] = useState(false)
+  const parset = "nazra-preset";
+  const cloud_name = "dpzzuubck";
+  const token = localStorage.getItem("User_Data_token");
+  const location = useLocation();
+  const product = location.state?.product;
+  
+  const [isUploading, setIsUploading] = useState(false);
   const [productData, setProductData] = useState({
-    name: '',
-    original_price: '',
-    sale_price: '',
-    type: '',
-    category: '',
-    references: '',
-    description: 'hello from descriptions field',
-    colors: []
+    name: "",
+    original_price: "",
+    sale_price: "",
+    type: "",
+    category: "",
+    references: "",
+    description: "",
+    colors: [],
   });
 
-  // New color state
   const [newColor, setNewColor] = useState({
-    name: '',
-    value: '#000000',
-    images: []
+    name: "",
+    value: "#000000",
+    images: [],
   });
 
-  // Handle input changes
+  // Prefill form if editing
+  useEffect(() => {
+    if (product) {
+      setProductData({
+        name: product.name || "",
+        original_price: product.original_price || "",
+        sale_price: product.sale_price || "",
+        type: product.type || "",
+        category: product.category || "",
+        references: product.references || "",
+        description: product.description || "",
+        colors:
+          product.colors?.map((c) => ({
+            name: c.name,
+            value: c.value,
+            images:
+              c.images?.map((img) => ({
+                url: img.url,
+                public_id: img.public_id,
+              })) || [],
+          })) || [],
+      });
+    }
+  }, [product]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProductData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setProductData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle color input changes
   const handleColorInputChange = (e) => {
     const { name, value } = e.target;
-    setNewColor(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setNewColor((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Add a new color variant
   const addColorVariant = () => {
-    if (newColor.name.trim() === '') return;
-
-    setProductData(prev => ({
+    if (newColor.name.trim() === "") return;
+    setProductData((prev) => ({
       ...prev,
-      colors: [...prev.colors, { ...newColor }]
+      colors: [...prev.colors, { ...newColor }],
     }));
-
-    // Reset new color form
-    setNewColor({
-      name: '',
-      value: '#000000',
-      images: []
-    });
+    setNewColor({ name: "", value: "#000000", images: [] });
   };
 
-  // Remove a color variant
   const removeColorVariant = (index) => {
-    setProductData(prev => ({
+    setProductData((prev) => ({
       ...prev,
-      colors: prev.colors.filter((_, i) => i !== index)
+      colors: prev.colors.filter((_, i) => i !== index),
     }));
   };
 
-  // Handle image upload for a specific color
   const handleImageUpload = (colorIndex, files) => {
     const updatedColors = [...productData.colors];
-    // Convert FileList to array and add to images
     const newImages = Array.from(files);
-    updatedColors[colorIndex].images = [...updatedColors[colorIndex].images, ...newImages];
-
-    setProductData(prev => ({
-      ...prev,
-      colors: updatedColors
-    }));
+    updatedColors[colorIndex].images = [
+      ...updatedColors[colorIndex].images,
+      ...newImages,
+    ];
+    setProductData((prev) => ({ ...prev, colors: updatedColors }));
   };
 
-  // Remove an image from a color variant
   const removeImage = (colorIndex, imageIndex) => {
     const updatedColors = [...productData.colors];
-    updatedColors[colorIndex].images = updatedColors[colorIndex].images.filter((_, i) => i !== imageIndex);
-
-    setProductData(prev => ({
-      ...prev,
-      colors: updatedColors
-    }));
+    updatedColors[colorIndex].images = updatedColors[colorIndex].images.filter(
+      (_, i) => i !== imageIndex
+    );
+    setProductData((prev) => ({ ...prev, colors: updatedColors }));
   };
-  // const uploadToCloudinary = async (file) => {
-  //     const formData = new FormData();
-  //     formData.append('file', file);
-  //     formData.append('upload_preset', import.meta.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET); 
 
-  //     try {
-  //       const response = await axios.post(
-  //         `https://api.cloudinary://${import.meta.env.REACT_APP_CLOUDINARY_API_KEY}:${REACT_APP_CLOUDINARY_API_SECRET}@${REACT_APP_CLOUDINARY_CLOUD_NAME}`,
-  //         formData,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data',
-  //           },
-  //         }
-  //       );
-  //       return {
-  //         url: response.data.secure_url,
-  //         public_id: response.data.public_id
-  //       };
-  //     } catch (error) {
-  //       console.error('Error uploading image to Cloudinary:', error);
-  //       throw error;
-  //     }
-  //   };
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation (same as before)
-    if (!productData.name || !productData.original_price || !productData.sale_price ||
-      !productData.type || !productData.category) {
-      alert('Please fill in all required fields');
+    // Basic validation
+    if (
+      !productData.name ||
+      !productData.original_price ||
+      !productData.sale_price ||
+      !productData.type ||
+      !productData.category
+    ) {
+      alert("Please fill in all required fields");
       return;
     }
 
     if (productData.colors.length === 0) {
-      alert('Please add at least one color variant');
+      alert("Please add at least one color variant");
       return;
     }
 
-    const colorsWithoutImages = productData.colors.filter(color => color.images.length === 0);
+    const colorsWithoutImages = productData.colors.filter(
+      (color) => color.images.length === 0
+    );
     if (colorsWithoutImages.length > 0) {
-      alert('Please add at least one image for each color variant');
+      alert("Please add at least one image for each color variant");
       return;
     }
 
     setIsUploading(true);
 
     try {
-      // First upload all images to Cloudinary
+      // Upload new images to Cloudinary if they are File objects
       const updatedColors = await Promise.all(
         productData.colors.map(async (color) => {
           const uploadedImages = await Promise.all(
-            color.images.map(async (imageFile) => {
+            color.images.map(async (img) => {
+              // Skip already uploaded images
+              if (img.url) return img;
+
               const formData = new FormData();
-              formData.append('file', imageFile);
-              formData.append('upload_preset', parset); // Replace with your preset
+              formData.append("file", img);
+              formData.append("upload_preset", parset);
 
               const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`, // Replace with your cloud name
+                `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
                 formData
               );
 
               return {
                 url: response.data.secure_url,
-                public_id: response.data.public_id
+                public_id: response.data.public_id,
               };
             })
           );
@@ -168,44 +153,51 @@ const AddProducts = () => {
           return {
             name: color.name,
             value: color.value,
-            images: uploadedImages
+            images: uploadedImages,
           };
         })
       );
 
-      // Prepare the final product data with Cloudinary URLs
-      const productDataToSend = {
-        ...productData,
-        colors: updatedColors
-      };
+      const productDataToSend = { ...productData, colors: updatedColors };
 
-      // Send to backend
-      const response = await axios.post(
-        "http://localhost:5000/api/products/create",
-        productDataToSend,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        }
-      );
+      let response;
+      if (product?._id) {
+        // Update existing product
+        response = await axios.put(
+          `http://localhost:5000/api/products/${product._id}`,
+          productDataToSend,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        // Create new product
+        response = await axios.post(
+          "http://localhost:5000/api/products/create",
+          productDataToSend,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
 
       if (response.data.success) {
-        alert("Product added successfully!");
-        // Reset form
-        setProductData({
-          name: '',
-          original_price: '',
-          sale_price: '',
-          type: '',
-          category: '',
-          references: '',
-          description: '',
-          colors: []
-        });
+        alert(
+          product?._id
+            ? "Product updated successfully!"
+            : "Product added successfully!"
+        );
+        // Reset form only if adding new product
+        if (!product) {
+          setProductData({
+            name: "",
+            original_price: "",
+            sale_price: "",
+            type: "",
+            category: "",
+            references: "",
+            description: "",
+            colors: [],
+          });
+        }
       } else {
-        alert("Error while adding this product");
+        alert("Error while saving product");
       }
     } catch (err) {
       console.error("Error submitting product:", err);
@@ -215,79 +207,78 @@ const AddProducts = () => {
     }
   };
 
-
   return (
-    <div className="min-h-screen  py-4 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="bg-white shadow rounded-lg overflow-hidden relative">
+          {isUploading && (
+            <div className="absolute inset-0 bg-white bg-opacity-70 z-10 flex items-center justify-center">
+              <div className="loader border-4 border-blue-400 border-dashed w-12 h-12 rounded-full animate-spin"></div>
+              <span className="ml-4 text-blue-600 font-medium">
+                Uploading...
+              </span>
+            </div>
+          )}
           <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Add New Sunglass Product</h3>
-            <p className="mt-1 text-sm text-gray-500">Add a new product to your inventory. Each color variant can have its own images.</p>
+            <h3 className="text-lg font-medium text-gray-900">
+              {product ? "Update Product" : "Add New Sunglass Product"}
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {product
+                ? "Edit product information."
+                : "Add a new product to your inventory. Each color variant can have its own images."}
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6" >
-            {/* Basic Information */}
+          <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6">
+            {/* Basic Info */}
             <div className="grid grid-cols-1 gap-4 mb-6">
-              <h4 className="text-md font-medium text-gray-900">Basic Information</h4>
-
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Product Name
                 </label>
                 <input
                   type="text"
                   name="name"
-                  id="name"
                   value={productData.name}
                   onChange={handleInputChange}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                  placeholder="e.g. Aviator Classic"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="original_price" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Original Price ($)
                   </label>
                   <input
                     type="number"
                     name="original_price"
-                    id="original_price"
                     value={productData.original_price}
                     onChange={handleInputChange}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
                   />
                 </div>
-
                 <div>
-                  <label htmlFor="sale_price" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Sale Price ($)
                   </label>
                   <input
                     type="number"
                     name="sale_price"
-                    id="sale_price"
                     value={productData.sale_price}
                     onChange={handleInputChange}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Type
                 </label>
                 <select
                   name="type"
-                  id="type"
                   value={productData.type}
                   onChange={handleInputChange}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
@@ -301,13 +292,13 @@ const AddProducts = () => {
                   <option value="Oversized">Oversized</option>
                 </select>
               </div>
+
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Category
                 </label>
                 <select
                   name="category"
-                  id="category"
                   value={productData.category}
                   onChange={handleInputChange}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
@@ -320,61 +311,58 @@ const AddProducts = () => {
               </div>
 
               <div>
-                <label htmlFor="references" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   References
                 </label>
                 <input
                   type="text"
                   name="references"
-                  id="references"
                   value={productData.references}
                   onChange={handleInputChange}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                  placeholder="e.g. REF-12345, REF-67890"
                 />
               </div>
             </div>
 
             {/* Color Variants */}
             <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Color Variants</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">
+                Color Variants
+              </h4>
 
               <div className="bg-gray-50 p-4 rounded-lg mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                   <div>
-                    <label htmlFor="color_name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Color Name
                     </label>
                     <input
                       type="text"
                       name="name"
-                      id="color_name"
                       value={newColor.name}
                       onChange={handleColorInputChange}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                      placeholder="e.g. Black, Tortoise"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="color_value" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Color Value
                     </label>
                     <div className="flex items-center">
                       <input
                         type="color"
                         name="value"
-                        id="color_value"
                         value={newColor.value}
                         onChange={handleColorInputChange}
                         className="block h-10 w-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border mr-2"
                       />
                       <input
                         type="text"
+                        name="value"
                         value={newColor.value}
                         onChange={handleColorInputChange}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                        placeholder="#000000"
                       />
                     </div>
                   </div>
@@ -395,7 +383,10 @@ const AddProducts = () => {
               {productData.colors.length > 0 && (
                 <div className="space-y-4">
                   {productData.colors.map((color, colorIndex) => (
-                    <div key={colorIndex} className="border rounded-lg p-4 bg-white">
+                    <div
+                      key={colorIndex}
+                      className="border rounded-lg p-4 bg-white"
+                    >
                       <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center">
                           <div
@@ -407,75 +398,48 @@ const AddProducts = () => {
                         <button
                           type="button"
                           onClick={() => removeColorVariant(colorIndex)}
-                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          className="text-red-500 hover:text-red-700 font-medium"
                         >
                           Remove
                         </button>
                       </div>
 
-                      {/* Image Upload for this color */}
-                      <div className="mb-3">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Images for {color.name}
-                        </label>
-                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                          <div className="space-y-1 text-center">
-                            <div className="flex text-sm text-gray-600">
-                              <label
-                                htmlFor={`color-${colorIndex}-images`}
-                                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
-                              >
-                                <span>Upload images</span>
-                                <input
-                                  id={`color-${colorIndex}-images`}
-                                  name={`color-${colorIndex}-images`}
-                                  type="file"
-                                  multiple
-                                  className="sr-only"
-                                  onChange={(e) => handleImageUpload(colorIndex, e.target.files)}
-                                />
-                              </label>
-                              <p className="pl-1">or drag and drop</p>
-                            </div>
-                            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                          </div>
-                        </div>
-                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        onChange={(e) =>
+                          handleImageUpload(colorIndex, e.target.files)
+                        }
+                        className="mb-3"
+                      />
 
-                      {/* Preview uploaded images for this color */}
-                      {color.images.length > 0 && (
-                        <div>
-                          <h5 className="text-sm font-medium text-gray-700 mb-2">Uploaded Images:</h5>
-                          <div className="grid grid-cols-3 gap-2">
-                            {color.images.map((image, imageIndex) => (
-                              <div key={imageIndex} className="relative group">
-                                <img
-                                  src={URL.createObjectURL(image)}
-                                  alt={`Preview ${imageIndex + 1}`}
-                                  className="h-20 w-full object-cover rounded-md"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(colorIndex, imageIndex)}
-                                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  style={{ transform: 'translate(30%, -30%)' }}
-                                >
-                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                </button>
-                              </div>
-                            ))}
+                      <div className="flex flex-wrap gap-2">
+                        {color.images.map((img, imgIndex) => (
+                          <div
+                            key={imgIndex}
+                            className="relative w-20 h-20 border rounded-md overflow-hidden"
+                          >
+                            <img
+                              src={img.url ? img.url : URL.createObjectURL(img)}
+                              alt="Color"
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(colorIndex, imgIndex)}
+                              className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full"
+                            >
+                              ×
+                            </button>
                           </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Form Actions */}
             <div className="flex justify-end space-x-3 mt-8">
               <button
                 type="button"
@@ -485,17 +449,27 @@ const AddProducts = () => {
               </button>
               <button
                 type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent hover:border-black shadow-sm text-sm font-normal rounded-md text-white hover:text-black bg-black hover:bg-transparent  "
+                className="inline-flex justify-center py-2 px-4 border border-transparent hover:border-black shadow-sm text-sm font-normal rounded-md text-white hover:text-black bg-black hover:bg-transparent"
+                disabled={isUploading}
               >
-                Save Product
+                {product ? "Update Product" : "Save Product"}
               </button>
             </div>
           </form>
         </div>
       </div>
+
+      {/* Loader styles */}
+      <style>
+        {`
+          .loader {
+            border-top-color: transparent;
+            border-right-color: transparent;
+          }
+        `}
+      </style>
     </div>
+  );
+};
 
-  )
-}
-
-export default AddProducts
+export default AddProducts;

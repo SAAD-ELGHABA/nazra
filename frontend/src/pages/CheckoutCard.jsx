@@ -4,6 +4,7 @@ import { useCard } from "../context/CardContext";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { createMyOrder } from "../api/api";
 
 function CheckoutCard() {
   const { t } = useTranslation();
@@ -13,23 +14,27 @@ function CheckoutCard() {
     fullName: "",
     email: "",
     phone: "",
-    address: "",
+    adresse: "",
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const order = {
-      items: cardItems,
+      products: cardItems.map((item) => ({
+        product: item._id,
+        color: item.colors[0]?.name,
+        quantity: item.quantity,
+      })),
       customer: formData,
     };
-    console.log("Order submitted:", order);
-    alert(t("checkout.formSubmitted"));
     try {
-      //
+      // eslint-disable-next-line no-unused-vars
+      const response = await createMyOrder(order);
+      toast.success(`${t("checkout.formSubmitted")}`)
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +78,7 @@ function CheckoutCard() {
                     <td className="p-2 flex items-center gap-2 text-left">
                       <Link to={`/product/${item.slug}`}>
                         <img
-                          src={item?.colors[0]?.images[0]}
+                          src={item?.colors[0]?.images[0]?.url || ""}
                           alt={item?.name}
                           className="w-12 h-12 object-cover rounded"
                         />
@@ -82,7 +87,7 @@ function CheckoutCard() {
                         <span>{item.name}</span>
                         <span
                           key={item?.colors[0]?.name}
-                          style={{ backgroundColor: item?.colors[0]?.hex }}
+                          style={{ backgroundColor: item?.colors[0]?.value }}
                           className={`
                   w-10 h-5 rounded-full flex items-center justify-center
                   hover:border-black transition-colors duration-300
@@ -108,7 +113,7 @@ function CheckoutCard() {
                       <button
                         className="p-2 hover:bg-gray-200 rounded"
                         onClick={() => {
-                          removeFromCard(item.id);
+                          removeFromCard(item?.id, item?.colors[0]?.name);
                           toast.success(t("cart.removeItem"));
                         }}
                       >
@@ -133,7 +138,7 @@ function CheckoutCard() {
         <div className="flex-1">
           <div className="sticky top-20 bg-white p-6 rounded-lg shadow-md">
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {["fullName", "email", "phone", "address"].map((field) => (
+              {["fullName", "email", "phone", "adresse"].map((field) => (
                 <div key={field} className="flex flex-col">
                   <label className="mb-1">{t(`checkout.${field}`)}</label>
                   <input

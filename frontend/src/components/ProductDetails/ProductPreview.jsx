@@ -6,7 +6,7 @@ function ProductPreview({ product, selectedColor }) {
   useEffect(() => {
     if (product && product.colors && product.colors.length > 0) {
       setSelectedImage(
-        selectedColor ? selectedColor?.images[0] : product.colors[0].images[0]
+        selectedColor ? selectedColor?.images[0]?.url : product.colors[0].images[0]?.url
       );
     }
   }, [product, selectedColor]);
@@ -31,7 +31,7 @@ function ProductPreview({ product, selectedColor }) {
                   <div className="w-full h-full bg-gray-200 animate-pulse rounded"></div>
                 )}
                 <img
-                  src={image}
+                  src={image?.url}
                   alt={product?.name}
                   loading="eager"
                   className={`w-full h-full object-cover rounded border-2 cursor-pointer
@@ -42,7 +42,7 @@ function ProductPreview({ product, selectedColor }) {
                 }
                 hover:border-black
                 ${loadedImages[image] ? "block" : "hidden"}`}
-                  onClick={() => setSelectedImage(image)}
+                  onClick={() => setSelectedImage(image?.url)}
                   onLoad={() => handleImageLoad(image)}
                 />
               </div>

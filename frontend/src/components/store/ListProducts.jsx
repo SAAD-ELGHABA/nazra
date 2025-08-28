@@ -42,13 +42,13 @@ function ListProducts({ products }) {
             >
               <div className="relative w-full h-64">
                 <img
-                  src={product?.colors[0]?.images[0]}
+                  src={product?.colors[0]?.images[0]?.url || "/fall-back-sunglasses-image.webp"}
                   alt={product.name}
                   className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-0"
                 />
                 {product?.colors[0]?.images[1] && (
                   <img
-                    src={product?.colors[0]?.images[1]}
+                    src={product?.colors[0]?.images[1]?.url || "/fall-back-sunglasses-image.webp"}
                     alt={product.name}
                     className="absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   />

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const colorVariantSchema = new mongoose.Schema({
   name: {
@@ -29,6 +30,12 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Product name is required'],
     trim: true,
     maxlength: [100, 'Product name cannot exceed 100 characters']
+  },
+  slug: {
+    type: String,
+    unique: true, // Prevent duplicates
+    lowercase: true,
+    trim: true
   },
   original_price: {
     type: Number,
@@ -73,9 +80,22 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Auto-generate slug before saving
+productSchema.pre('save', function(next) {
+  if (this.isModified('name')) {
+    this.slug = slugify(this.name, {
+      lower: true,
+      strict: true, // remove special chars
+      replacement: '-' // replace spaces with dash
+    });
+  }
+  next();
+});
+
 // Index for better query performance
 productSchema.index({ name: 'text', description: 'text' });
 productSchema.index({ type: 1, category: 1 });
 productSchema.index({ createdBy: 1 });
+productSchema.index({ slug: 1 });
 
 module.exports = mongoose.model('Product', productSchema);

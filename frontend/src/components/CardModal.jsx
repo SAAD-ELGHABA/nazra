@@ -40,7 +40,7 @@ function CardModal({ isOpen, onClose }) {
                   <div className="flex items-center gap-4">
                     <Link to={`/product/${item?.slug}`} onClick={onClose}>
                       <img
-                        src={item?.colors[0]?.images[0]}
+                        src={item?.colors[0]?.images[0]?.url || ""}
                         alt={item?.name}
                         className="w-16 h-16 object-cover rounded"
                       />
@@ -69,7 +69,7 @@ function CardModal({ isOpen, onClose }) {
                       <div className="flex items-center gap-4 mt-2">
                         <span
                           key={item?.colors[0]?.name}
-                          style={{ backgroundColor: item?.colors[0]?.hex }}
+                          style={{ backgroundColor: item?.colors[0]?.value }}
                           className={`
                   w-10 h-5 rounded-full flex items-center justify-center
                   hover:border-black transition-colors duration-300

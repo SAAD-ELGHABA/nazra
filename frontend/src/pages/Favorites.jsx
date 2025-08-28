@@ -47,7 +47,7 @@ function Favorites() {
           >
             <div className="relative">
               <img
-                src={product?.colors[0]?.images[0]}
+                src={product?.colors[0]?.images[0]?.url || "/fall-back-sunglasses-image.webp"}
                 alt={product.name}
                 className="w-full h-60 object-cover rounded-t-lg"
               />
