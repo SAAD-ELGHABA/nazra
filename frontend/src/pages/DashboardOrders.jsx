@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import ProductDetailsModal from "../components/ProductDetailsModal";
-import { getOrders } from "../api/api";
+import { getOrders, updateOrderStatus } from "../api/api";
 
 function OrderManagementPage() {
   const [orders, setOrders] = useState([]);
@@ -13,18 +13,18 @@ function OrderManagementPage() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
 
+  const fetchOrders = async () => {
+    setLoading(true); // start loading
+    try {
+      const response = await getOrders();
+      setOrders(response?.data?.orders || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false); // stop loading
+    }
+  };
   useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true); // start loading
-      try {
-        const response = await getOrders();
-        setOrders(response?.data?.orders || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false); // stop loading
-      }
-    };
     fetchOrders();
   }, []);
 
@@ -35,11 +35,11 @@ function OrderManagementPage() {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "Delivered":
+      case "delivered":
         return "bg-green-100 text-green-800";
-      case "Processing":
+      case "processing":
         return "bg-yellow-100 text-yellow-800";
-      case "Shipped":
+      case "shipped":
         return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -56,9 +56,10 @@ function OrderManagementPage() {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
+      console.log(orderId, newStatus);
 
-      const response = await updateOrderStatusInDatabase(orderId, newStatus);
-
+      const response = await updateOrderStatus(orderId, newStatus);
+      fetchOrders();
       if (!response.success) {
         setOrders((prev) =>
           prev.map((o) =>
@@ -80,11 +81,6 @@ function OrderManagementPage() {
     }
   };
 
-  const updateOrderStatusInDatabase = async (orderId, newStatus) => {
-    console.log(`Updating order ${orderId} to status ${newStatus}`);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return { success: true }; // Replace with real API call
-  };
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
@@ -185,9 +181,11 @@ function OrderManagementPage() {
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               >
                 <option value="All">All Statuses</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="canceled">Canceled</option>
               </select>
             </div>
           </div>
@@ -199,7 +197,7 @@ function OrderManagementPage() {
             <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-300"></div>
           </div>
         ) : (
-          <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="bg-white shadow rounded-lg overflow-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -276,7 +274,7 @@ function OrderManagementPage() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         {editingStatus?.orderId === order._id ? (
-                          <div className="flex items-center">
+                          <div className="flex flex-col gap-2">
                             <select
                               value={editingStatus.status}
                               onChange={(e) =>
@@ -288,26 +286,31 @@ function OrderManagementPage() {
                               className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                               disabled={isUpdating}
                             >
-                              <option value="Processing">Processing</option>
-                              <option value="Shipped">Shipped</option>
-                              <option value="Delivered">Delivered</option>
+                              <option value="processing">Processing</option>
+                              <option value="shipped">Shipped</option>
+                              <option value="delivered">Delivered</option>
+                              <option value="canceled">Canceled</option>
                             </select>
-                            <button
-                              onClick={() =>
-                                updateStatus(order._id, editingStatus.status)
-                              }
-                              disabled={isUpdating}
-                              className="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50"
-                            >
-                              {isUpdating ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                              onClick={() => setEditingStatus(null)}
-                              disabled={isUpdating}
-                              className="ml-1 px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 disabled:opacity-50"
-                            >
-                              Cancel
-                            </button>
+
+                            <div className="flex gap-2 flex-col">
+                              <button
+                                onClick={() =>
+                                  updateStatus(order._id, editingStatus.status)
+                                }
+                                disabled={isUpdating}
+                                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                              >
+                                {isUpdating ? "Saving..." : "Save"}
+                              </button>
+
+                              <button
+                                onClick={() => setEditingStatus(null)}
+                                disabled={isUpdating}
+                                className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400 disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex items-center">

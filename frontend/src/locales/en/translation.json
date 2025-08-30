@@ -243,7 +243,11 @@
   }
 ,
 "product":{
-  "note":"Enjoy free shipping! Your item will arrive in 24–48 hours."
+  "note":"Enjoy free shipping! Your item will arrive in 24–48 hours.",
+  "notFoundMsg":"This product isn't available anymore ",
+  "notFoundDescription":"The product you are looking for may have been removed or is currently unavailable. Please check back later or explore similar products.",
+  "notFoundBtn":"Browse Store"
+
 }
 ,
 "cart":{
@@ -252,6 +256,7 @@
   "empty": "Your cart is currently empty.",
   "total": "Total",
   "checkout": "Checkout",
+  "sending":"sending",
   "continueShopping": "Continue Shopping",
   "remove": "Remove",
   "quantity": "Quantity",
@@ -420,6 +425,10 @@
     "contactTitle": "Contact for Terms Questions",
     "contactEmail": "Email",
     "contactPhone": "Phone"
+  },
+  "checkoutPage":{
+    "selectAtLeastMsg":"Please select at least one item to checkout."
   }
+  
 
 }

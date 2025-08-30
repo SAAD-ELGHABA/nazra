@@ -246,7 +246,13 @@
 }
 ,
 "product":{
-  "note":"Livraison gratuite en 24-48h !."
+  "note":"Livraison gratuite en 24-48h !.",
+    "notFoundMsg":"Ce produit n'est plus disponible",
+  "notFoundDescription":"Le produit que vous recherchez a peut-être été retiré ou est actuellement indisponible. Veuillez revenir plus tard ou découvrir des produits similaires.",
+  "notFoundBtn":"Parcourir la boutique"
+
+
+
 }
 ,
 "cart": {
@@ -255,6 +261,7 @@
   "empty": "Votre panier est actuellement vide.",
   "total": "Total",
   "checkout": "Commander",
+  "sending":"envoi",
   "continueShopping": "Continuer vos achats",
   "remove": "Supprimer",
   "quantity": "Quantité",
@@ -423,6 +430,9 @@
     "contactTitle": "Contact pour questions sur les conditions",
     "contactEmail": "Email",
     "contactPhone": "Téléphone"
+  },
+  "checkoutPage":{
+    "selectAtLeastMsg":"Veuillez sélectionner au moins un article à commander."
   }
 
 }

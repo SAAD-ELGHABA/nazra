@@ -12,4 +12,7 @@ router.get("/", auth, orderController.getOrders);
 // Get single order
 router.get("/:id", auth, orderController.getOrderById);
 
+// update order's status
+router.post("/update-order-status/:orderId", auth, orderController.updateOrderStatus);
+
 module.exports = router;

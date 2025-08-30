@@ -122,7 +122,7 @@ router.get('/admin/all', auth, async (req, res) => {
 // Get single product by slug
 router.get('/:slug', async (req, res) => {
   try {
-    const product = await Product.findOne({ slug: req.params.slug })
+    const product = await Product.findOne({ slug: req.params.slug ,isActive:true})
       .populate('createdBy', 'name email');
 
     if (!product) {

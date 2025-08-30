@@ -14,7 +14,7 @@ const createProduct = async (req, res) => {
       type, 
       category, 
       references, 
-      description, 
+      description, // now expected as an object { en, fr, ar }
       colors 
     } = req.body;
 
@@ -25,6 +25,31 @@ const createProduct = async (req, res) => {
         message: 'Please provide all required fields'
       });
     }
+
+    // Validate description object
+    let parsedDescription;
+    if (typeof description === "string") {
+      try {
+        parsedDescription = JSON.parse(description); // if sent as JSON string
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: 'Description must be a valid JSON object'
+        });
+      }
+    } else if (typeof description === "object" && description !== null) {
+      parsedDescription = description;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Description is required'
+      });
+    }
+
+    // Make sure all languages exist
+    parsedDescription.en = parsedDescription.en || "";
+    parsedDescription.fr = parsedDescription.fr || "";
+    parsedDescription.ar = parsedDescription.ar || "";
 
     // Parse colors if it's a string
     let parsedColors;
@@ -37,7 +62,6 @@ const createProduct = async (req, res) => {
       });
     }
 
-    // Validate that we have colors
     if (!parsedColors || !Array.isArray(parsedColors) || parsedColors.length === 0) {
       return res.status(400).json({
         success: false,
@@ -45,37 +69,26 @@ const createProduct = async (req, res) => {
       });
     }
 
-    // Process images for each color
     const colorsWithImages = [];
     
     for (let i = 0; i < parsedColors.length; i++) {
       const color = parsedColors[i];
-      
-      // Get images for this specific color from req.files
       const colorImages = [];
       const imageField = `color_${i}_images`;
-      
+
       if (req.files && req.files[imageField]) {
         const files = Array.isArray(req.files[imageField]) 
           ? req.files[imageField] 
           : [req.files[imageField]];
-        
-        // Upload images to Cloudinary
-        try {
-          for (const file of files) {
-            const uploadResult = await uploadToCloudinary(
-              file.tempFilePath || file.data,
-              `sunglasses-products/${name.replace(/\s+/g, '-').toLowerCase()}`
-            );
-            colorImages.push({
-              url: uploadResult.url,
-              public_id: uploadResult.public_id
-            });
-          }
-        } catch (uploadError) {
-          return res.status(500).json({
-            success: false,
-            message: `Failed to upload images for color ${color.name}: ${uploadError.message}`
+
+        for (const file of files) {
+          const uploadResult = await uploadToCloudinary(
+            file.tempFilePath || file.data,
+            `sunglasses-products/${name.replace(/\s+/g, '-').toLowerCase()}`
+          );
+          colorImages.push({
+            url: uploadResult.url,
+            public_id: uploadResult.public_id
           });
         }
       }
@@ -95,7 +108,7 @@ const createProduct = async (req, res) => {
       type,
       category,
       references,
-      description,
+      description: parsedDescription, // save multi-language object
       colors: colorsWithImages,
       createdBy: req.user.id
     });
@@ -105,7 +118,7 @@ const createProduct = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Product created successfully',
-      product: product
+      product
     });
 
   } catch (error) {
@@ -117,6 +130,7 @@ const createProduct = async (req, res) => {
     });
   }
 };
+
 
 // Get all products
 const getAllProducts = async (req, res) => {
@@ -165,8 +179,10 @@ const getAllProducts = async (req, res) => {
 // Get single product
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
-      .populate('createdBy', 'name email');
+      const product = await Product.findOne({
+        _id: req.params.id,
+        isActive: true
+      }).populate('createdBy', 'name email');
 
     if (!product) {
       return res.status(404).json({

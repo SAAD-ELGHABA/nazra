@@ -1,19 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, Package, Eye } from "lucide-react";
+import { getOrders } from "../api/api";
 
 const DashboardStats = () => {
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    products: 0,
+    orders: 0,
+    visitors: 0,
+  });
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000); 
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchStats = async () => {
+      try {
+        const response = await getOrders();
+        setStats({ ...stats,orders: response?.data?.orders?.length || [] });
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const stats = {
-    products: 120,
-    orders: 45,
-    visitors: 1023,
-  };
+    fetchStats();
+  }, []);
 
   if (loading) {
     return (
@@ -26,12 +36,14 @@ const DashboardStats = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 container mx-auto">
       <div className="bg-white shadow rounded-lg p-5 flex items-center gap-4">
         <ShoppingCart className="w-6 h-6 text-blue-600" />
         <div>
           <p className="text-sm text-gray-500">Products</p>
-          <p className="text-xl font-semibold text-gray-900">{stats.products}</p>
+          <p className="text-xl font-semibold text-gray-900">
+            {stats.products}
+          </p>
         </div>
       </div>
 
@@ -43,12 +55,13 @@ const DashboardStats = () => {
         </div>
       </div>
 
-
       <div className="bg-white shadow rounded-lg p-5 flex items-center gap-4">
         <Eye className="w-6 h-6 text-red-600" />
         <div>
           <p className="text-sm text-gray-500">Visitors</p>
-          <p className="text-xl font-semibold text-gray-900">{stats.visitors}</p>
+          <p className="text-xl font-semibold text-gray-900">
+            {stats.visitors}
+          </p>
         </div>
       </div>
     </div>

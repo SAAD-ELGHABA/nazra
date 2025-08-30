@@ -7,7 +7,7 @@ const AddProducts = () => {
   const token = localStorage.getItem("User_Data_token");
   const location = useLocation();
   const product = location.state?.product;
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [productData, setProductData] = useState({
     name: "",
@@ -16,7 +16,11 @@ const AddProducts = () => {
     type: "",
     category: "",
     references: "",
-    description: "",
+    description: {
+      en: "",
+      fr: "",
+      ar: "",
+    },
     colors: [],
   });
 
@@ -321,6 +325,37 @@ const AddProducts = () => {
                   onChange={handleInputChange}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                 />
+              </div>
+
+              <div className="space-y-4">
+                <h2 className="font-semibold">Description:</h2>
+
+                {["en", "fr", "ar"].map((lang) => (
+                  <div key={lang} className="flex flex-col">
+                    <label className="mb-1 text-sm">
+                      {lang === "en"
+                        ? "English"
+                        : lang === "fr"
+                        ? "French"
+                        : "Arabic"}
+                    </label>
+                    <textarea
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                      value={productData.description[lang]}
+                      onChange={(e) =>
+                        setProductData((prev) => ({
+                          ...prev,
+                          description: {
+                            ...prev.description,
+                            [lang]: e.target.value,
+                          },
+                        }))
+                      }
+                      rows={4}
+                      placeholder={`Enter description in ${lang.toUpperCase()}`}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 

@@ -29,9 +29,21 @@ exports.createOrder = async (req, res) => {
     });
 
     await order.save();
+    await order.populate("products.product");
 
-    await sendEmail(customer.email, "Your Order Confirmation", userOrderEmail(order, customer));
-    await sendEmail("admin@yourstore.com", "New Order Received", adminOrderEmail(order, customer));
+    
+    await sendEmail({
+      to: customer.email,
+      subject: "Your Order Confirmation",
+      html: userOrderEmail(order, customer),
+    });
+
+    await sendEmail({
+      to: "nazraglasses@gmail.com",
+      subject: "New Order Received",
+      html: adminOrderEmail(order, customer),
+    });
+
 
     res.status(201).json({
       success: true,
@@ -67,5 +79,55 @@ exports.getOrderById = async (req, res) => {
     res.status(200).json({ success: true, order });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
+
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body; 
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    const allowedStatuses = ["processing", "shipped", "delivered", "cancelled"];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Order status updated to ${status}`,
+      order,
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };

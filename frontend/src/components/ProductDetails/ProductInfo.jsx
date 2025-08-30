@@ -2,7 +2,7 @@ import { Glasses, Heart, Star } from "lucide-react";
 import React, { useState } from "react";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCard } from "../../context/CardContext";
-import {toast} from "sonner"
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 function ProductInfo({ product, selectedColor, setSelectedColor }) {
   const [quantity, setQuantity] = useState(1);
@@ -17,7 +17,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
       addFavorite(product);
     }
   };
-  const {t} = useTranslation()
+  const { t, i18n } = useTranslation();
   const { addToCard } = useCard();
   const AddItemToCard = (product) => {
     const choosedItem = {
@@ -26,9 +26,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
       quantiy: quantity,
     };
     addToCard(choosedItem);
-    toast.success(
-      t("cart.addItem"),
-    );
+    toast.success(t("cart.addItem"));
   };
   return (
     <div className="md:h-[80vh] flex flex-col justify-between relative p-2 md:p-4">
@@ -120,9 +118,11 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
         </div>
 
         <p className="text-gray-700 mb-6 md:mb-0">
-          {product?.description ||
-            `    Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam officia iste dicta eligendi nulla voluptates consequatur atque, eius eveniet tempora perspiciatis eos, provident, dolorum impedit labore molestiae quia soluta! Quod nisi totam delectus voluptatum reiciendis a obcaecati quidem doloremque reprehenderit fuga sunt repellat laborum tempore quas, quaerat molestias, aperiam itaque quasi.
-`}
+          {i18n.language === "en"
+            ? product?.description?.en
+            : i18n.language === "fr"
+            ? product?.description?.fr
+            : product?.description?.ar}
         </p>
 
         <div className="md:absolute sticky bottom-0 bg-white p-4 border-t flex items-center justify-between w-full">

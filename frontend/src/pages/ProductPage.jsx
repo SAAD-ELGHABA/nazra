@@ -3,19 +3,22 @@ import ProductPreview from "../components/ProductDetails/ProductPreview";
 import { useParams } from "react-router-dom";
 import ProductInfo from "../components/ProductDetails/ProductInfo";
 import { useTranslation } from "react-i18next";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, LogIn } from "lucide-react";
 import Suggestions from "../components/ProductDetails/Suggestions";
 import { getProducts, getSingleProduct } from "../api/api";
+import ProductNotAvailable from "./ProductNotAvailable";
 function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [products, setProducts] = useState([]);
+  const [statusPromise, setStatusPromise] = useState(null);
   const { slug } = useParams();
   useEffect(() => {
     document.title = "Product - Nazra";
     window.scrollTo({ top: 0, behavior: "smooth" });
     const getProductsPromise = async () => {
       const res = await getProducts();
+      
       setProducts(res?.data?.products);
     };
     getProductsPromise();
@@ -24,6 +27,7 @@ function ProductPage() {
         const res = await getSingleProduct(slug);
         setProduct(res?.data?.product);
         setSelectedColor(res?.data?.product?.colors[0]);
+        setStatusPromise(res?.data?.success);
       } catch (error) {
         console.error("Failed to fetch product:", error);
       }
@@ -31,6 +35,11 @@ function ProductPage() {
     getProduct();
   }, [slug]);
   const { t } = useTranslation();
+
+  if (!statusPromise) {
+    return <ProductNotAvailable />;
+  }
+
   return (
     <div className="min-h-screen">
       <div className="flex items-center gap-2 justify-center w-full py-2 bg-black">

@@ -46,7 +46,7 @@ function CardModal({ isOpen, onClose }) {
                       />
                     </Link>
                     <div>
-                      <h3 className="font-semibold">{item?.name}</h3>
+                      <h3 className="font-semibold text-sm">{item?.name}</h3>
                       <div className="flex items-center gap-3 mt-1">
                         <button
                           onClick={() =>

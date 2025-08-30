@@ -54,3 +54,14 @@ export const getOrders = async()=>{
     })
     return response;
 }
+
+
+export const updateOrderStatus = async (orderId,status)=>{
+     const token = localStorage.getItem('User_Data_token')
+    const response = await api.post(`/orders/update-order-status/${orderId}`,{status}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response;
+}
