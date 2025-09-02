@@ -39,6 +39,7 @@ import ShippingInfo from "./pages/ShippingInfo";
 import TermsOfUse from "./pages/TermsOfUse";
 import Privacy from "./pages/Privacy";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import ComingSoonPage from "./pages/CommingSoonPage";
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -94,6 +95,10 @@ export const Router = createBrowserRouter([
       {
         path: "/terms-and-conditions",
         element: <TermsAndConditions />,
+      },
+      {
+        path: "/comming-soon-page",
+        element: <ComingSoonPage />,
       },
       {
         path: "*",

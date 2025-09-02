@@ -48,16 +48,15 @@ function CheckoutCard() {
     }
   };
 
-const clearCheckoutList = (items) => {
-  if (!items || !items.length) return;
+  const clearCheckoutList = (items) => {
+    if (!items || !items.length) return;
 
-  items.forEach((i) => {
-    removeFromCard(i?.id, i?.color);
-  });
+    items.forEach((i) => {
+      removeFromCard(i?.id, i?.color);
+    });
 
-  console.log("Cleared items:", items);
-};
-
+    console.log("Cleared items:", items);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,13 +77,18 @@ const clearCheckoutList = (items) => {
 
     try {
       const res = await createMyOrder(order);
-      console.log(res);
       clearCheckoutList(res?.data?.order?.products);
       toast.success(`${t("checkout.formSubmitted")}`);
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        adresse: "",
+      });
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 

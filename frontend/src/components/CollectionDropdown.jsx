@@ -8,7 +8,7 @@ const CollectionDropdown = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative">  {/* changed from <li> to <div> */}
+    <div className="relative">
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors font-medium"
@@ -28,7 +28,7 @@ const CollectionDropdown = () => {
         <ul className="py-1">
           <li>
             <Link
-              to="/eyeglasses"
+              to="/comming-soon-page"
               className="block px-4 py-2 text-black hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
             >
               {t("navbar.eyeglasses")}
@@ -36,7 +36,7 @@ const CollectionDropdown = () => {
           </li>
           <li>
             <Link
-              to="/sunglasses"
+              to="/comming-soon-page"
               className="block px-4 py-2 text-black hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
             >
               {t("navbar.sunglasses")}
