@@ -31,6 +31,7 @@ const TopProducts = () => {
   const [timeRange, setTimeRange] = useState('month'); // 'week', 'month', 'year'
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     fetchTopProducts();
@@ -119,7 +120,7 @@ const TopProducts = () => {
       // Sort by sales (descending) and take top 5
       const topProducts = productsWithSales
         .sort((a, b) => b.sales - a.sales)
-        .slice(0, 5);
+        .slice(0, isMobile ? 3 : 5);
       
       setProducts(topProducts);
     } catch (error) {
@@ -131,8 +132,8 @@ const TopProducts = () => {
 
   const getTrendIcon = (trend) => {
     return trend === 'up' 
-      ? <TrendingUp color="success" sx={{ fontSize: 18 }} /> 
-      : <TrendingDown color="error" sx={{ fontSize: 18 }} />;
+      ? <TrendingUp color="success" sx={{ fontSize: isMobile ? 14 : 18 }} /> 
+      : <TrendingDown color="error" sx={{ fontSize: isMobile ? 14 : 18 }} />;
   };
 
   const formatCurrency = (amount) => {
@@ -145,10 +146,10 @@ const TopProducts = () => {
 
   if (loading) {
     return (
-      <Paper sx={{ p: 2, height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Paper sx={{ p: isMobile ? 1 : 2, height: isMobile ? 300 : 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{ width: '100%' }}>
           <LinearProgress />
-          <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+          <Typography variant="body2" sx={{ mt: 1, textAlign: 'center', fontSize: isMobile ? '12px' : '14px' }}>
             Loading top products...
           </Typography>
         </Box>
@@ -157,35 +158,44 @@ const TopProducts = () => {
   }
 
   return (
-    <Paper sx={{ p: 2, width:1 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="h2">
-          Top Selling Products
+    <Paper sx={{ p: isMobile ? 1 : 2, width: 1 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: isMobile ? 'flex-start' : 'center', 
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? 1 : 0,
+        mb: 2 
+      }}>
+        <Typography variant={isMobile ? "h6" : "h6"} component="h2">
+          Top Products
         </Typography>
-        <Box>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           {['week', 'month', 'year'].map((range) => (
             <Chip
               key={range}
-              label={range.charAt(0).toUpperCase() + range.slice(1)}
+              label={isMobile ? range.charAt(0).toUpperCase() : range.charAt(0).toUpperCase() + range.slice(1)}
               color={timeRange === range ? 'primary' : 'default'}
               onClick={() => setTimeRange(range)}
               size="small"
-              sx={{ ml: 1 }}
+              sx={{ 
+                fontSize: isMobile ? '10px' : '12px',
+                height: isMobile ? 24 : 32
+              }}
             />
           ))}
         </Box>
       </Box>
 
-      <TableContainer>
-        <Table size={isMobile ? "small" : "medium"}>
+      <TableContainer sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+        <Table size={isMobile ? "small" : "medium"} sx={{ minWidth: isMobile ? 500 : 'auto' }}>
           <TableHead>
             <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell align="right">Sales</TableCell>
-              <TableCell align="right">Revenue</TableCell>
-              <TableCell align="right">Trend</TableCell>
-              {/* <TableCell align="right">Stock</TableCell> */}
-              <TableCell align="right">Views</TableCell>
+              <TableCell sx={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold' }}>Product</TableCell>
+              <TableCell align="right" sx={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold' }}>Sales</TableCell>
+              <TableCell align="right" sx={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold' }}>Revenue</TableCell>
+              <TableCell align="right" sx={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold' }}>Trend</TableCell>
+              <TableCell align="right" sx={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold' }}>Views</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -196,45 +206,47 @@ const TopProducts = () => {
                     <Avatar 
                       src={product.image} 
                       alt={product.name}
-                      sx={{ width: 40, height: 40, mr: 2 }}
+                      sx={{ width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, mr: isMobile ? 1 : 2 }}
                       variant="rounded"
                     />
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ 
+                      fontSize: isMobile ? '12px' : '14px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: isMobile ? 100 : 150
+                    }}>
                       {product.name}
                     </Typography>
                   </Box>
                 </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <ShoppingCart sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                    {product.sales}
+                    <ShoppingCart sx={{ fontSize: isMobile ? 14 : 16, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography sx={{ fontSize: isMobile ? '12px' : '14px' }}>
+                      {product.sales}
+                    </Typography>
                   </Box>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography variant="body2" fontWeight="medium">
+                  <Typography variant="body2" fontWeight="medium" sx={{ fontSize: isMobile ? '12px' : '14px' }}>
                     {formatCurrency(product.revenue)}
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                     {getTrendIcon(product.trend)}
-                    <Typography variant="body2" sx={{ ml: 0.5 }}>
+                    <Typography variant="body2" sx={{ ml: 0.5, fontSize: isMobile ? '12px' : '14px' }}>
                       {product.trendValue}%
                     </Typography>
                   </Box>
                 </TableCell>
-                {/* <TableCell align="right">
-                  <Chip 
-                    label={product.stock} 
-                    size="small" 
-                    color={product.stock < 10 ? 'error' : product.stock < 50 ? 'warning' : 'success'}
-                    variant={product.stock < 10 ? 'filled' : 'outlined'}
-                  />
-                </TableCell> */}
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <Visibility sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                    {product.views.toLocaleString()}
+                    <Visibility sx={{ fontSize: isMobile ? 14 : 16, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography sx={{ fontSize: isMobile ? '12px' : '14px' }}>
+                      {product.views.toLocaleString()}
+                    </Typography>
                   </Box>
                 </TableCell>
               </TableRow>
@@ -245,7 +257,7 @@ const TopProducts = () => {
 
       {products.length === 0 && (
         <Box sx={{ py: 4, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: isMobile ? '12px' : '14px' }}>
             No products data available
           </Typography>
         </Box>
