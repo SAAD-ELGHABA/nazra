@@ -23,6 +23,7 @@ const DashboardLayout = () => {
           <h2 className="font-semibold text-xl">NAZRA Dashboard</h2>
           <Link
             to={`/`}
+            target="blanck"
             className="flex items-center gap-2 bg-black text-white px-3 py-1 text-sm rounded-xl"
           >
             <SquareArrowOutUpLeft className="h-4 w-4" />

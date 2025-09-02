@@ -120,6 +120,7 @@ const DashboardProducts = () => {
                           <Link
                             className="rounded-md shadow-md p-2 border border-black bg-white"
                             to={`/product/${product?.slug}`}
+                            target="blanck"
                           >
                             <Eye className="w-5 h-5 text-black" />
                           </Link>
