@@ -65,3 +65,27 @@ export const updateOrderStatus = async (orderId,status)=>{
     })
     return response;
 }
+
+export const getVisitors = async ()=>{
+     const token = localStorage.getItem('User_Data_token')
+    const response = await api.get(`/visitors/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response;
+}
+
+export const trackVisit = async ()=>{
+  const response = await api.post(`/visitors/track-visit`)
+  return response;
+}
+
+export const trackVisitPerProduct = async (idProduct)=>{
+  const response = await api.post(`/visitors/view-product`,{productId:idProduct})
+  return response;
+}
+export const storeEmail = async (email)=>{
+  const response = await api.post(`/emails/create`,{email})
+  return response;
+}

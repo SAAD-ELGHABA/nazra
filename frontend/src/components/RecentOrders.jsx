@@ -11,18 +11,20 @@ import {
     Chip,
     Box,
     Alert,
-    CircularProgress
+    CircularProgress,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
-import axios from 'axios';
 import { getOrders } from '../api/api';
 
 const RecentOrders = () => {
-    const auth = window.localStorage.getItem('User_Data_token')
-
-
     const [orders, setOrders] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
+    
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -67,58 +69,105 @@ const RecentOrders = () => {
                 </Alert>
             )}
 
-            <Box sx={{ maxHeight: 340, overflow: 'auto', width:1 }}>
-                <Typography variant="h6" gutterBottom>
+            <Box sx={{ maxHeight: 340, overflow: 'auto', width: 1 }}>
+                <Typography variant={isMobile ? "h6" : "h6"} component="h2" gutterBottom>
                     Recent Orders
                 </Typography>
 
                 {loading ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height={200}>
-                        <CircularProgress />
+                        <CircularProgress size={isMobile ? 24 : 32} />
                     </Box>
                 ) : (
-                    <TableContainer component={Paper}>
-                        <Table size="small">
+                    <TableContainer 
+                        component={Paper} 
+                        sx={{ 
+                            maxWidth: '100%', 
+                            overflowX: 'auto' 
+                        }}
+                    >
+                        <Table size="small" sx={{ minWidth: isMobile ? 500 : 'auto' }}>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Order ID</TableCell>
-                                    <TableCell>Customer</TableCell>
-                                    <TableCell>Amount</TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Date</TableCell>
+                                    <TableCell sx={{ 
+                                        fontSize: isMobile ? '12px' : '14px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        Order ID
+                                    </TableCell>
+                                    <TableCell sx={{ 
+                                        fontSize: isMobile ? '12px' : '14px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        Customer
+                                    </TableCell>
+                                    <TableCell sx={{ 
+                                        fontSize: isMobile ? '12px' : '14px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        Amount
+                                    </TableCell>
+                                    <TableCell sx={{ 
+                                        fontSize: isMobile ? '12px' : '14px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        Status
+                                    </TableCell>
+                                    <TableCell sx={{ 
+                                        fontSize: isMobile ? '12px' : '14px',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        Date
+                                    </TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {orders.length > 0 ? (
-                                    orders.map((order) => (
+                                    orders.slice(0, isMobile ? 5 : 10).map((order) => (
                                         <TableRow key={order._id || order.id} hover>
-                                            <TableCell>#{order._id ? order._id.slice(-6).toUpperCase() : order.id}</TableCell>
-                                            <TableCell>
-                                                {order.fullName.toUpperCase()}
+                                            <TableCell sx={{ 
+                                                fontSize: isMobile ? '12px' : '14px' 
+                                            }}>
+                                                #{order._id ? order._id.slice(-6).toUpperCase() : order.id}
                                             </TableCell>
-                                            <TableCell>${
-                                                order.products?.reduce((sum, pro) =>
-                                                    sum + (pro.quantity * pro.product?.sale_price)
-                                                    , 0).toFixed(2)
-                                            }
+                                            <TableCell sx={{ 
+                                                fontSize: isMobile ? '12px' : '14px' 
+                                            }}>
+                                                {order.fullName?.toUpperCase() || 'N/A'}
+                                            </TableCell>
+                                            <TableCell sx={{ 
+                                                fontSize: isMobile ? '12px' : '14px' 
+                                            }}>
+                                                $
+                                                {order.products?.reduce((sum, pro) =>
+                                                    sum + (pro.quantity * (pro.product?.sale_price || pro.product?.original_price || 0))
+                                                    , 0).toFixed(2) || '0.00'
+                                                }
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
-                                                    label={order.status.charAt(0).toUpperCase()+order.status.slice(1)}
+                                                    label={order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Unknown'}
                                                     color={getStatusColor(order.status)}
                                                     size="small"
-                                                    
+                                                    sx={{ 
+                                                        fontSize: isMobile ? '10px' : '12px',
+                                                        height: isMobile ? 24 : 32
+                                                    }}
                                                 />
                                             </TableCell>
-                                            <TableCell>
-                                                {formatDate(order.createdAt || order.date)}
+                                            <TableCell sx={{ 
+                                                fontSize: isMobile ? '12px' : '14px' 
+                                            }}>
+                                                {formatDate(order.createdAt || order.date || new Date())}
                                             </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center">
-                                            No orders found
+                                        <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                No orders found
+                                            </Typography>
                                         </TableCell>
                                     </TableRow>
                                 )}

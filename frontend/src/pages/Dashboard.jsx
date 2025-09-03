@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -6,203 +6,241 @@ import {
   Typography,
   Card,
   CardContent,
-  LinearProgress
-} from '@mui/material';
+  LinearProgress,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import {
   ShoppingCart,
   People,
   Visibility,
   TrendingUp,
   Inventory,
-  AttachMoney
-} from '@mui/icons-material';
-import OrderStats from '../components/OrderStats';
-import ProductStats from '../components/ProductStats';
-import VisitorStats from '../components/VisitorStats';
-import RecentOrders from '../components/RecentOrders';
-import TopProducts from '../components/TopProducts';
-import { getOrders, getProducts } from '../api/api';
+  AttachMoney,
+} from "@mui/icons-material";
+import OrderStats from "../components/OrderStats";
+import ProductStats from "../components/ProductStats";
+import VisitorStats from "../components/VisitorStats";
+import RecentOrders from "../components/RecentOrders";
+import TopProducts from "../components/TopProducts";
+import { getOrders, getProducts, getVisitors } from "../api/api";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [totalOrders, setTotalOrders] = useState(0)
-  const [totalRevenue, setTotalRevenue] = useState(0)
-  const [totalProducts, setTotalProducts] = useState(0)
-  const [totalCustomers, setTotalCustomers] = useState(0)
-  const [totalViews, setTotalViews] = useState(1000) // Estimated visitor count
-  const [conversionRate, setConversionRate] = useState(0)
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
+  const [conversionRate, setConversionRate] = useState(0);
+
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm")); // mobile
+  const isSm = useMediaQuery(theme.breakpoints.between("sm", "md")); // small tablet
+  const isMd = useMediaQuery(theme.breakpoints.between("md", "lg")); // tablet
+  const isLg = useMediaQuery(theme.breakpoints.up("lg")); // desktop
+
+  const padding = isXs ? 1 : isSm ? 2 : isMd ? 3 : 4;
+  const spacing = isXs ? 1 : isSm ? 2 : 3;
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   const getUniqueEmail = (orders = []) => {
-    const uniqueEmail = new Set()
-    orders.forEach(order => {
-      if (order.email) {
-        uniqueEmail.add(order.email.toLowerCase())
-      }
-    })
-    return uniqueEmail.size
-  }
+    const uniqueEmail = new Set();
+    orders.forEach((order) => {
+      if (order.email) uniqueEmail.add(order.email.toLowerCase());
+    });
+    return uniqueEmail.size;
+  };
 
   const calculateRevenue = (orders = []) => {
     let totalRevenue = 0;
-    orders.forEach(order => {
+    orders.forEach((order) => {
       const orderRevenue = order.products.reduce((sum, productItem) => {
-        const price = productItem.product.sale_price || productItem.product.original_price;
-        return sum + (productItem.quantity * price);
+        const price =
+          productItem.product.sale_price || productItem.product.original_price;
+        return sum + productItem.quantity * price;
       }, 0);
       totalRevenue += orderRevenue;
     });
-    return totalRevenue
-  }
+    return totalRevenue;
+  };
 
   const calculateConversionRate = (ordersCount, visitorsCount) => {
     if (visitorsCount === 0) return 0;
     return ((ordersCount / visitorsCount) * 100).toFixed(2);
-  }
+  };
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       const orders = await getOrders();
-      const products = await getProducts()
-      
+      const products = await getProducts();
+      const visitors = await getVisitors();
+      const visitorsCount = visitors?.data?.views?.length || 0;
       const ordersCount = orders?.data?.orders?.length || 0;
       const productsCount = products?.data?.products?.length || 0;
       const customersCount = getUniqueEmail(orders?.data?.orders);
       const revenue = calculateRevenue(orders?.data?.orders);
-      const conversion = calculateConversionRate(ordersCount, totalViews);
-      
+
+      setTotalViews(visitorsCount);
       setTotalOrders(ordersCount);
       setTotalProducts(productsCount);
       setTotalCustomers(customersCount);
       setTotalRevenue(revenue);
-      setConversionRate(conversion);
+      setConversionRate(calculateConversionRate(ordersCount, visitorsCount));
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <LinearProgress />;
-  }
+  if (loading) return <LinearProgress />;
 
   const statCards = [
     {
-      title: 'Total Orders',
+      title: "Total Orders",
       value: totalOrders,
       icon: <ShoppingCart />,
-      color: '#1976d2'
+      color: "#1976d2",
     },
     {
-      title: 'Total Revenue',
-      value: `$${totalRevenue.toLocaleString()}`,
+      title: "Total Revenue",
+      value: `MAD ${totalRevenue.toLocaleString()}`,
       icon: <AttachMoney />,
-      color: '#2e7d32'
+      color: "#2e7d32",
     },
     {
-      title: 'Total Products',
+      title: "Total Products",
       value: totalProducts,
       icon: <Inventory />,
-      color: '#ed6c02'
+      color: "#ed6c02",
     },
     {
-      title: 'Total Customers',
+      title: "Total Customers",
       value: totalCustomers,
       icon: <People />,
-      color: '#9c27b0'
+      color: "#9c27b0",
     },
     {
-      title: 'Total Views',
+      title: "Total Views",
       value: totalViews.toLocaleString(),
       icon: <Visibility />,
-      color: '#0288d1'
+      color: "#0288d1",
     },
     {
-      title: 'Conversion Rate',
+      title: "Conversion Rate",
       value: `${conversionRate}%`,
       icon: <TrendingUp />,
-      color: '#d32f2f'
-    }
+      color: "#d32f2f",
+    },
   ];
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }} >
-      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        Dashboard Overview
-      </Typography>
-
-      {/* Stats Cards */}
-      <Grid container spacing={6} justifyContent={'center'} sx={{ mb: 4 }} >
-        {statCards.map((card, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={2} key={index} >
-            <StatCard {...card} />
+    <Box
+      sx={{ flexGrow: 1, p: padding, bgcolor: "#f5f5f5", minHeight: "100vh" }}
+    >
+      <Box sx={{ maxWidth: 1440, mx: "auto" }}>
+        {/* Title */}
+        <Typography variant={isXs ? "h5" : "h4"} gutterBottom sx={{ mb: 2 }}>
+          Dashboard Overview
+        </Typography>
+        {/* Stats Cards */}
+        <Grid container spacing={spacing}>
+          {statCards.map((card, index) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={index}>
+              <StatCard {...card} isMobile={isXs} />
+            </Grid>
+          ))}
+        </Grid>
+        {/* Charts Section */}
+        <Grid container spacing={spacing} justifyContent="center">
+          <Grid item xs={12} md={8}>
+            <Paper sx={{ p: padding, minHeight: isXs ? 250 : 300 }}>
+              <OrderStats />
+            </Paper>
           </Grid>
-        ))}
-      </Grid>
-
-      {/* Charts Section */}
-      <Grid container spacing={3} justifyContent={'center'}>
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 2 }}>
-            <OrderStats />
-          </Paper>
+          <Grid item xs={12} md={4}>
+            <Paper
+              sx={{ p: padding, mt: isXs ? 2 : 0, minHeight: isXs ? 250 : 300 }}
+            >
+              <ProductStats />
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2 }}>
-            <ProductStats />
-          </Paper>
-        </Grid>
-      </Grid>
-
-      {/* Additional Sections */}
-      <Grid container spacing={3} sx={{ mt: 2 }} justifyContent={'center'}>
-        <Grid item xs={12} >
-          <Paper sx={{ p: 2 }}>
-            <VisitorStats />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper size={{ xs: 12 }} sx={{ p: 2 }}>
-            <RecentOrders />
-          </Paper>
-        </Grid>
-      </Grid>
-
-      <Grid spacing={3} sx={{ mt: 2 }} justifyContent={'center'} >
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <TopProducts />
-          </Paper>
-        </Grid>
-      </Grid>
+        {/* Additional Sections */}
+        <Grid
+          container
+          spacing={spacing}
+          sx={{ mt: 1 }}
+          justifyContent="center"
+        >
+          <Grid item xs={12}>
+            <Paper sx={{ p: padding, minHeight: isXs ? 200 : 250 }}>
+              <VisitorStats />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: padding, mt: isXs ? 2 : 0, minHeight: 250 }}>
+              <RecentOrders />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: padding, mt: isXs ? 2 : 0, minHeight: 250 }}>
+              <TopProducts />
+            </Paper>
+          </Grid>
+        </Grid>{" "}
+      </Box>
     </Box>
   );
 };
 
-const StatCard = ({ title, value, icon, color }) => (
-  <Card sx={{
-    background: `linear-gradient(45deg, ${color} 30%, ${color}dd 90%)`,
-    color: 'white',
-    borderRadius: 2,
-    boxShadow: 3,
-    padding:'4px',
-    width:'150px'
-  }}>
-    <CardContent>
-      <Box sx={{ display: 'flex', alignItems: 'center',justifyContent:'space-between', mb: 2 }}>
-        <Box sx={{  fontSize: '2rem' }}>
-          {icon}
-        </Box>
-        <Typography variant="h3" component="div" sx={{ fontWeight: 'bold',display:'flex',alignItems:'center', fontSize:'28px' }}>
+const StatCard = ({ title, value, icon, color, isMobile }) => (
+  <Card
+    sx={{
+      background: `linear-gradient(45deg, ${color} 30%, ${color}dd 90%)`,
+      color: "white",
+      borderRadius: 2,
+      boxShadow: 3,
+      minHeight: 120, // remove fixed height
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <CardContent sx={{ p: isMobile ? 1 : 2, width: "100%" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: isMobile ? "center" : "space-between",
+          flexDirection: isMobile ? "column" : "row",
+          textAlign: isMobile ? "center" : "left",
+          gap: isMobile ? 0.5 : 1,
+        }}
+      >
+        <Box sx={{ fontSize: isMobile ? "1.5rem" : "2rem" }}>{icon}</Box>
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          component="div"
+          sx={{ fontWeight: "bold", fontSize: isMobile ? "16px" : "inherit" }}
+        >
           {value}
         </Typography>
       </Box>
-      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          opacity: 0.9,
+          textAlign: "center",
+          fontSize: isMobile ? "0.7rem" : "0.8rem",
+          mt: isMobile ? 0.5 : 1,
+        }}
+      >
         {title}
       </Typography>
     </CardContent>

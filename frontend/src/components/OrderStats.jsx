@@ -7,7 +7,9 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { getOrders } from '../api/api';
@@ -18,6 +20,10 @@ const OrderStats = () => {
   const [error, setError] = useState('');
   const [monthRange, setMonthRange] = useState('6'); // Default to last 6 months
   const [allOrders, setAllOrders] = useState([]);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     fetchAllOrders();
@@ -62,7 +68,10 @@ const OrderStats = () => {
     filteredOrders.forEach(order => {
       const date = new Date(order.createdAt);
       const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-      const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      // Use shorter month format for mobile
+      const monthName = isMobile 
+        ? date.toLocaleDateString('en-US', { month: 'short' })
+        : date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       
       if (!ordersByMonth[monthYear]) {
         ordersByMonth[monthYear] = {
@@ -84,12 +93,19 @@ const OrderStats = () => {
   };
 
   return (
-    <Box width={600} maxHeight={500}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">
+    <Box sx={{ width: '100%', maxHeight: 500, p: isMobile ? 0 : 1 }}>
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        alignItems={isMobile ? 'flex-start' : 'center'} 
+        flexDirection={isMobile ? 'column' : 'row'}
+        gap={isMobile ? 1 : 0}
+        mb={2}
+      >
+        <Typography variant={isMobile ? "h6" : "h6"} component="h2">
           Monthly Orders
         </Typography>
-        <FormControl size="small" sx={{ minWidth: 140 }}>
+        <FormControl size="small" sx={{ minWidth: isMobile ? '100%' : 140 }}>
           <InputLabel>Time Range</InputLabel>
           <Select
             value={monthRange}
@@ -115,25 +131,36 @@ const OrderStats = () => {
           <CircularProgress />
         </Box>
       ) : orderData.length > 0 ? (
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={orderData}>
+        <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
+          <BarChart 
+            data={orderData}
+            margin={isMobile ? { top: 10, right: 5, left: 0, bottom: 5 } : { top: 10, right: 20, left: 20, bottom: 10 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
+            <XAxis 
+              dataKey="month" 
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+              interval={isMobile ? Math.ceil(orderData.length / 4) - 1 : 0}
+            />
+            <YAxis 
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+            />
             <Tooltip 
               formatter={(value) => [`${value} orders`, 'Orders']}
-              labelStyle={{ fontWeight: 'bold' }}
+              labelStyle={{ fontWeight: 'bold', fontSize: isMobile ? 12 : 14 }}
+              contentStyle={{ fontSize: isMobile ? 12 : 14 }}
             />
             <Bar 
               dataKey="orders" 
               fill="#1976d2" 
               name="Orders"
+              radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
       ) : (
         <Box display="flex" justifyContent="center" alignItems="center" height={300}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" textAlign="center">
             No orders found for the selected period
           </Typography>
         </Box>

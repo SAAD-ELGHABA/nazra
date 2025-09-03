@@ -1,14 +1,38 @@
-import React from "react";
-import { useEffect } from "react";
+import React, { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { SquareArrowOutUpLeft } from "lucide-react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  Box,
+  useMediaQuery,
+  useTheme,
+  Menu,
+  MenuItem
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  ExitToApp,
+  Home,
+  ShoppingBag,
+  ShoppingCart,
+  ArrowBack
+} from "@mui/icons-material";
+
 const DashboardLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const year = new Date().getFullYear();
-  const currentPath = (url) => {
-    return useLocation().pathname === url ? "border-b-2 " : "text-black";
-  };
 
   const handleLogOut = () => {
     localStorage.removeItem("token");
@@ -16,56 +40,208 @@ const DashboardLayout = () => {
     navigate("/login");
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const currentPath = (url) => {
+    return location.pathname === url ? "border-b-2 border-primary" : "text-gray-700";
+  };
+
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard", icon: <Home /> },
+    { path: "/dashboard/products", label: "Products", icon: <ShoppingBag /> },
+    { path: "/dashboard/orders", label: "Orders", icon: <ShoppingCart /> },
+  ];
+
+  const drawer = (
+    <Box sx={{ width: 250 }} role="presentation">
+      <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Typography variant="h6" component="div">
+          NAZRA Dashboard
+        </Typography>
+      </Box>
+      <List>
+        {navItems.map((item) => (
+          <ListItem 
+            key={item.path} 
+            disablePadding
+            sx={{
+              borderLeft: location.pathname === item.path ? `4px solid ${theme.palette.primary.main}` : "none",
+              backgroundColor: location.pathname === item.path ? "action.selected" : "transparent"
+            }}
+          >
+            <Button
+              component={Link}
+              to={item.path}
+              fullWidth
+              sx={{
+                justifyContent: "flex-start",
+                px: 3,
+                py: 1.5,
+                color: location.pathname === item.path ? "primary.main" : "text.primary"
+              }}
+              onClick={() => setDrawerOpen(false)}
+              startIcon={item.icon}
+            >
+              {item.label}
+            </Button>
+          </ListItem>
+        ))}
+        <ListItem disablePadding>
+          <Button
+            fullWidth
+            sx={{ justifyContent: "flex-start", px: 3, py: 1.5 }}
+            onClick={handleLogOut}
+            startIcon={<ExitToApp />}
+            color="error"
+          >
+            Logout
+          </Button>
+        </ListItem>
+      </List>
+    </Box>
+  );
+
   return (
-    <div className="flex flex-col items-center justify-between">
-      <nav className="h-14 bg-white shadow-md text-black px-4 flex items-center w-full">
-        <div className="flex items-center gap-4">
-          <h2 className="font-semibold text-xl">NAZRA Dashboard</h2>
-          <Link
-            to={`/`}
-            target="blanck"
-            className="flex items-center gap-2 bg-black text-white px-3 py-1 text-sm rounded-xl"
-          >
-            <SquareArrowOutUpLeft className="h-4 w-4" />
-            <span>Visit Nazra</span>
-          </Link>
-        </div>
-        <ul className="flex-1 flex justify-center  space-x-4 h-full">
-          <li
-            className={`h-full flex items-center ${currentPath("/dashboard")}`}
-          >
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-          <li
-            className={`h-full flex items-center ${currentPath(
-              "/dashboard/products"
-            )}`}
-          >
-            <Link to="/dashboard/products">Products</Link>
-          </li>
-          <li
-            className={`h-full flex items-center ${currentPath(
-              "/dashboard/orders"
-            )}`}
-          >
-            <Link to="/dashboard/orders">Orders</Link>
-          </li>
-        </ul>
-        <button
-          className="bg-black shadow-md text-white px-4 py-2 rounded"
-          onClick={handleLogOut}
-        >
-          Logout
-        </button>
-      </nav>
-      <main className="my-6 min-h-screen w-full">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {/* Header */}
+      <AppBar position="static" color="default" elevation={1}>
+        <Toolbar>
+          {isMobile && (
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={() => setDrawerOpen(true)}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+          
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            NAZRA Dashboard
+          </Typography>
+
+          {!isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Button
+                component={Link}
+                to="/"
+                target="_blank"
+                variant="outlined"
+                size="small"
+                startIcon={<ArrowBack />}
+              >
+                Visit Nazra
+              </Button>
+              
+              <Box sx={{ display: "flex", gap: 1 }}>
+                {navItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    component={Link}
+                    to={item.path}
+                    color={location.pathname === item.path ? "primary" : "inherit"}
+                    sx={{
+                      borderBottom: location.pathname === item.path ? `2px solid ${theme.palette.primary.main}` : "none",
+                      borderRadius: 0
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </Box>
+
+              <Button
+                color="inherit"
+                onClick={handleLogOut}
+                startIcon={<ExitToApp />}
+              >
+                Logout
+              </Button>
+            </Box>
+          )}
+
+          {isMobile && (
+            <>
+              <Button
+                component={Link}
+                to="/"
+                target="_blank"
+                variant="outlined"
+                size="small"
+                sx={{ mr: 1 }}
+              >
+                Visit
+              </Button>
+              <IconButton
+                color="inherit"
+                onClick={handleMenuOpen}
+              >
+                <ExitToApp />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleLogOut}>Logout</MenuItem>
+              </Menu>
+            </>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        {drawer}
+      </Drawer>
+
+      {/* Main Content */}
+      <Box component="main" sx={{ flexGrow: 1, p: isMobile ? 1 : 3 }}>
         <Outlet />
-      </main>
-      <footer className="flex w-full items-center justify-between px-10 border-t-2">
-        <img src="/Main-logo.jpeg" className="h-[150px] object-cover" alt="" />
-        <p>© {year} Nazra Sunglasses.</p>
-      </footer>
-    </div>
+      </Box>
+
+      {/* Footer */}
+      <Box
+        component="footer"
+        sx={{
+          py: 3,
+          px: 2,
+          mt: "auto",
+          borderTop: 1,
+          borderColor: "divider",
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2
+        }}
+      >
+        <Box
+          component="img"
+          src="/Main-logo.jpeg"
+          sx={{
+            height: isMobile ? 80 : 120,
+            objectFit: "contain"
+          }}
+          alt="Nazra Sunglasses Logo"
+        />
+        <Typography variant="body2" color="text.secondary">
+          © {year} Nazra Sunglasses.
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 

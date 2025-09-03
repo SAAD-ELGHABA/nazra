@@ -5,7 +5,11 @@ import ProductInfo from "../components/ProductDetails/ProductInfo";
 import { useTranslation } from "react-i18next";
 import { BadgeCheck, LogIn } from "lucide-react";
 import Suggestions from "../components/ProductDetails/Suggestions";
-import { getProducts, getSingleProduct } from "../api/api";
+import {
+  getProducts,
+  getSingleProduct,
+  trackVisitPerProduct,
+} from "../api/api";
 import ProductNotAvailable from "./ProductNotAvailable";
 function ProductPage() {
   const [product, setProduct] = useState(null);
@@ -13,12 +17,13 @@ function ProductPage() {
   const [products, setProducts] = useState([]);
   const [statusPromise, setStatusPromise] = useState(null);
   const { slug } = useParams();
+  const visitPerProduct = async (idProduct) => trackVisitPerProduct(idProduct);
   useEffect(() => {
     document.title = "Product - Nazra";
     window.scrollTo({ top: 0, behavior: "smooth" });
     const getProductsPromise = async () => {
       const res = await getProducts();
-      
+
       setProducts(res?.data?.products);
     };
     getProductsPromise();
@@ -27,6 +32,7 @@ function ProductPage() {
         const res = await getSingleProduct(slug);
         setProduct(res?.data?.product);
         setSelectedColor(res?.data?.product?.colors[0]);
+        visitPerProduct(res?.data?.product?._id);
         setStatusPromise(res?.data?.success);
       } catch (error) {
         console.error("Failed to fetch product:", error);

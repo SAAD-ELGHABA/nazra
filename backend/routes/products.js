@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const auth = require('../middleware/auth');
-
+const ProductView = require("../models/ProductView");
 // Create a new product
 router.post('/create', auth, async (req, res) => {
   try {
@@ -95,29 +95,33 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get all products as Admin
 // Admin route to get all products
-router.get('/admin/all', auth, async (req, res) => {
+router.get("/admin/all", auth, async (req, res) => {
   try {
     const products = await Product.find()
-      .populate('createdBy', 'name email')
+      .populate("createdBy", "name email")
       .sort({ createdAt: -1 });
+
+    const productsWithViews = await Promise.all(
+      products.map(async (product) => {
+        const viewsCount = await ProductView.countDocuments({ productId: product._id });
+        return { ...product.toObject(), views: viewsCount };
+      })
+    );
 
     res.status(200).json({
       success: true,
-      products
+      products: productsWithViews
     });
   } catch (error) {
-    console.error('Error fetching all products:', error);
+    console.error("Error fetching all products:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching all products',
+      message: "Server error while fetching all products",
       error: error.message
     });
   }
 });
-
-
 
 // Get single product by slug
 router.get('/:slug', async (req, res) => {

@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
+import { storeEmail } from "../api/api";
+import { LoaderCircle } from "lucide-react";
 const LINKS = [
   {
     key: "quickLinks",
@@ -58,7 +59,25 @@ const LINKS = [
 const Footer = () => {
   const { t } = useTranslation();
   const year = new Date().getFullYear();
-
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const handleEmail = async (e) => {
+    if(!email){
+      return
+    }
+    setIsLoading(true);
+    e?.preventDefault();
+    try {
+      const response = storeEmail(email);
+      setEmail("");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 3000);
+    }
+  };
   return (
     <div className="min-h-[50vh] mt-12 flex flex-col items-center justify-center">
       <div className="flex flex-col md:flex-row md:items-center justify-between w-11/12 mb-4 gap-6 mx-auto">
@@ -80,9 +99,14 @@ const Footer = () => {
               type="email"
               className="flex-1 py-3 px-3 border rounded focus:outline-none outline-none text-sm md:text-base"
               placeholder={t("footer.emailPlaceholder")}
+              value={email}
+              onChange={(e) => setEmail(e?.target?.value)}
             />
-            <button className="px-6 py-3 text-white rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-sm md:text-base">
-              {t("footer.join")}
+            <button
+              className="px-6 py-3 text-white rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-sm md:text-base"
+              onClick={handleEmail}
+            >
+              {isLoading ? <LoaderCircle className="h-5 w-5 animate-spin"/> : <span>{t("footer.join")}</span>}
             </button>
           </div>
 
@@ -101,7 +125,10 @@ const Footer = () => {
             <ul className="flex flex-col gap-1">
               {section.links.map((link, i) => (
                 <li key={i} className="text-sm hover:underline cursor-pointer">
-                  <Link to={link.path} className="capitalize text-xs md:text-sm">
+                  <Link
+                    to={link.path}
+                    className="capitalize text-xs md:text-sm"
+                  >
                     {t(`footer.links.${section.key}.items.${link.key}`)}
                   </Link>
                 </li>
