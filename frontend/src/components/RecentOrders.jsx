@@ -75,13 +75,7 @@ const RecentOrders = () => {
       )}
 
       <Box sx={{ maxHeight: 340, overflow: "auto", width: 1 }}>
-        <Typography
-          variant={isMobile ? "h6" : "h6"}
-          component="h2"
-          gutterBottom
-        >
-          Recent Orders
-        </Typography>
+        
 
         {loading ? (
           <Box
