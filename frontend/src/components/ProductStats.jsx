@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  CircularProgress,
-  Alert,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { getProducts } from '../api/api'; 
+import { getProducts } from '../api/api';
 
 const ProductStats = () => {
   const [productData, setProductData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     fetchProductStats();
@@ -27,30 +15,29 @@ const ProductStats = () => {
     try {
       setLoading(true);
       const response = await getProducts();
-      
+
       if (response.status === 200) {
         const products = response.data.products || response.data;
-        
-        const activeCount = products.filter(product => product.isActive === true).length;
-        const inactiveCount = products.filter(product => product.isActive === false).length;
+        const activeCount = products.filter((p) => p.isActive === true).length;
+        const inactiveCount = products.length - activeCount;
         const totalCount = products.length;
-        
+
         const activePercentage = totalCount > 0 ? (activeCount / totalCount) * 100 : 0;
         const inactivePercentage = totalCount > 0 ? (inactiveCount / totalCount) * 100 : 0;
-        
+
         setProductData([
-          { 
-            name: 'Active Products', 
-            value: activeCount, 
+          {
+            name: 'Active Products',
+            value: activeCount,
             percentage: activePercentage,
-            color: '#00C49F' 
+            color: '#00C49F',
           },
-          { 
-            name: 'Inactive Products', 
-            value: inactiveCount, 
+          {
+            name: 'Inactive Products',
+            value: inactiveCount,
             percentage: inactivePercentage,
-            color: '#FF8042' 
-          }
+            color: '#FF8042',
+          },
         ]);
       }
     } catch (err) {
@@ -61,77 +48,51 @@ const ProductStats = () => {
     }
   };
 
-  const COLORS = ['#00C49F', '#FF8042'];
-
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          padding: '8px', 
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          fontSize: isMobile ? '12px' : '14px'
-        }}>
-          <Typography variant="body2" sx={{ fontSize: 'inherit' }}>{`${data.name}: ${data.value}`}</Typography>
-          <Typography variant="body2" sx={{ fontSize: 'inherit' }}>{`${data.percentage.toFixed(1)}% of total`}</Typography>
-        </Box>
+        <div className="bg-white p-2 border border-gray-300 rounded text-sm">
+          <p>{`${data.name}: ${data.value}`}</p>
+          <p>{`${data.percentage.toFixed(1)}% of total`}</p>
+        </div>
       );
     }
     return null;
   };
 
-  // Custom legend
-  const renderLegend = (props) => {
-    const { payload } = props;
-    return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        gap: isMobile ? 1 : 2, 
-        mt: 2,
-        flexDirection: isMobile ? 'column' : 'row',
-        alignItems: isMobile ? 'flex-start' : 'center'
-      }}>
-        {payload.map((entry, index) => (
-          <Box key={`legend-${index}`} sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box 
-              sx={{ 
-                width: 14, 
-                height: 14, 
-                backgroundColor: entry.color, 
-                mr: 1,
-                borderRadius: '2px'
-              }} 
-            />
-            <Typography variant="body2" sx={{ fontSize: isMobile ? '12px' : '14px' }}>
-              {entry.value}: {productData[index]?.value || 0}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-    );
-  };
+  const renderLegend = ({ payload }) => (
+    <div className="flex flex-col sm:flex-row justify-center items-start sm:items-center gap-2 mt-4">
+      {payload.map((entry, index) => (
+        <div key={`legend-${index}`} className="flex items-center gap-2">
+          <div
+            className="w-4 h-4 rounded-sm"
+            style={{ backgroundColor: entry.color }}
+          ></div>
+          <span className="text-sm font-medium">
+            {entry.value}: {productData[index]?.value || 0}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <Box sx={{ width: '100%', maxHeight: 500, p: isMobile ? 0 : 1 }}>
-      <Typography variant={isMobile ? "h6" : "h6"} component="h2" gutterBottom sx={{ textAlign: isMobile ? 'center' : 'left' }}>
-        Product Status
-      </Typography>
+    <div className="bg-white  p-4 w-full max-w-lg mx-auto">
       
+
       {error && (
-        <Alert severity="error" sx={{ mb: 2, fontSize: isMobile ? '12px' : '14px' }}>
+        <div className="bg-red-100 text-red-700 border border-red-300 p-2 rounded mb-4 text-sm">
           {error}
-        </Alert>
+        </div>
       )}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" height={isMobile ? 250 : 300}>
-          <CircularProgress size={isMobile ? 24 : 32} />
-        </Box>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
       ) : productData.length > 0 ? (
-        <Box sx={{ width: '100%', height: isMobile ? 280 : 320 }}>
+        <div className="w-full h-64 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -139,9 +100,9 @@ const ProductStats = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percentage }) => `${percentage.toFixed(1)}%`}
-                outerRadius={isMobile ? 70 : 80}
-                innerRadius={isMobile ? 50 : 60}
+                label={({ percentage }) => `${percentage.toFixed(1)}%`}
+                outerRadius={80}
+                innerRadius={50}
                 dataKey="value"
               >
                 {productData.map((entry, index) => (
@@ -152,15 +113,13 @@ const ProductStats = () => {
               <Legend content={renderLegend} />
             </PieChart>
           </ResponsiveContainer>
-        </Box>
+        </div>
       ) : (
-        <Box display="flex" justifyContent="center" alignItems="center" height={isMobile ? 250 : 300}>
-          <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ fontSize: isMobile ? '12px' : '14px' }}>
-            No product data available
-          </Typography>
-        </Box>
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-500 text-sm text-center">No product data available</p>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

@@ -1,239 +1,177 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  Card,
-  CardContent,
-  LinearProgress,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
+import React, { useState, useEffect } from "react";
 import {
   ShoppingCart,
-  People,
-  Visibility,
+  Users,
+  Eye,
   TrendingUp,
-  Inventory,
-  AttachMoney
-} from '@mui/icons-material';
-import OrderStats from '../components/OrderStats';
-import ProductStats from '../components/ProductStats';
-import VisitorStats from '../components/VisitorStats';
-import RecentOrders from '../components/RecentOrders';
-import TopProducts from '../components/TopProducts';
-import { getOrders, getProducts } from '../api/api';
+  Package,
+  DollarSign,
+} from "lucide-react"; // using lucide icons instead of MUI
+import OrderStats from "../components/OrderStats";
+import ProductStats from "../components/ProductStats";
+import VisitorStats from "../components/VisitorStats";
+import RecentOrders from "../components/RecentOrders";
+import TopProducts from "../components/TopProducts";
+import { getOrders, getProducts } from "../api/api";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [totalOrders, setTotalOrders] = useState(0)
-  const [totalRevenue, setTotalRevenue] = useState(0)
-  const [totalProducts, setTotalProducts] = useState(0)
-  const [totalCustomers, setTotalCustomers] = useState(0)
-  const [totalViews, setTotalViews] = useState(1000) // Estimated visitor count
-  const [conversionRate, setConversionRate] = useState(0)
-  
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalViews] = useState(1000); // Estimated visitor count
+  const [conversionRate, setConversionRate] = useState(0);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   const getUniqueEmail = (orders = []) => {
-    const uniqueEmail = new Set()
-    orders.forEach(order => {
-      if (order.email) {
-        uniqueEmail.add(order.email.toLowerCase())
-      }
-    })
-    return uniqueEmail.size
-  }
+    const s = new Set();
+    orders.forEach((o) => o.email && s.add(o.email.toLowerCase()));
+    return s.size;
+  };
 
-  const calculateRevenue = (orders = []) => {
-    let totalRevenue = 0;
-    orders.forEach(order => {
-      const orderRevenue = order.products.reduce((sum, productItem) => {
-        const price = productItem.product.sale_price || productItem.product.original_price;
-        return sum + (productItem.quantity * price);
+  const calculateRevenue = (orders = []) =>
+    orders.reduce((acc, o) => {
+      const sub = (o.products || []).reduce((sum, it) => {
+        const price =
+          it.product?.sale_price ?? it.product?.original_price ?? 0;
+        return sum + price * (it.quantity ?? 0);
       }, 0);
-      totalRevenue += orderRevenue;
-    });
-    return totalRevenue
-  }
+      return acc + sub;
+    }, 0);
 
-  const calculateConversionRate = (ordersCount, visitorsCount) => {
-    if (visitorsCount === 0) return 0;
-    return ((ordersCount / visitorsCount) * 100).toFixed(2);
-  }
+  const calculateConversionRate = (ordersCount, visitorsCount) =>
+    visitorsCount === 0
+      ? 0
+      : ((ordersCount / visitorsCount) * 100).toFixed(2);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const orders = await getOrders();
-      const products = await getProducts()
-      
-      const ordersCount = orders?.data?.orders?.length || 0;
-      const productsCount = products?.data?.products?.length || 0;
-      const customersCount = getUniqueEmail(orders?.data?.orders);
-      const revenue = calculateRevenue(orders?.data?.orders);
-      const conversion = calculateConversionRate(ordersCount, totalViews);
-      
-      setTotalOrders(ordersCount);
-      setTotalProducts(productsCount);
-      setTotalCustomers(customersCount);
-      setTotalRevenue(revenue);
-      setConversionRate(conversion);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      const [orders, products] = await Promise.all([
+        getOrders(),
+        getProducts(),
+      ]);
+
+      const ordersArr = orders?.data?.orders ?? [];
+      const productsArr = products?.data?.products ?? [];
+
+      setTotalOrders(ordersArr.length);
+      setTotalProducts(productsArr.length);
+      setTotalCustomers(getUniqueEmail(ordersArr));
+      setTotalRevenue(calculateRevenue(ordersArr));
+      setConversionRate(
+        calculateConversionRate(ordersArr.length, totalViews)
+      );
+    } catch (e) {
+      console.error("Error fetching dashboard data:", e);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <LinearProgress />;
-  }
+  if (loading) return <div className="w-full h-40 flex items-center justify-center">Loading...</div>;
 
   const statCards = [
     {
-      title: 'Total Orders',
+      title: "Total Orders",
       value: totalOrders,
-      icon: <ShoppingCart />,
-      color: '#1976d2'
+      icon: <ShoppingCart className="w-6 h-6" />,
+      color: "bg-blue-600",
     },
     {
-      title: 'Total Revenue',
+      title: "Total Revenue",
       value: `$${totalRevenue.toLocaleString()}`,
-      icon: <AttachMoney />,
-      color: '#2e7d32'
+      icon: <DollarSign className="w-6 h-6" />,
+      color: "bg-green-600",
     },
     {
-      title: 'Total Products',
+      title: "Total Products",
       value: totalProducts,
-      icon: <Inventory />,
-      color: '#ed6c02'
+      icon: <Package className="w-6 h-6" />,
+      color: "bg-orange-500",
     },
     {
-      title: 'Total Customers',
+      title: "Total Customers",
       value: totalCustomers,
-      icon: <People />,
-      color: '#9c27b0'
+      icon: <Users className="w-6 h-6" />,
+      color: "bg-purple-600",
     },
     {
-      title: 'Total Views',
+      title: "Total Views",
       value: totalViews.toLocaleString(),
-      icon: <Visibility />,
-      color: '#0288d1'
+      icon: <Eye className="w-6 h-6" />,
+      color: "bg-cyan-600",
     },
     {
-      title: 'Conversion Rate',
+      title: "Conversion Rate",
       value: `${conversionRate}%`,
-      icon: <TrendingUp />,
-      color: '#d32f2f'
-    }
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: "bg-red-600",
+    },
   ];
 
   return (
-    <Box sx={{ flexGrow: 1, p: isMobile ? 1 : 3 }} >
-      <Typography variant={isMobile ? "h5" : "h4"} gutterBottom sx={{ mb: 2 }}>
+    <div className="p-4 md:p-6 lg:p-8">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">
         Dashboard Overview
-      </Typography>
+      </h1>
 
-      {/* Stats Cards */}
-      <Grid container spacing={isMobile ? 2 : 3} justifyContent={'center'} sx={{ mb: 3 }} >
-        {statCards.map((card, index) => (
-          <Grid item xs={6} sm={4} md={3} lg={2} key={index} >
-            <StatCard {...card} isMobile={isMobile} />
-          </Grid>
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        {statCards.map((c, i) => (
+          <StatCard key={i} {...c} />
         ))}
-      </Grid>
+      </div>
 
-      {/* Charts Section */}
-      <Grid container spacing={isMobile ? 1 : 3} justifyContent={'center'}>
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: isMobile ? 1 : 2 }}>
-            <OrderStats />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: isMobile ? 1 : 2, mt: isMobile ? 1 : 0 }}>
-            <ProductStats />
-          </Paper>
-        </Grid>
-      </Grid>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <SectionCard title="Monthly Orders">
+          <OrderStats />
+        </SectionCard>
+        <SectionCard title="Product Status">
+          <ProductStats />
+        </SectionCard>
+      </div>
 
-      {/* Additional Sections */}
-      <Grid container spacing={isMobile ? 1 : 3} sx={{ mt: 1 }} justifyContent={'center'}>
-        <Grid item xs={12}>
-          <Paper sx={{ p: isMobile ? 1 : 2 }}>
-            <VisitorStats />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: isMobile ? 1 : 2, mt: isMobile ? 1 : 0 }}>
-            <RecentOrders />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: isMobile ? 1 : 2, mt: isMobile ? 1 : 0 }}>
-            <TopProducts />
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
+      {/* Other sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SectionCard title="Visitor Analytics (Last 7 Days)">
+          <VisitorStats />
+        </SectionCard>
+        <SectionCard title="Recent Orders">
+          <RecentOrders />
+        </SectionCard>
+        <SectionCard title="Top Products" className="lg:col-span-2">
+          <TopProducts />
+        </SectionCard>
+      </div>
+    </div>
   );
 };
 
-const StatCard = ({ title, value, icon, color, isMobile }) => (
-  <Card sx={{
-    background: `linear-gradient(45deg, ${color} 30%, ${color}dd 90%)`,
-    color: 'white',
-    borderRadius: 2,
-    boxShadow: 2,
-    height: isMobile ? '90px' : '110px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}>
-    <CardContent sx={{ p: isMobile ? 1 : 2, width: '100%' }}>
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: isMobile ? 'center' : 'space-between', 
-        flexDirection: isMobile ? 'column' : 'row',
-        textAlign: isMobile ? 'center' : 'left',
-        gap: isMobile ? 0.5 : 0
-      }}>
-        <Box sx={{ fontSize: isMobile ? '1.5rem' : '2rem' }}>
-          {icon}
-        </Box>
-        <Typography 
-          variant={isMobile ? "h6" : "h5"} 
-          component="div" 
-          sx={{ 
-            fontWeight: 'bold', 
-            fontSize: isMobile ? '16px' : 'inherit'
-          }}
-        >
-          {value}
-        </Typography>
-      </Box>
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          opacity: 0.9, 
-          textAlign: 'center',
-          fontSize: isMobile ? '0.7rem' : '0.8rem',
-          mt: isMobile ? 0.5 : 1
-        }}
-      >
-        {title}
-      </Typography>
-    </CardContent>
-  </Card>
+const StatCard = ({ title, value, icon, color }) => (
+  <div
+    className={`rounded-xl shadow-md p-4 flex flex-col items-center justify-center text-white ${color}`}
+  >
+    <div className="flex items-center gap-2 mb-2">
+      {icon}
+      <span className="text-xl font-bold">{value}</span>
+    </div>
+    <p className="text-sm opacity-90 text-center">{title}</p>
+  </div>
+);
+
+const SectionCard = ({ title, children, className = "" }) => (
+  <div
+    className={`bg-white dark:bg-gray-900 rounded-xl shadow p-4 md:p-6 ${className}`}
+  >
+    <h2 className="text-lg md:text-xl font-semibold mb-4">{title}</h2>
+    {children}
+  </div>
 );
 
 export default Dashboard;

@@ -1,17 +1,7 @@
 import React from 'react';
-import { 
-  Typography, 
-  Box, 
-  useTheme, 
-  useMediaQuery 
-} from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const VisitorStats = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-
   const visitorData = [
     { day: 'Mon', visitors: 150, pageViews: 450 },
     { day: 'Tue', visitors: 180, pageViews: 520 },
@@ -26,86 +16,51 @@ const VisitorStats = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <Box
-          sx={{
-            backgroundColor: 'background.paper',
-            p: 1,
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            boxShadow: 1
-          }}
-        >
-          <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-            {label}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#8884d8' }}>
-            Visitors: {payload[0]?.value}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#82ca9d' }}>
-            Page Views: {payload[1]?.value}
-          </Typography>
-        </Box>
+        <div className="bg-white p-2 border border-gray-300 rounded shadow text-sm">
+          <p className="font-bold mb-1">{label}</p>
+          <p className="text-purple-600">Visitors: {payload[0]?.value}</p>
+          <p className="text-green-600">Page Views: {payload[1]?.value}</p>
+        </div>
       );
     }
     return null;
   };
 
   return (
-    <Box sx={{ width: '100%', p: isMobile ? 0 : 1 }}>
-      <Typography 
-        variant={isMobile ? "h6" : "h6"} 
-        component="h2" 
-        gutterBottom 
-        sx={{ textAlign: isMobile ? 'center' : 'left' }}
-      >
+    <div className="bg-white shadow rounded p-4 w-full max-w-lg mx-auto">
+      <h2 className="text-lg sm:text-xl font-semibold text-center sm:text-left mb-4">
         Visitor Analytics (Last 7 Days)
-      </Typography>
-      
-      <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
-        <BarChart 
-          data={visitorData}
-          margin={isMobile ? { top: 10, right: 5, left: 0, bottom: 5 } : { top: 10, right: 20, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="day" 
-            tick={{ fontSize: isMobile ? 10 : 12 }}
-          />
-          <YAxis 
-            tick={{ fontSize: isMobile ? 10 : 12 }}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          {!isMobile && <Legend />}
-          <Bar 
-            dataKey="visitors" 
-            fill="#8884d8" 
-            name="Visitors"
-            radius={[4, 4, 0, 0]}
-          />
-          <Bar 
-            dataKey="pageViews" 
-            fill="#82ca9d" 
-            name="Page Views"
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-      
-      {/* Mobile legend */}
-      {isMobile && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box sx={{ width: 12, height: 12, backgroundColor: '#8884d8', mr: 1 }} />
-            <Typography variant="caption">Visitors</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box sx={{ width: 12, height: 12, backgroundColor: '#82ca9d', mr: 1 }} />
-            <Typography variant="caption">Page Views</Typography>
-          </Box>
-        </Box>
-      )}
-    </Box>
+      </h2>
+
+      <div className="w-full h-64 sm:h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={visitorData}
+            margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend wrapperStyle={{ display: 'none' }} /> {/* Hidden for mobile, custom legend below */}
+            <Bar dataKey="visitors" fill="#8884d8" name="Visitors" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="pageViews" fill="#82ca9d" name="Page Views" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Mobile/Custom legend */}
+      <div className="flex justify-center sm:justify-start gap-4 mt-3">
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 bg-purple-600 rounded-sm"></div>
+          <span className="text-sm">Visitors</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 bg-green-600 rounded-sm"></div>
+          <span className="text-sm">Page Views</span>
+        </div>
+      </div>
+    </div>
   );
 };
 

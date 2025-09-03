@@ -61,7 +61,7 @@ const DashboardLayout = () => {
   const drawer = (
     <Box sx={{ width: 250 }} role="presentation">
       <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Typography variant="h6" component="div">
+        <Typography variant="h6"   component="div">
           NAZRA Dashboard
         </Typography>
       </Box>

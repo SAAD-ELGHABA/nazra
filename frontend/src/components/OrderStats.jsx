@@ -1,171 +1,157 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  Typography,
-  Box,
-  CircularProgress,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getOrders } from '../api/api';
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { getOrders } from "../api/api";
 
-const OrderStats = () => {
+const OrderStats = ({ hideTitle = false, heightMobile = 250, heightDesktop = 320 }) => {
   const [orderData, setOrderData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [monthRange, setMonthRange] = useState('6'); // Default to last 6 months
+  const [error, setError] = useState("");
+  const [monthRange, setMonthRange] = useState("3");
   const [allOrders, setAllOrders] = useState([]);
-  
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     fetchAllOrders();
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    if (allOrders.length > 0) {
-      processOrderData();
-    }
+    if (allOrders.length) processOrderData();
   }, [allOrders, monthRange]);
 
   const fetchAllOrders = async () => {
     try {
       setLoading(true);
-      const response = await getOrders();
-      
-      if (response.status === 200) {
-        setAllOrders(response.data.orders);
-      }
+      const res = await getOrders();
+      if (res.status === 200) setAllOrders(res.data.orders);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch orders');
-      console.error('Error fetching orders:', err);
+      setError(err.response?.data?.message || "Failed to fetch orders");
     } finally {
       setLoading(false);
     }
   };
 
   const processOrderData = () => {
-    // Calculate date range based on months
-    const months = monthRange === 'all' ? 120 : parseInt(monthRange); // 120 months = 10 years for "all"
+    const months = monthRange === "all" ? 120 : parseInt(monthRange, 10);
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - months);
-    
-    // Filter orders by date range
-    const filteredOrders = monthRange === 'all' 
-      ? allOrders 
-      : allOrders.filter(order => new Date(order.createdAt) >= startDate);
-    
-    // Group orders by month
-    const ordersByMonth = {};
-    
-    filteredOrders.forEach(order => {
-      const date = new Date(order.createdAt);
-      const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-      // Use shorter month format for mobile
-      const monthName = isMobile 
-        ? date.toLocaleDateString('en-US', { month: 'short' })
-        : date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      
-      if (!ordersByMonth[monthYear]) {
-        ordersByMonth[monthYear] = {
-          month: monthName,
-          monthKey: monthYear,
-          orders: 0
-        };
-      }
-      
-      ordersByMonth[monthYear].orders += 1;
+
+    const filtered =
+      monthRange === "all"
+        ? allOrders
+        : allOrders.filter((o) => new Date(o.createdAt) >= startDate);
+
+    const grouped = {};
+    filtered.forEach((o) => {
+      const d = new Date(o.createdAt);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const label =
+        windowWidth < 640
+          ? d.toLocaleDateString("en-US", { month: "short" })
+          : d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+      if (!grouped[key]) grouped[key] = { month: label, monthKey: key, orders: 0 };
+      grouped[key].orders += 1;
     });
-    
-    // Convert to array format for the chart and sort by month
-    const formattedData = Object.values(ordersByMonth).sort((a, b) => 
-      a.monthKey.localeCompare(b.monthKey)
-    );
-    
-    setOrderData(formattedData);
+
+    setOrderData(Object.values(grouped).sort((a, b) => a.monthKey.localeCompare(b.monthKey)));
   };
 
   return (
-    <Box sx={{ width: '100%', maxHeight: 500, p: isMobile ? 0 : 1 }}>
-      <Box 
-        display="flex" 
-        justifyContent="space-between" 
-        alignItems={isMobile ? 'flex-start' : 'center'} 
-        flexDirection={isMobile ? 'column' : 'row'}
-        gap={isMobile ? 1 : 0}
-        mb={2}
-      >
-        <Typography variant={isMobile ? "h6" : "h6"} component="h2">
-          Monthly Orders
-        </Typography>
-        <FormControl size="small" sx={{ minWidth: isMobile ? '100%' : 140 }}>
-          <InputLabel>Time Range</InputLabel>
-          <Select
-            value={monthRange}
-            label="Time Range"
-            onChange={(e) => setMonthRange(e.target.value)}
-          >
-            <MenuItem value="3">Last 3 Months</MenuItem>
-            <MenuItem value="6">Last 6 Months</MenuItem>
-            <MenuItem value="12">Last 12 Months</MenuItem>
-            <MenuItem value="all">All Time</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+    <div className="w-full">
+      {/* {!hideTitle && (
+        <h2 className="text-lg sm:text-xl font-semibold mb-2">Monthly Orders</h2>
+      )} */}
 
+      {/* Dropdown for Time Range */}
+      <div className="flex justify-end mb-3">
+        <select
+          value={monthRange}
+          onChange={(e) => setMonthRange(e.target.value)}
+          className="border rounded px-2 py-1 text-sm sm:text-base focus:ring focus:ring-blue-300"
+        >
+          <option value="3">Last 3 Months</option>
+          <option value="6">Last 6 Months</option>
+          <option value="12">Last 12 Months</option>
+          <option value="all">All Time</option>
+        </select>
+      </div>
+
+      {/* Error Message */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <div className="mb-3 p-2 text-sm text-red-700 bg-red-100 border border-red-300 rounded">
           {error}
-        </Alert>
+        </div>
       )}
 
+      {/* Loading Spinner */}
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" height={300}>
-          <CircularProgress />
-        </Box>
-      ) : orderData.length > 0 ? (
-        <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
-          <BarChart 
-            data={orderData}
-            margin={isMobile ? { top: 10, right: 5, left: 0, bottom: 5 } : { top: 10, right: 20, left: 20, bottom: 10 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="month" 
-              tick={{ fontSize: isMobile ? 10 : 12 }}
-              interval={isMobile ? Math.ceil(orderData.length / 4) - 1 : 0}
-            />
-            <YAxis 
-              tick={{ fontSize: isMobile ? 10 : 12 }}
-            />
-            <Tooltip 
-              formatter={(value) => [`${value} orders`, 'Orders']}
-              labelStyle={{ fontWeight: 'bold', fontSize: isMobile ? 12 : 14 }}
-              contentStyle={{ fontSize: isMobile ? 12 : 14 }}
-            />
-            <Bar 
-              dataKey="orders" 
-              fill="#1976d2" 
-              name="Orders"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        <div
+          className="flex items-center justify-center"
+          style={{ height: windowWidth < 640 ? heightMobile : heightDesktop }}
+        >
+          <div className="w-6 h-6 sm:w-8 sm:h-8 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+        </div>
+      ) : orderData.length ? (
+        <div
+          className="w-full"
+          style={{ height: windowWidth < 640 ? heightMobile : heightDesktop }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={orderData}
+              margin={{
+                top: windowWidth < 640 ? 8 : 16,
+                right: windowWidth < 640 ? 8 : 16,
+                left: windowWidth < 640 ? 0 : 8,
+                bottom: windowWidth < 640 ? 10 : 16,
+              }}
+            >
+              <CartesianGrid strokeDasharray="5 5" />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: windowWidth < 640 ? 10 : windowWidth < 768 ? 11 : 12 }}
+                minTickGap={10}
+                interval={windowWidth < 640 ? Math.ceil(orderData.length / 4) - 1 : 0}
+                angle={windowWidth < 640 ? -30 : 0}
+                textAnchor={windowWidth < 640 ? "end" : "middle"}
+              />
+              <YAxis
+                tick={{ fontSize: windowWidth < 640 ? 10 : windowWidth < 768 ? 11 : 12 }}
+              />
+              <Tooltip
+                formatter={(v) => [`${v} orders`, "Orders"]}
+                labelStyle={{ fontWeight: 600, fontSize: windowWidth < 640 ? 12 : 14 }}
+                contentStyle={{ fontSize: windowWidth < 640 ? 12 : 14 }}
+              />
+              <Bar
+                dataKey="orders"
+                fill="#2563eb"
+                radius={[4, 4, 0, 0]}
+                barSize={windowWidth < 640 ? 20 : windowWidth < 768 ? 32 : 44}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       ) : (
-        <Box display="flex" justifyContent="center" alignItems="center" height={300}>
-          <Typography variant="body2" color="text.secondary" textAlign="center">
-            No orders found for the selected period
-          </Typography>
-        </Box>
+        <div
+          className="flex items-center justify-center text-gray-500 text-sm sm:text-base"
+          style={{ height: windowWidth < 640 ? heightMobile : heightDesktop }}
+        >
+          No orders found for the selected period
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 
