@@ -12,7 +12,7 @@ import ProductStats from "../components/ProductStats";
 import VisitorStats from "../components/VisitorStats";
 import RecentOrders from "../components/RecentOrders";
 import TopProducts from "../components/TopProducts";
-import { getOrders, getProducts } from "../api/api";
+import { getOrders, getProducts, getProductsAsAdmin, getVisitors } from "../api/api";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalCustomers, setTotalCustomers] = useState(0);
-  const [totalViews] = useState(1000); // Estimated visitor count
+  const [totalViews,setTotalViews] = useState(0);
   const [conversionRate, setConversionRate] = useState(0);
 
   useEffect(() => {
@@ -51,20 +51,23 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [orders, products] = await Promise.all([
+      const [orders, products,visitors] = await Promise.all([
         getOrders(),
-        getProducts(),
+        getProductsAsAdmin(),
+        getVisitors()
       ]);
 
       const ordersArr = orders?.data?.orders ?? [];
       const productsArr = products?.data?.products ?? [];
+      const visitorsArr = visitors?.data?.views ?? []
 
+      setTotalViews(visitorsArr.length);
       setTotalOrders(ordersArr.length);
       setTotalProducts(productsArr.length);
       setTotalCustomers(getUniqueEmail(ordersArr));
       setTotalRevenue(calculateRevenue(ordersArr));
       setConversionRate(
-        calculateConversionRate(ordersArr.length, totalViews)
+        calculateConversionRate(ordersArr.length, visitorsArr.length)
       );
     } catch (e) {
       console.error("Error fetching dashboard data:", e);
@@ -102,7 +105,7 @@ const Dashboard = () => {
     },
     {
       title: "Total Views",
-      value: totalViews.toLocaleString(),
+      value: totalViews,
       icon: <Eye className="w-6 h-6" />,
       color: "bg-cyan-600",
     },
@@ -167,7 +170,7 @@ const StatCard = ({ title, value, icon, color }) => (
 
 const SectionCard = ({ title, children, className = "" }) => (
   <div
-    className={`bg-white dark:bg-gray-900 rounded-xl shadow p-4 md:p-6 ${className}`}
+    className={`bg-white  rounded-xl shadow p-4 md:p-6 ${className}`}
   >
     <h2 className="text-lg md:text-xl font-semibold mb-4">{title}</h2>
     {children}
