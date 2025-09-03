@@ -65,6 +65,7 @@ exports.createOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("products.product");
+    console.log(orders)
     res.status(200).json({ success: true, orders });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

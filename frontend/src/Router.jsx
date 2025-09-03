@@ -13,7 +13,17 @@ import AddProducts from "./pages/AddProducts";
 import OrderManagementPage from "./pages/DashboardOrders";
 import Login from "./pages/Login";
 import LoginPage from "./pages/Login";
+import CheckoutCard from "./pages/CheckoutCard";
+import ContactUs from "./pages/ContactUs";
+import HelpCenter from "./pages/HelpCenter";
+import ReturnsPolicy from "./pages/ReturnsPolicy";
+import ShippingInfo from "./pages/ShippingInfo";
+import TermsOfUse from "./pages/TermsOfUse";
+import Privacy from "./pages/Privacy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import StoreIntro from "./pages/StoreIntro";
 
+import ComingSoonPage from "./pages/CommingSoonPage";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
@@ -31,15 +41,7 @@ const ProtectedRoutes = ({children}) => {
   return children
 }
 
-import CheckoutCard from "./pages/CheckoutCard";
-import ContactUs from "./pages/ContactUs";
-import HelpCenter from "./pages/HelpCenter";
-import ReturnsPolicy from "./pages/ReturnsPolicy";
-import ShippingInfo from "./pages/ShippingInfo";
-import TermsOfUse from "./pages/TermsOfUse";
-import Privacy from "./pages/Privacy";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import ComingSoonPage from "./pages/CommingSoonPage";
+
 export const Router = createBrowserRouter([
   {
     element: <Layout />,
@@ -53,8 +55,12 @@ export const Router = createBrowserRouter([
         element: <AboutPage />,
       },
       {
-        path: "/store",
+        path: "/store/products",
         element: <StorePage />,
+      },
+      {
+        path: "/store",
+        element: <StoreIntro />,
       },
       {
         path: "/product/:slug",
