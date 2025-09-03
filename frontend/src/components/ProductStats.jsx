@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { getProducts } from '../api/api';
+import { getProducts, getProductsAsAdmin } from '../api/api'; 
 
 const ProductStats = () => {
   const [productData, setProductData] = useState([]);
@@ -14,8 +14,8 @@ const ProductStats = () => {
   const fetchProductStats = async () => {
     try {
       setLoading(true);
-      const response = await getProducts();
-
+      const response = await getProductsAsAdmin();
+      
       if (response.status === 200) {
         const products = response.data.products || response.data;
         const activeCount = products.filter((p) => p.isActive === true).length;

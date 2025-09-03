@@ -8,7 +8,7 @@ const TopProducts = () => {
   const [timeRange, setTimeRange] = useState('month'); // 'week', 'month', 'year'
 
   useEffect(() => {
-    fetchTopProducts();
+    fetchTopProducts(); // fixed syntax: removed stray "fixe any error or error synthax" comment
   }, [timeRange]);
 
   const getProductImage = (product) => {
@@ -81,7 +81,7 @@ const TopProducts = () => {
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
 
   const TrendIcon = ({ trend }) =>
-    trend === 'up' ? <TrendingUp className="text-green-500 w-6 h-6" /> : <TrendingDown className="text-red-500 w-6 h-6" />;
+    trend === 'up' ? <TrendingUp className="text-green-500 w-4 h-4" /> : <TrendingDown className="text-red-500 w-4 h-4" />;
 
   if (loading) {
     return (
@@ -97,14 +97,15 @@ const TopProducts = () => {
   }
 
   return (
-    <div className="bg-white shadow rounded p-4 w-full ">
+    <div className="bg-white shadow rounded p-4 w-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
         <div className="flex flex-wrap gap-2">
           {['week', 'month', 'year'].map((range) => (
             <button
               key={range}
-              className={`px-2 py-1 text-xs sm:text-sm rounded ${timeRange === range ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-                }`}
+              className={`px-2 py-1 text-xs sm:text-sm rounded ${
+                timeRange === range ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
               onClick={() => setTimeRange(range)}
             >
               {range.charAt(0).toUpperCase() + range.slice(1)}
@@ -116,42 +117,32 @@ const TopProducts = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-          <th className='text-left'>Products</th>
-          <th>Sales</th>
-          <th>Trends</th>
-          <th>Views</th>
+            <tr className="border-b">
+              <th className="px-2 py-1 font-semibold text-left">Product</th>
+              <th className="px-2 py-1 font-semibold text-right">Sales</th>
+              <th className="px-2 py-1 font-semibold text-right">Trend</th>
+              <th className="px-2 py-1 font-semibold text-right">Views</th>
+            </tr>
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id} className="border-b hover:bg-gray-50 ">
-                <td className=" flex items-center gap-2">
+              <tr key={product.id} className="border-b hover:bg-gray-50">
+                <td className="px-2 py-2 flex items-center gap-2">
                   <img src={product.image} alt={product.name} className="w-10 h-10 rounded" />
                   <span className="truncate max-w-xs">{product.name}</span>
                 </td>
-                <td >
-                 <h1 className='ftext-center flex items-center justify-center gap-1'><ShoppingCart className="w-6 h-6 text-gray-500" />
+                <td>
+                  <h1 className='px-2 py-2 text-right flex items-center justify-end gap-1'><ShoppingCart className="w-4 h-4 text-gray-500" />
                   {product.sales}</h1>
                 </td>
                 <td>
-                  <h1 className='text-center flex items-center justify-center gap-1'><TrendIcon trend={product.trend} />
+                  <h1 className='px-2 py-2 text-right flex items-center justify-end gap-1'><TrendIcon trend={product.trend} />
                   <span>{product.trendValue}%</span></h1>
                 </td>
                 <td>
-                  <h1 className='text-center flex items-center justify-center gap-1'><Eye className="w-6 h-6 text-gray-500" />
+                  <h1 className='px-2 py-2 text-right flex items-center justify-end gap-1'><Eye className="w-4 h-4 text-gray-500" />
                   {product.views.toLocaleString()}</h1>
                 </td>
-                {/* <td className=" text-right flex items-center justify-end gap-1">
-                  <ShoppingCart className="w-4 h-4 text-gray-500" />
-                  {product.sales}
-                </td>
-                <td className=" text-right flex items-center justify-end gap-1">
-                  <TrendIcon trend={product.trend} />
-                  <span>{product.trendValue}%</span>
-                </td>
-                <td className=" text-right flex items-center justify-end gap-1">
-                  <Eye className="w-4 h-4 text-gray-500" />
-                  {product.views.toLocaleString()}
-                </td> */}
               </tr>
             ))}
           </tbody>
@@ -159,9 +150,7 @@ const TopProducts = () => {
       </div>
 
       {products.length === 0 && (
-        <div className="py-4 text-center text-gray-500 text-sm">
-          No products data available
-        </div>
+        <div className="py-4 text-center text-gray-500 text-sm">No products data available</div>
       )}
     </div>
   );

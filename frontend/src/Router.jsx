@@ -23,6 +23,7 @@ import Privacy from "./pages/Privacy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import StoreIntro from "./pages/StoreIntro";
 
+import ComingSoonPage from "./pages/CommingSoonPage";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
@@ -100,6 +101,10 @@ export const Router = createBrowserRouter([
       {
         path: "/terms-and-conditions",
         element: <TermsAndConditions />,
+      },
+      {
+        path: "/comming-soon-page",
+        element: <ComingSoonPage />,
       },
       {
         path: "*",

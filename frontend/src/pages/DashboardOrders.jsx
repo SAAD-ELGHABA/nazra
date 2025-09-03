@@ -11,17 +11,16 @@ function OrderManagementPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
-
+  const [loading, setLoading] = useState(true); 
   const fetchOrders = async () => {
-    setLoading(true); // start loading
+    setLoading(true);
     try {
       const response = await getOrders();
       setOrders(response?.data?.orders || []);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false); 
     }
   };
   useEffect(() => {
@@ -41,6 +40,8 @@ function OrderManagementPage() {
         return "bg-yellow-100 text-yellow-800";
       case "shipped":
         return "bg-blue-100 text-blue-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -140,7 +141,6 @@ function OrderManagementPage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
-
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -286,10 +286,11 @@ function OrderManagementPage() {
                               className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                               disabled={isUpdating}
                             >
+                              <option value="pending">Pending</option>
                               <option value="processing">Processing</option>
                               <option value="shipped">Shipped</option>
                               <option value="delivered">Delivered</option>
-                              <option value="canceled">Canceled</option>
+                              <option value="cancelled">Cancelled</option>
                             </select>
 
                             <div className="flex gap-2 flex-col">

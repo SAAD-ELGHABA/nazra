@@ -38,19 +38,27 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           >
             {product?.name}
           </h1>
-          <button onClick={toggleFavorite} className="p-1 rounded-full">
+          <button
+            onClick={toggleFavorite}
+            className="group p-2 text-sm rounded-full flex gap-2 items-center bg-black/10 hover:bg-black/20 cursor-pointer"
+          >
             <Heart
-              size={26}
+              size={22}
               className={`
-          cursor-pointer 
-          transition-colors duration-300
-          ${
-            isFavorite(product?.id)
-              ? "fill-black"
-              : "fill-transparent hover:fill-black"
-          }
-        `}
+      cursor-pointer 
+      transition-colors duration-300
+      ${
+        isFavorite(product?.id)
+          ? "fill-black"
+          : "fill-transparent group-hover:fill-black"
+      }
+    `}
             />
+            <span className="hidden md:flex">
+              {!isFavorite(product?.id)
+                ? t("product.AddToFavoriteBTN")
+                : t("product.RemoveFromFavoriteBTN")}
+            </span>
           </button>
         </div>
 
@@ -125,7 +133,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
             : product?.description?.ar}
         </p>
 
-        <div className="md:absolute sticky bottom-0 bg-white p-4 border-t flex items-center justify-between w-full">
+        <div className="md:absolute sticky bottom-0 bg-white px-4 pt-1 border-t flex items-center justify-between w-full">
           <p
             className="font-bold text-[16px] w-1/2 text-center md:text-left md:text-[20px]"
             style={{ lineHeight: "1.2" }}

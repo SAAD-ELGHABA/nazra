@@ -5,20 +5,20 @@ exports.userOrderEmail = (order, customer) => {
     <!-- Logo Header -->
     <div style="text-align: center; margin-bottom: 20px;">
       <img src="https://res.cloudinary.com/dmiaxmuiy/image/upload/v1756556524/Main-logo_esr44s.jpg" alt="Nazra Glasses" style="max-width: 150px; margin-bottom: 15px;" />
-      <h1 style="color: #000; font-weight: bold; font-size: 22px; margin-bottom: 5px;">Thank you for your order, ${customer.fullName}!</h1>
-      <p style="font-size: 16px; color: #555;">Your order has been successfully placed 🎉</p>
+      <h1 style="color: #000; font-weight: bold; font-size: 22px; margin-bottom: 5px;">Merci pour votre commande, ${customer.fullName} !</h1>
+      <p style="font-size: 16px; color: #555;">Votre commande a été passée avec succès !</p>
     </div>
 
     <!-- Order Details -->
     <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #e5e5e5;">
-      <h2 style="font-size: 18px; margin-bottom: 15px; color: #000; border-bottom: 1px solid #e5e5e5; padding-bottom: 10px;">Order Details</h2>
+      <h2 style="font-size: 18px; margin-bottom: 15px; color: #000; border-bottom: 1px solid #e5e5e5; padding-bottom: 10px;">Détails de la commande</h2>
       <table style="width: 100%; border-collapse: collapse;">
         <thead>
           <tr>
-            <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Product</th>
-            <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Name</th>
-            <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Quantity</th>
-            <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Color</th>
+            <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Produit</th>
+            <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Nom</th>
+            <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Quantité</th>
+            <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Couleur</th>
           </tr>
         </thead>
         <tbody>
@@ -38,43 +38,41 @@ exports.userOrderEmail = (order, customer) => {
 
     <!-- Note -->
     <div style="margin-top: 30px; font-size: 14px; color: #555;">
-      <p>We’ll notify you once your order is shipped 🚚</p>
-      <p>If you have any questions, reply to this email or contact our support team.</p>
+      <p>Votre commande a été soumise </p>
+      <p>Nous allons vous contacter dès que possible. Merci pour votre confiance et à très bientôt .</p>
     </div>
 
     <!-- Footer with Social Media -->
-<div style="text-align: center; margin-top: 40px;">
-  <p style="font-size: 14px; color: #555; margin-bottom: 10px;">Follow us on social media:</p>
-  
-  <!-- Centered icons using table -->
-  <table align="center" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-    <tr>
-      <td style="padding: 0 10px;">
-        <a href="https://facebook.com/yourpage" target="_blank">
-          <img src="https://img.icons8.com/color/48/000000/facebook.png" alt="Facebook" width="24" height="24" style="display: block;" />
-        </a>
-      </td>
-      <td style="padding: 0 10px;">
-        <a href="https://tiktok.com/@yourpage" target="_blank">
-          <img src="https://img.icons8.com/color/48/000000/tiktok.png" alt="TikTok" width="24" height="24" style="display: block;" />
-        </a>
-      </td>
-      <td style="padding: 0 10px;">
-        <a href="https://instagram.com/yourpage" target="_blank">
-          <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram" width="24" height="24" style="display: block;" />
-        </a>
-      </td>
-      <td style="padding: 0 10px;">
-        <a href="https://pinterest.com/yourpage" target="_blank">
-          <img src="https://img.icons8.com/color/48/000000/pinterest.png" alt="Pinterest" width="24" height="24" style="display: block;" />
-        </a>
-      </td>
-    </tr>
-  </table>
-  
-  <p style="margin-top: 20px; font-size: 12px; color: #aaa;">© 2025 Nazra Glasses. All rights reserved.</p>
-</div>
-
+    <div style="text-align: center; margin-top: 40px;">
+      <p style="font-size: 14px; color: #555; margin-bottom: 10px;">Suivez-nous sur les réseaux sociaux :</p>
+      
+      <table align="center" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+          <td style="padding: 0 10px;">
+            <a href="https://www.facebook.com/profile.php?id=61579011881076" target="_blank">
+              <img src="https://img.icons8.com/color/48/000000/facebook.png" alt="Facebook" width="24" height="24" style="display: block;" />
+            </a>
+          </td>
+          <td style="padding: 0 10px;">
+            <a href="https://www.tiktok.com/@nazraglasses?is_from_webapp=1&sender_device=pc" target="_blank">
+              <img src="https://img.icons8.com/color/48/000000/tiktok.png" alt="TikTok" width="24" height="24" style="display: block;" />
+            </a>
+          </td>
+          <td style="padding: 0 10px;">
+            <a href="https://www.instagram.com/nazraglasses" target="_blank">
+              <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram" width="24" height="24" style="display: block;" />
+            </a>
+          </td>
+          <td style="padding: 0 10px;">
+            <a href="https://pin.it/xJroIb6t6" target="_blank">
+              <img src="https://img.icons8.com/color/48/000000/pinterest.png" alt="Pinterest" width="24" height="24" style="display: block;" />
+            </a>
+          </td>
+        </tr>
+      </table>
+      
+      <p style="margin-top: 20px; font-size: 12px; color: #aaa;">© 2025 Nazra Glasses. Tous droits réservés.</p>
+    </div>
 
   </div>
   `;

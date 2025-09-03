@@ -249,7 +249,9 @@
   "note":"Livraison gratuite en 24-48h !.",
     "notFoundMsg":"Ce produit n'est plus disponible",
   "notFoundDescription":"Le produit que vous recherchez a peut-être été retiré ou est actuellement indisponible. Veuillez revenir plus tard ou découvrir des produits similaires.",
-  "notFoundBtn":"Parcourir la boutique"
+  "notFoundBtn":"Parcourir la boutique",
+  "AddToFavoriteBTN":"Ajouter aux favoris",
+  "RemoveFromFavoriteBTN":"Supprimer des favoris"
 
 
 
@@ -433,6 +435,9 @@
   },
   "checkoutPage":{
     "selectAtLeastMsg":"Veuillez sélectionner au moins un article à commander."
+  },
+"comingSoon": {
+    "title": "Bientôt Disponible",
+    "description": "Nous travaillons dur pour lancer notre site. Restez à l’écoute !"
   }
-
 }
