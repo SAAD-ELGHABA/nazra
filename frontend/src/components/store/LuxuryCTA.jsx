@@ -64,7 +64,7 @@ const navigate = useNavigate()
           </Typography>
           
           <Typography
-            variant={isMobile ? "h3" : "h2"}
+            variant={isMobile ? "h6" : "h2"}
             sx={{
               fontWeight: 300,
               mb: 3,
@@ -79,7 +79,7 @@ const navigate = useNavigate()
             variant="body1"
             sx={{
               mb: 4,
-              fontSize: { xs: '1rem', md: '1.1rem' },
+              fontSize: { xs: '0.8rem', md: '1.1rem' },
               maxWidth: '600px',
               mx: 'auto',
               opacity: 0.9,

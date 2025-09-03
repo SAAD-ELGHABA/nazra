@@ -12,19 +12,19 @@ import FAQs from '../components/FAQs'
 
 const items = [
   {
-    name: "product name",
+    name: "wayfar black",
     image: "/Classic-Black-Sunglasses.png",
-    price: 149.15
+    price: 49.99
   },
   {
-    name: "product name",
+    name: "master class",
     image: "/Modern-Stylish-Sunglasses.png",
-    price: 149.15
+    price: 119.89
   },
   {
-    name: "product name",
+    name: "tiger round",
     image: "/Stylish-Tortoiseshell-Glasses.png",
-    price: 149.15
+    price: 149.99
   }
 ]
 
@@ -40,15 +40,15 @@ const StoreIntro = () => {
           <h1 className='text-4xl w-10/12 mx-auto text-center font-normal'>Explore Our Collection of Luxuury Sunglasses</h1>
           <p className='text-lg text-center '>Designed with precision, elegance, and UV protection</p>
         </div>
-        <div className='flex justify-center gap-16'>
+        <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-16'>
           {
             items.map(item => (
               <div className='flex flex-col w-[250px] '>
-                <img src={item.image} alt={item.name} className='w-full object-cover h-[300px] shadow-md' />
+                <img src={item.image} alt={item.name} className='w-full object-cover h-[200px] md:h-[300px] shadow-md' />
                 <div className='flex flex-col items-center gap-1 pt-4'>
-                  <h3 className='text-2xl font-bold text-black text-center capitalize'>{item.name}</h3>
-                  <h6 className='text-xl font-bold text-center'>{item.price}</h6>
-                  <Link to={'/store/products'} className='px-4 py-2 mt-2 border border-black hover:bg-black hover:text-white hover:shadow-lg transition-all duration-300 ease'>
+                  <h3 className='text-xl md:text-2xl font-bold text-black text-center capitalize'>{item.name}</h3>
+                  <h6 className='text-lg md:text-xl font-bold text-center'>MAD {item.price}</h6>
+                  <Link to={'/store/products'} className='px-4 w-full text-center py-2 mt-2  border border-black hover:bg-black hover:text-white hover:shadow-lg transition-all duration-300 ease'>
                     Discover more
                   </Link>
                 </div>
@@ -57,18 +57,18 @@ const StoreIntro = () => {
           }
         </div>
       </div>
-      <div className=' flex items-center justify-center gap-16 bg-black w-full py-8'>
+      <div className=' flex items-center justify-center gap-8 md:gap-16 bg-black w-full py-8'>
         <div className='flex flex-col items-center text-white w-4/12'>
-          <HatGlasses size={62} />
-          <h2 className='w-1/2 text-center mx-auto text-2xl'>Premium Itailan Materials</h2>
+          <HatGlasses  className='w-8 h-8 ' />
+          <h2 className='w-1/2 text-center mx-auto text-xs md:text-2xl'>Premium Itailan Materials</h2>
         </div>
         <div className='flex flex-col items-center justify-start text-white w-4/12'>
-          <Sun size={62} />
-          <h2 className='w-1/2 text-center mx-auto text-2xl'>UV400 Protection</h2>
+          <Sun className='w-8 h-8 ' />
+          <h2 className='w-1/2 text-center mx-auto text-xs md:text-2xl'>UV400 Protection</h2>
         </div>
         <div className='flex flex-col items-center text-white w-4/12'>
-          <Palette size={62} />
-          <h2 className='w-1/2 text-center mx-auto text-2xl'>Modern & Timeless Designs</h2>
+          <Palette className='w-8 h-8 ' />
+          <h2 className='w-1/2 text-center mx-auto text-xs md:text-2xl'>Modern & Timeless Designs</h2>
         </div>
       </div>
       <ReviewSection />
