@@ -40,10 +40,10 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           </h1>
           <button
             onClick={toggleFavorite}
-            className="group p-2 text-sm rounded-full flex gap-2 items-center bg-black/10 hover:bg-black/20 cursor-pointer"
+            className="group p-2 text-xs rounded-full flex gap-1 items-center bg-black/10 hover:bg-black/20 cursor-pointer"
           >
             <Heart
-              size={22}
+              size={18}
               className={`
       cursor-pointer 
       transition-colors duration-300
@@ -125,7 +125,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           </div>
         </div>
 
-        <p className=" mb-6 md:mb-0">
+        <p className=" mb-6 md:mb-0 overflow-y-auto h-full md:h-50">
           {i18n.language === "en"
             ? product?.description?.en
             : i18n.language === "fr"
@@ -133,7 +133,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
             : product?.description?.ar}
         </p>
 
-        <div className="md:absolute sticky bottom-0 bg-white px-4 pt-1 border-t flex items-center justify-between w-full">
+        <div className="md:absolute sticky bottom-0 bg-white px-4 md:pt-1 py-1 border-t flex items-center justify-between w-full">
           <p
             className="font-bold text-[16px] w-1/2 text-center md:text-left md:text-[20px]"
             style={{ lineHeight: "1.2" }}

@@ -19,6 +19,8 @@ exports.userOrderEmail = (order, customer) => {
             <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Nom</th>
             <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Quantité</th>
             <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Couleur</th>
+            <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Prix</th>
+            <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Total Par Product</th>
           </tr>
         </thead>
         <tbody>
@@ -30,9 +32,21 @@ exports.userOrderEmail = (order, customer) => {
               <td style="padding: 10px;">${p.product?.name}</td>
               <td style="padding: 10px; text-align: center;">${p.quantity}</td>
               <td style="padding: 10px; text-align: center;">${p.color || "N/A"}</td>
+              <td style="padding: 10px; text-align: center;">${p.sale_price || "N/A"}</td>
+              <td style="padding: 10px; text-align: center;">${(p.quantity || 0) * (p.sale_price || 0) || "N/A"}</td>
             </tr>
           `).join("")}
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5" style="padding: 10px; text-align: right; font-weight: bold;">
+              Total:
+            </td>
+            <td style="padding: 10px; text-align: center; font-weight: bold;">
+              ${order.products.reduce((acc, p) => acc + (p.quantity || 0) * (p.sale_price || 0), 0)}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
 

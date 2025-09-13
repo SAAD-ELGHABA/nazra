@@ -58,11 +58,13 @@ function ProductPage() {
         <div className="flex flex-col md:flex-row items-start justify-center  md:w-2/3 w-full">
           <ProductPreview product={product} selectedColor={selectedColor} />
         </div>
-        <ProductInfo
-          product={product}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
-        />
+        <div className="w-full md:w-1/3">
+          <ProductInfo
+            product={product}
+            selectedColor={selectedColor}
+            setSelectedColor={setSelectedColor}
+          />
+        </div>
       </div>
       <div>
         <Suggestions

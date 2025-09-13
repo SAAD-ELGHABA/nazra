@@ -147,7 +147,7 @@ const TopProducts = () => {
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-10 h-10 rounded"
+                    className="w-10 h-10 rounded object-cover"
                   />
                   <span className="truncate max-w-xs">{product.name}</span>
                 </td>
