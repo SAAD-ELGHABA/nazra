@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const [dataUser, setDataUser] = useState({
     // name:'',
-    email: "adil.nmili19@gmail.com",
-    password: "password123456",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
 
