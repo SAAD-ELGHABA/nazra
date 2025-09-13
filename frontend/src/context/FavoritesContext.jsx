@@ -19,7 +19,7 @@ export const FavoritesProvider = ({ children }) => {
 
   const addFavorite = (sunglass) => {
     setFavorites((prev) => {
-      if (!prev.find((item) => item.id === sunglass.id)) {
+      if (!prev.find((item) => item._id === sunglass._id)) {
         return [...prev, sunglass];
       }
       return prev;
@@ -27,10 +27,10 @@ export const FavoritesProvider = ({ children }) => {
   };
 
   const removeFavorite = (id) => {
-    setFavorites((prev) => prev.filter((item) => item.id !== id));
+    setFavorites((prev) => prev.filter((item) => item._id !== id));
   };
 
-  const isFavorite = (id) => favorites.some((item) => item.id === id);
+  const isFavorite = (id) => favorites.some((item) => item._id === id);
 
   return (
     <FavoritesContext.Provider

@@ -58,14 +58,14 @@ function Favorites() {
                     size={26}
                     onClick={(e) => {
                       e.preventDefault();
-                      if (isFavorite(product.id)) {
-                        removeFavorite(product.id);
+                      if (isFavorite(product._id)) {
+                        removeFavorite(product._id);
                       } else {
                         addFavorite(product);
                       }
                     }}
                     className={`${
-                      isFavorite(product.id)
+                      isFavorite(product._id)
                         ? "fill-red-500"
                         : "fill-transparent"
                     } hover:fill-black transition-colors duration-300 text-white`}

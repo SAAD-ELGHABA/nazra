@@ -4,10 +4,14 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+
 app.use(cors({
-  origin: process.env.VITE_API_URL,
-  credentials: true
+  origin: process.env.NODE_ENV === "production"
+    ? process.env.VITE_API_URL
+    : "http://localhost:5173",
+  credentials: true,
 }));
+
 app.set("trust proxy", true);
 
 app.use(express.json({ limit: '50mb' }));
@@ -17,13 +21,14 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 10
+  serverSelectionTimeoutMS: 5000,
 })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
 
 // Routes
+app.get('/',(req,res)=>{res.send("hello nazra !")})
 app.use('/api/products', require('../routes/products'));
 app.use('/api/auth', require('../routes/authRoutes'));
 app.use('/api/orders',require('../routes/ordersRoute'))

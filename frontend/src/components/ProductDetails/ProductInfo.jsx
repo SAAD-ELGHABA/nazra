@@ -11,8 +11,8 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   const toggleFavorite = (e) => {
     e.preventDefault();
-    if (isFavorite(product?.id)) {
-      removeFavorite(product?.id);
+    if (isFavorite(product?._id)) {
+      removeFavorite(product?._id);
     } else {
       addFavorite(product);
     }
@@ -48,14 +48,14 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
       cursor-pointer 
       transition-colors duration-300
       ${
-        isFavorite(product?.id)
+        isFavorite(product?._id)
           ? "fill-black"
           : "fill-transparent group-hover:fill-black"
       }
     `}
             />
             <span className="hidden md:flex">
-              {!isFavorite(product?.id)
+              {!isFavorite(product?._id)
                 ? t("product.AddToFavoriteBTN")
                 : t("product.RemoveFromFavoriteBTN")}
             </span>
@@ -79,11 +79,11 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
                     key={color.name}
                     style={{ backgroundColor: color?.value }}
                     className={`
-                  w-10 h-10 rounded-full cursor-pointer
+                  w-10 h-10 rounded-full cursor-pointer 
                   ${
                     color.name === selectedColor?.name
                       ? "border-2 border-black"
-                      : ""
+                      : "border border-gray-300"
                   }
                   hover:border-black transition-colors duration-300
                 `}
@@ -125,7 +125,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           </div>
         </div>
 
-        <p className="text-gray-700 mb-6 md:mb-0">
+        <p className=" mb-6 md:mb-0">
           {i18n.language === "en"
             ? product?.description?.en
             : i18n.language === "fr"

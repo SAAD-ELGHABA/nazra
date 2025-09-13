@@ -63,17 +63,17 @@ function ProductPreview({ product, selectedColor }) {
             }`}
             onLoad={() => handleImageLoad(selectedImage)}
           />
-          <div className="absolute top-3 w-full flex items-center justify-center  px-2 py-0.5  font-semibold text-xs">
+          {/* <div className="absolute top-3 w-full flex items-center justify-center  px-2 py-0.5  font-semibold text-xs">
             <button
               className="bg-black/70 text-white px-4 py-2 rounded-lg"
               onClick={() => setIsTryOnOpen(true)}
             >
               Try On
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
-      {isTryOnOpen && selectedImage && (
+      {/* {isTryOnOpen && selectedImage && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-4 relative max-w-[700px] w-full">
             <button
@@ -85,7 +85,7 @@ function ProductPreview({ product, selectedColor }) {
             <GlassesTryOn glassesSrc={selectedImage} />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

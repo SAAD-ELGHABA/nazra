@@ -31,7 +31,7 @@ function ListProducts({ products }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => {
-          const inFavorites = isFavorite(product.id);
+          const inFavorites = isFavorite(product._id);
           const inCard = isInCard ? isInCard(product.id) : false;
 
           return (
@@ -64,24 +64,10 @@ function ListProducts({ products }) {
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
-                        inFavorites ? removeFavorite(product.id) : addFavorite(product);
+                        inFavorites ? removeFavorite(product._id) : addFavorite(product);
                       }}
                     >
                       <Heart size={22} />
-                    </button>
-
-                    <button
-                      className={`p-3 rounded-full shadow transition-colors ${
-                        inCard
-                          ? "bg-black text-white"
-                          : "bg-white text-gray-800 hover:bg-black hover:text-white"
-                      }`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        AddItemToCard(product);
-                      }}
-                    >
-                      <ShoppingCart size={22} />
                     </button>
                   </div>
 
@@ -97,37 +83,15 @@ function ListProducts({ products }) {
                         <Heart size={22} />
                       </button>
                     )}
-                    {!inCard && (
-                      <button
-                        className="p-2 rounded-full shadow bg-white text-gray-800 hover:bg-black hover:text-white transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          AddItemToCard(product);
-                        }}
-                      >
-                        <ShoppingCart size={22} />
-                      </button>
-                    )}
                     {inFavorites && (
                       <button
                         className="p-2 rounded-full shadow bg-red-500 text-white hover:bg-red-600 transition-colors"
                         onClick={(e) => {
                           e.preventDefault();
-                          removeFavorite(product.id);
+                          removeFavorite(product._id);
                         }}
                       >
                         <Heart size={22} />
-                      </button>
-                    )}
-                    {inCard && (
-                      <button
-                        className="p-2 rounded-full shadow bg-black text-white hover:bg-gray-800 transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          AddItemToCard(product);
-                        }}
-                      >
-                        <ShoppingCart size={22} />
                       </button>
                     )}
                   </div>
