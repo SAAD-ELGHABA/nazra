@@ -27,10 +27,8 @@ const VisitorStats = () => {
   };
 
   return (
-    <div className="bg-white shadow rounded p-4 w-full max-w-lg mx-auto">
-      <h2 className="text-lg sm:text-xl font-semibold text-center sm:text-left mb-4">
-        Visitor Analytics (Last 7 Days)
-      </h2>
+    <div className="bg-white shadow rounded p-4 w-full">
+      
 
       <div className="w-full h-64 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
