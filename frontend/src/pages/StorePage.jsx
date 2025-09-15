@@ -7,15 +7,20 @@ import "slick-carousel/slick/slick-theme.css";
 import { getProducts } from "../api/api";
 import { LoaderCircle } from "lucide-react";
 function StorePage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => {
+    const stored = sessionStorage.getItem("products");
+    return stored ? JSON.parse(stored) : [];
+  });
+
   useEffect(() => {
     document.title = "Store - Nazra";
     window.scrollTo({ top: 0, behavior: "smooth" });
     const getProductsPromise = async () => {
       const res = await getProducts();
       setProducts(res?.data?.products);
+      sessionStorage.setItem("products", JSON.stringify(res?.data?.products));
     };
-    getProductsPromise();
+    products?.length <= 0 && getProductsPromise();
   }, []);
   const { t } = useTranslation();
   if (products?.length <= 0) {

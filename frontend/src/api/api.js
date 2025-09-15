@@ -76,8 +76,8 @@ export const getVisitors = async ()=>{
     return response;
 }
 
-export const trackVisit = async ()=>{
-  const response = await api.post(`/visitors/track-visit`)
+export const trackVisit = async (visitorId)=>{
+  const response = await api.post(`/visitors/track-visit/${visitorId}`)
   return response;
 }
 

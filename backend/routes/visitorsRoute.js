@@ -5,7 +5,7 @@ const visitorController = require("../controllers/visitorController");
 const productViewController = require("../controllers/productViewController");
 
 // tracking (toggle) a new visitor
-router.post("/track-visit", visitorController.ToggleVisitor);
+router.post("/track-visit/:visitorId", visitorController.ToggleVisitor);
 
 // get all visitors
 router.get('/',auth,visitorController.getVisitors);

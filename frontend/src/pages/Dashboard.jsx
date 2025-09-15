@@ -12,7 +12,12 @@ import ProductStats from "../components/ProductStats";
 import VisitorStats from "../components/VisitorStats";
 import RecentOrders from "../components/RecentOrders";
 import TopProducts from "../components/TopProducts";
-import { getOrders, getProducts, getProductsAsAdmin, getVisitors } from "../api/api";
+import {
+  getOrders,
+  getProducts,
+  getProductsAsAdmin,
+  getVisitors,
+} from "../api/api";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -20,7 +25,7 @@ const Dashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalCustomers, setTotalCustomers] = useState(0);
-  const [totalViews,setTotalViews] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
   const [conversionRate, setConversionRate] = useState(0);
 
   useEffect(() => {
@@ -34,32 +39,32 @@ const Dashboard = () => {
   };
 
   const calculateRevenue = (orders = []) =>
-    orders.reduce((acc, o) => {
-      const sub = (o.products || []).reduce((sum, it) => {
-        const price =
-          it.product?.sale_price ?? it.product?.original_price ?? 0;
-        return sum + price * (it.quantity ?? 0);
+    orders
+      .filter((o) => o?.status === "delivered")
+      .reduce((acc, o) => {
+        const sub = (o.products || []).reduce((sum, it) => {
+          const price =
+            it.product?.sale_price - it.product?.original_price || 0;
+          return sum + price * (it.quantity ?? 0);
+        }, 0);
+        return acc + sub;
       }, 0);
-      return acc + sub;
-    }, 0);
 
   const calculateConversionRate = (ordersCount, visitorsCount) =>
-    visitorsCount === 0
-      ? 0
-      : ((ordersCount / visitorsCount) * 100).toFixed(2);
+    visitorsCount === 0 ? 0 : ((ordersCount / visitorsCount) * 100).toFixed(2);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [orders, products,visitors] = await Promise.all([
+      const [orders, products, visitors] = await Promise.all([
         getOrders(),
         getProductsAsAdmin(),
-        getVisitors()
+        getVisitors(),
       ]);
 
       const ordersArr = orders?.data?.orders ?? [];
       const productsArr = products?.data?.products ?? [];
-      const visitorsArr = visitors?.data?.views ?? []
+      const visitorsArr = visitors?.data?.views ?? [];
 
       setTotalViews(visitorsArr.length);
       setTotalOrders(ordersArr.length);
@@ -76,7 +81,12 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return <div className="w-full h-40 flex items-center justify-center">Loading...</div>;
+  if (loading)
+    return (
+      <div className="w-full h-40 flex items-center justify-center">
+        Loading...
+      </div>
+    );
 
   const statCards = [
     {
@@ -87,7 +97,7 @@ const Dashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `$${totalRevenue.toLocaleString()}`,
+      value: `MAD ${totalRevenue.toLocaleString()}`,
       icon: <DollarSign className="w-6 h-6" />,
       color: "bg-green-600",
     },
@@ -143,7 +153,7 @@ const Dashboard = () => {
       {/* Other sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SectionCard title="Visitor Analytics (Last 7 Days)">
-          <VisitorStats />
+          <VisitorStats visitors={totalViews}/>
         </SectionCard>
         <SectionCard title="Recent Orders">
           <RecentOrders />
@@ -169,9 +179,7 @@ const StatCard = ({ title, value, icon, color }) => (
 );
 
 const SectionCard = ({ title, children, className = "" }) => (
-  <div
-    className={`bg-white  rounded-xl shadow p-4 md:p-6 ${className}`}
-  >
+  <div className={`bg-white  rounded-xl shadow p-4 md:p-6 ${className}`}>
     <h2 className="text-lg md:text-xl font-semibold mb-4">{title}</h2>
     {children}
   </div>

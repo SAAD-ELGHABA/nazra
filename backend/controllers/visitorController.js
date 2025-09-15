@@ -3,9 +3,7 @@ const Visitor = require("../models/View");
 const ToggleVisitor = async (req, res) => {
   try {
     const ip =
-      req?.body?.ip ||
-      req?.headers["x-forwarded-for"]?.split(",")[0] ||
-      req?.connection?.remoteAddress;
+      req?.params?.visitorId ;
 
     const today = new Date().toISOString().slice(0, 10);
 
@@ -15,7 +13,7 @@ const ToggleVisitor = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    res.status(200).json({ success: true, message: "Visit recorded" });
+    res.status(200).json({ success: true, message: "Visit recorded",ip });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Internal server error", error: err.message });

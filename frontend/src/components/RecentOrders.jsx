@@ -75,8 +75,6 @@ const RecentOrders = () => {
       )}
 
       <Box sx={{ maxHeight: 340, overflow: "auto", width: 1 }}>
-        
-
         {loading ? (
           <Box
             display="flex"
@@ -141,70 +139,77 @@ const RecentOrders = () => {
               </TableHead>
               <TableBody>
                 {orders.length > 0 ? (
-                  orders.slice(0, isMobile ? 5 : 10).map((order) => (
-                    <TableRow key={order._id || order.id} hover>
-                      <TableCell
-                        sx={{
-                          fontSize: isMobile ? "12px" : "14px",
-                        }}
-                      >
-                        #
-                        {order._id
-                          ? order._id.slice(-6).toUpperCase()
-                          : order.id}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          fontSize: isMobile ? "12px" : "14px",
-                        }}
-                      >
-                        {order.fullName?.toUpperCase() || "N/A"}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          fontSize: isMobile ? "12px" : "14px",
-                        }}
-                      >
-                        $
-                        {order.products
-                          ?.reduce(
-                            (sum, pro) =>
-                              sum +
-                              pro.quantity *
-                                (pro.product?.sale_price ||
-                                  pro.product?.original_price ||
-                                  0),
-                            0
-                          )
-                          .toFixed(2) || "0.00"}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={
-                            order.status
-                              ? order.status.charAt(0).toUpperCase() +
-                                order.status.slice(1)
-                              : "Unknown"
-                          }
-                          color={getStatusColor(order.status)}
-                          size="small"
+                  orders
+                    .sort(
+                      (a, b) =>
+                        new Date(b.createdAt || b.date) -
+                        new Date(a.createdAt || a.date)
+                    )
+                    .slice(0, isMobile ? 5 : 10)
+                    .map((order) => (
+                      <TableRow key={order._id || order.id} hover>
+                        <TableCell
                           sx={{
-                            fontSize: isMobile ? "10px" : "10px",
-                            height: isMobile ? 24 : 32,
+                            fontSize: isMobile ? "12px" : "14px",
                           }}
-                        />
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          fontSize: isMobile ? "12px" : "14px",
-                        }}
-                      >
-                        {formatDate(
-                          order.createdAt || order.date || new Date()
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        >
+                          #
+                          {order._id
+                            ? order._id.slice(-6).toUpperCase()
+                            : order.id}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            fontSize: isMobile ? "12px" : "14px",
+                          }}
+                        >
+                          {order.fullName?.toUpperCase() || "N/A"}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            fontSize: isMobile ? "12px" : "14px",
+                          }}
+                        >
+                          $
+                          {order.products
+                            ?.reduce(
+                              (sum, pro) =>
+                                sum +
+                                pro.quantity *
+                                  (pro.product?.sale_price ||
+                                    pro.product?.original_price ||
+                                    0),
+                              0
+                            )
+                            .toFixed(2) || "0.00"}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={
+                              order.status
+                                ? order.status.charAt(0).toUpperCase() +
+                                  order.status.slice(1)
+                                : "Unknown"
+                            }
+                            color={getStatusColor(order.status)}
+                            size="small"
+                            sx={{
+                              fontSize: isMobile ? "10px" : "10px",
+                              height: isMobile ? 24 : 32,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            fontSize: isMobile ? "12px" : "14px",
+                          }}
+                        >
+                          {formatDate(
+                            order.createdAt || order.date || new Date()
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ py: 3 }}>

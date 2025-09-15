@@ -12,7 +12,11 @@ function App() {
   useEffect(() => {
     const trackVisitor = async () => {
       try {
-        await trackVisit();
+        if (!localStorage.getItem("visitorId")) {
+          localStorage.setItem("visitorId", crypto.randomUUID());
+        }
+        const visitorId = localStorage.getItem("visitorId");
+        await trackVisit(visitorId);
       } catch (error) {
         console.error("Failed to track visitor:", error);
       }
