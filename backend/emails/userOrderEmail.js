@@ -26,14 +26,14 @@ exports.userOrderEmail = (order, customer) => {
         <tbody>
           ${order.products.map(p => `
             <tr>
-              <td style="padding: 10px; text-align: center;">
+              <td style="padding: 5px; text-align: center;">
                 <img src="${p.product?.colors[0]?.images[0]?.url}" alt="${p.product?.name}" style="max-width: 60px; border-radius: 4px;" />
               </td>
-              <td style="padding: 10px;">${p?.product?.name}</td>
-              <td style="padding: 10px; text-align: center;">${p?.quantity}</td>
-              <td style="padding: 10px; text-align: center;">${p?.color || "N/A"}</td>
-              <td style="padding: 10px; text-align: center;">${p?.sale_price.toFixed(2) || "N/A"}</td>
-              <td style="padding: 10px; text-align: center;">${((p?.quantity || 0) * (p?.product.sale_price || 0)).toFixed(2) || "N/A"}</td>
+              <td style="padding: 5px;">${p?.product?.name}</td>
+              <td style="padding: 5px; text-align: center;">${p?.quantity}</td>
+              <td style="padding: 5px; text-align: center;">${p?.color || "N/A"}</td>
+              <td style="padding: 5px; text-align: center;">${(p?.product?.sale_price)?.toFixed(2) || "N/A"}</td>
+              <td style="padding: 5px; text-align: center;">${((p?.quantity || 0) * (p?.product?.sale_price || 0))?.toFixed(2) || "N/A"}</td>
             </tr>
           `).join("")}
         </tbody>
@@ -43,7 +43,7 @@ exports.userOrderEmail = (order, customer) => {
               Total:
             </td>
             <td style="padding: 10px; text-align: center; font-weight: bold;">
-              ${order.products.reduce((acc, p) => acc + (p?.quantity || 0) * (p?.product?.sale_price || 0), 0).toFixed(2)}
+              ${(order.products.reduce((acc, p) => acc + (p?.quantity || 0) * (p?.product?.sale_price || 0), 0))?.toFixed(2)}
             </td>
           </tr>
         </tfoot>

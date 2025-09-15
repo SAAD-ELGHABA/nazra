@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { getProducts } from "../api/api";
+import { LoaderCircle } from "lucide-react";
 function StorePage() {
   const [products, setProducts] = useState([]);
   useEffect(() => {
@@ -17,6 +18,13 @@ function StorePage() {
     getProductsPromise();
   }, []);
   const { t } = useTranslation();
+  if (products?.length <= 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoaderCircle className="h-12 w-12 animate-spin" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col py-10 md:px-4">
       <div className="w-full flex flex-col items-center justify-center gap-5">
