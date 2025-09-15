@@ -8,10 +8,8 @@ import StorePage from "./pages/StorePage";
 import DashboardLayout from "./DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import DashboardProducts from "./pages/DashboardProducts";
-import DashboardOrders from "./pages/DashboardOrders";
 import AddProducts from "./pages/AddProducts";
 import OrderManagementPage from "./pages/DashboardOrders";
-import Login from "./pages/Login";
 import LoginPage from "./pages/Login";
 import CheckoutCard from "./pages/CheckoutCard";
 import ContactUs from "./pages/ContactUs";
@@ -27,7 +25,6 @@ import ComingSoonPage from "./pages/CommingSoonPage";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
-import ProtectDashboard from "./protectDashboard";
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -117,11 +114,6 @@ export const Router = createBrowserRouter([
         <DashboardLayout />,
       </ProtectedRoutes>
     ),
-    // element: (
-    //   <ProtectDashboard>
-    //     <DashboardLayout />
-    //   </ProtectDashboard>
-    // ),
     children: [
       {
         path: "/dashboard",

@@ -1,5 +1,4 @@
 import { RouterProvider } from "react-router-dom";
-import "./App.css";
 import { Router } from "./Router";
 import React, { Suspense } from "react";
 import { I18nextProvider } from "react-i18next";
