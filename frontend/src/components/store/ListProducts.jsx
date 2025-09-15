@@ -38,7 +38,7 @@ function ListProducts({ products }) {
             <Link
               key={product.id}
               to={`/product/${product?.slug}`}
-              className="group relative bg-white rounded-xl shadow-md hover:shadow-xl overflow-hidden transition-shadow duration-300"
+              className="group relative bg-white rounded-xl  hover:shadow-xl overflow-hidden transition-shadow duration-300"
             >
               <div className="relative w-full h-64">
                 <img
@@ -105,9 +105,6 @@ function ListProducts({ products }) {
               <div className="p-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <h5 className="text-sm font-semibold text-gray-900">{product.name}</h5>
-                  <div className="flex items-center gap-1 text-yellow-500">
-                    {product?.rating} <Star size={14} className="fill-current" />
-                  </div>
                 </div>
 
                 <button

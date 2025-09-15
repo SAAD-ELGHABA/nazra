@@ -9,15 +9,16 @@ const ClientReview = ({ name, review, rating = 5, date }) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<Star key={i} sx={{ color: '#FFD700', fontSize: '20px' }} />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<Star key={i} sx={{ color: '#FFD700', fontSize: '20px' }} />);
-      } else {
-        stars.push(<StarBorder key={i} sx={{ color: '#FFD700', fontSize: '20px' }} />);
-      }
-    }
+for (let i = 1; i <= 5; i++) {
+  if (i <= fullStars) {
+    stars.push(<Star key={i} sx={{ color: '#000000', fontSize: '20px' }} />);
+  } else if (i === fullStars + 1 && hasHalfStar) {
+    stars.push(<Star key={i} sx={{ color: '#808080', fontSize: '20px' }} />);
+  } else {
+    stars.push(<StarBorder key={i} sx={{ color: '#FFFFFF', fontSize: '20px' }} />);
+  }
+}
+
     
     return stars;
   };
@@ -36,7 +37,7 @@ const ClientReview = ({ name, review, rating = 5, date }) => {
         transition: 'all 0.3s ease',
         '&:hover': {
           boxShadow: 2,
-          borderColor: 'primary.main',
+          borderColor: '#00000',
         }
       }}
     >

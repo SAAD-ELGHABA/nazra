@@ -435,5 +435,31 @@
   "comingSoon": {
     "title": "Coming Soon",
     "description": "We are working hard to launch our website. Stay tuned!"
-  }
+  },
+  "LuxurySlider":[
+        {
+      "title": "Elegance Redefined",
+      "subtitle": "Discover our exclusive collection",
+      "description": "Craftsmanship meets innovation in every piece we create",
+      "image": "/Glasses-and-Desk-Items.png",
+      "cta": "Explore Collection",
+      "ctaLink": "/store/products"
+    },
+    {
+      "title": "Timeless Luxury",
+      "subtitle": "For the discerning few",
+      "description": "Experience the pinnacle of quality and design excellence",
+      "image": "/Tortoiseshell-Eyeglasses-on-Blue-Background.png",
+      "cta": "View Products",
+      "ctaLink": "/store/products"
+    },
+    {
+      "title": "Exceptional Craftsmanship",
+      "subtitle": "Since 1995",
+      "description": "Each piece tells a story of dedication and attention to detail",
+      "image": "/Elegant-Red-Glasses.png",
+      "cta": "Our Story",
+      "ctaLink": "/store/products"
+    }
+  ]
 }

@@ -27,20 +27,19 @@ import ComingSoonPage from "./pages/CommingSoonPage";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
+import ProtectDashboard from "./protectDashboard";
 
-const ProtectedRoutes = ({children}) => {
-  const localToken = localStorage.getItem("User_Data_token")
-  const localUserData = localStorage.getItem("User_Data")
+const ProtectedRoutes = ({ children }) => {
+  const localToken = localStorage.getItem("User_Data_token");
+  const localUserData = localStorage.getItem("User_Data");
   if (!localToken) {
-    if(localUserData) {
-      localStorage.removeItem("User_Data")
-    } 
-    return <Navigate to={'/login'} replace={true} />
-
+    if (localUserData) {
+      localStorage.removeItem("User_Data");
+    }
+    return <Navigate to={"/login"} replace={true} />;
   }
-  return children
-}
-
+  return children;
+};
 
 export const Router = createBrowserRouter([
   {
@@ -113,13 +112,16 @@ export const Router = createBrowserRouter([
     ],
   },
   {
-    // element: (
-    //   <ProtectedRoutes>
-    //     <DashboardLayout />,
-    //   </ProtectedRoutes>
-    // ),
-    element: 
+    element: (
+      <ProtectedRoutes>
         <DashboardLayout />,
+      </ProtectedRoutes>
+    ),
+    // element: (
+    //   <ProtectDashboard>
+    //     <DashboardLayout />
+    //   </ProtectDashboard>
+    // ),
     children: [
       {
         path: "/dashboard",
@@ -137,16 +139,14 @@ export const Router = createBrowserRouter([
         path: "/dashboard/orders",
         element: <OrderManagementPage />,
       },
-    ]
+    ],
   },
   {
-    path:'/login',
-    element:<LoginPage />
+    path: "/login",
+    element: <LoginPage />,
   },
   {
     path: "*",
     element: <NotFound />,
   },
-]
-
-);
+]);

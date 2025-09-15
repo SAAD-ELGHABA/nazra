@@ -434,6 +434,33 @@
   "comingSoon": {
     "title": "قريباً",
     "description": "نحن نعمل بجد لإطلاق موقعنا. ترقبوا!"
+  },
+  "LuxurySlider": [
+  {
+    "title": "أناقة معاد تعريفها",
+    "subtitle": "اكتشف مجموعتنا الحصرية",
+    "description": "الحرفية تلتقي بالابتكار في كل قطعة نصنعها",
+    "image": "/Glasses-and-Desk-Items.png",
+    "cta": "استكشف المجموعة",
+    "ctaLink": "/store/products"
+  },
+  {
+    "title": "فخامة خالدة",
+    "subtitle": "للنخبة المتميزة",
+    "description": "عِش قمة الجودة وروعة التصميم",
+    "image": "/Tortoiseshell-Eyeglasses-on-Blue-Background.png",
+    "cta": "عرض المنتجات",
+    "ctaLink": "/store/products"
+  },
+  {
+    "title": "حرفية استثنائية",
+    "subtitle": "منذ عام 1995",
+    "description": "كل قطعة تحكي قصة من الإخلاص والانتباه إلى التفاصيل",
+    "image": "/Elegant-Red-Glasses.png",
+    "cta": "قصتنا",
+    "ctaLink": "/store/products"
   }
+]
+
 
 }

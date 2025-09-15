@@ -35,7 +35,8 @@ const DashboardLayout = () => {
   const year = new Date().getFullYear();
 
   const handleLogOut = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("User_Data_token");
+    localStorage.removeItem("User_Data");
     console.log("Logged out successfully");
     navigate("/login");
   };

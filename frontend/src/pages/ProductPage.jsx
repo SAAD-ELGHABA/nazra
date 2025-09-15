@@ -17,6 +17,7 @@ function ProductPage() {
   const [products, setProducts] = useState([]);
   const [statusPromise, setStatusPromise] = useState(null);
   const { slug } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
   const visitPerProduct = async (idProduct) => trackVisitPerProduct(idProduct);
   useEffect(() => {
     document.title = "Product - Nazra";
@@ -28,6 +29,7 @@ function ProductPage() {
     };
     getProductsPromise();
     const getProduct = async () => {
+      setIsLoading(true);
       try {
         const res = await getSingleProduct(slug);
         setProduct(res?.data?.product);
@@ -36,14 +38,26 @@ function ProductPage() {
         setStatusPromise(res?.data?.success);
       } catch (error) {
         console.error("Failed to fetch product:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     getProduct();
   }, [slug]);
   const { t } = useTranslation();
 
-  if (!statusPromise) {
+  if (statusPromise == false) {
     return <ProductNotAvailable />;
+  }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <div className="flex flex-col md:flex-row gap-6 w-[90%] mx-auto my-5">
+          <div className="md:w-2/3 w-full bg-gray-300 animate-pulse h-full"></div>
+          <div className="md:w-2/3 w-full bg-gray-300 animate-pulse h-full"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
