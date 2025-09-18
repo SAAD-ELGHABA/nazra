@@ -168,14 +168,14 @@ const AddProducts = () => {
       if (product?._id) {
         // Update existing product
         response = await axios.put(
-          `http://localhost:5000/api/products/${product._id}`,
+          `${import.meta.env.VITE_API_URL}/products/${product._id}`,
           productDataToSend,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         // Create new product
         response = await axios.post(
-          "http://localhost:5000/api/products/create",
+          `${import.meta.env.VITE_API_URL}/products/create`,
           productDataToSend,
           { headers: { Authorization: `Bearer ${token}` } }
         );
