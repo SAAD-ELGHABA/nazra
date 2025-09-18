@@ -25,6 +25,7 @@ import ComingSoonPage from "./pages/CommingSoonPage";
 
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
+import NazraIcon from "./pages/NazraIcon";
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -45,6 +46,10 @@ export const Router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/nazra-icon.png",
+        element: <NazraIcon />,
       },
       {
         path: "/about",
