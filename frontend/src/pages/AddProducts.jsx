@@ -294,6 +294,15 @@ const AddProducts = () => {
                   <option value="Cat-Eye">Cat-Eye</option>
                   <option value="Sport">Sport</option>
                   <option value="Oversized">Oversized</option>
+                  <option value="Shield">Shield</option>
+                  <option value="Square">Square</option>
+                  <option value="Rectangle">Rectangle</option>
+                  <option value="Butterfly">Butterfly</option>
+                  <option value="Clubmaster">Clubmaster</option>
+                  <option value="Retro">Retro</option>
+                  <option value="Gradient">Gradient</option>
+                  <option value="Mirrored">Mirrored</option>
+                  <option value="Polarized">Polarized</option>
                 </select>
               </div>
 
@@ -310,6 +319,7 @@ const AddProducts = () => {
                   <option value="">Select a category</option>
                   <option value="Men">Men</option>
                   <option value="Women">Women</option>
+                  <option value="Women">Mix</option>
                   <option value="Optical">Optical</option>
                 </select>
               </div>
