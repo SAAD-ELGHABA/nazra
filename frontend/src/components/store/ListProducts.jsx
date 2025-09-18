@@ -12,7 +12,10 @@ function ListProducts({ products }) {
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
   const totalPages = Math.ceil(products.length / productsPerPage);
 
   const { t } = useTranslation();
@@ -27,7 +30,9 @@ function ListProducts({ products }) {
 
   return (
     <div className="w-[90%] mx-auto my-8">
-      <h4 className="underline text-lg font-semibold mb-6">{t("store.allProducts")}</h4>
+      <h4 className="underline text-lg font-semibold mb-6">
+        {t("store.allProducts")}
+      </h4>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => {
@@ -42,13 +47,19 @@ function ListProducts({ products }) {
             >
               <div className="relative w-full h-64">
                 <img
-                  src={product?.colors[0]?.images[0]?.url || "/fall-back-sunglasses-image.webp"}
+                  src={
+                    product?.colors[0]?.images[0]?.url ||
+                    "/fall-back-sunglasses-image.webp"
+                  }
                   alt={product.name}
                   className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-0"
                 />
                 {product?.colors[0]?.images[1] && (
                   <img
-                    src={product?.colors[0]?.images[1]?.url || "/fall-back-sunglasses-image.webp"}
+                    src={
+                      product?.colors[0]?.images[1]?.url ||
+                      "/fall-back-sunglasses-image.webp"
+                    }
                     alt={product.name}
                     className="absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   />
@@ -64,7 +75,9 @@ function ListProducts({ products }) {
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
-                        inFavorites ? removeFavorite(product._id) : addFavorite(product);
+                        inFavorites
+                          ? removeFavorite(product._id)
+                          : addFavorite(product);
                       }}
                     >
                       <Heart size={22} />
@@ -104,7 +117,11 @@ function ListProducts({ products }) {
 
               <div className="p-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <h5 className="text-sm font-semibold text-gray-900">{product.name}</h5>
+                  <h5 className="text-sm font-semibold text-gray-900">
+                    {product?.name?.length >= 35
+                      ? product?.name?.substring(0, 35)+".."
+                      : product?.name}
+                  </h5>
                 </div>
 
                 <button

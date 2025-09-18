@@ -38,28 +38,6 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
           >
             {product?.name}
           </h1>
-          <button
-            onClick={toggleFavorite}
-            className="group p-2 text-xs rounded-full flex gap-1 items-center bg-black/10 hover:bg-black/20 cursor-pointer"
-          >
-            <Heart
-              size={18}
-              className={`
-      cursor-pointer 
-      transition-colors duration-300
-      ${
-        isFavorite(product?._id)
-          ? "fill-black"
-          : "fill-transparent group-hover:fill-black"
-      }
-    `}
-            />
-            <span className="hidden md:flex">
-              {!isFavorite(product?._id)
-                ? t("product.AddToFavoriteBTN")
-                : t("product.RemoveFromFavoriteBTN")}
-            </span>
-          </button>
         </div>
 
         <div className="flex justify-between items-center gap-2 mb-4">
@@ -93,15 +71,28 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
               </div>
             </div>
           )}
-          <div className="flex items-center gap-2 text-black">
-            <h1
-              className="font-bold text-[26px] text-center md:text-left md:text-[36px]"
-              style={{ lineHeight: "1.2", letterSpacing: "4px" }}
-            >
-              {product?.rating}
-            </h1>
-            <Star size={26} />
-          </div>
+          <button
+            onClick={toggleFavorite}
+            className="group p-2 text-xs rounded-full flex gap-1 items-center bg-black/10 hover:bg-black/20 cursor-pointer"
+          >
+            <Heart
+              size={18}
+              className={`
+      cursor-pointer 
+      transition-colors duration-300
+      ${
+        isFavorite(product?._id)
+          ? "fill-black"
+          : "fill-transparent group-hover:fill-black"
+      }
+    `}
+            />
+            <span className="hidden md:flex">
+              {!isFavorite(product?._id)
+                ? t("product.AddToFavoriteBTN")
+                : t("product.RemoveFromFavoriteBTN")}
+            </span>
+          </button>
         </div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 ">

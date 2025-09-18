@@ -52,7 +52,7 @@ function ProductPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <div className="flex flex-col md:flex-row gap-6 w-[90%] mx-auto my-5">
+        <div className="flex flex-col md:flex-row gap-6 w-[90%] mx-auto my-5 h-screen">
           <div className="md:w-2/3 w-full bg-gray-300 animate-pulse h-full"></div>
           <div className="md:w-2/3 w-full bg-gray-300 animate-pulse h-full"></div>
         </div>
