@@ -50,12 +50,10 @@ const productSchema = new mongoose.Schema({
   type: {
     type: String,
     required: [true, 'Product type is required'],
-    enum: ['Aviator', 'Wayfarer', 'Round', 'Cat-Eye', 'Sport', 'Oversized']
   },
   category: {
     type: String,
     required: [true, 'Category is required'],
-    enum: ['Men', 'Women', 'Optical']
   },
   references: {
     type: String,
