@@ -42,13 +42,13 @@ const StoreIntro = () => {
         </div>
         <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-16'>
           {
-            items.map(item => (
-              <div className='flex flex-col w-[250px] '>
+            items.map((item,index) => (
+              <div className='flex flex-col w-[250px] ' key={index}>
                 <img src={item.image} alt={item.name} className='w-full object-cover h-[200px] md:h-[300px] shadow-md' />
                 <div className='flex flex-col items-center gap-1 pt-4'>
                   <h3 className='text-xl md:text-2xl font-bold text-black text-center capitalize'>{item.name}</h3>
                   <h6 className='text-lg md:text-xl font-bold text-center'>MAD {item.price}</h6>
-                  <Link to={'/store/products'} className='px-4 w-full text-center py-2 mt-2  border border-black hover:bg-black hover:text-white hover:shadow-lg transition-all duration-300 ease'>
+                  <Link to={'/store/products'} className='px-4 w-full text-center py-2 mt-2  border border-black hover:bg-black shadow-md shadow-black hover:shadow-none hover:text-white  transition-all duration-300 ease'>
                     Discover more
                   </Link>
                 </div>

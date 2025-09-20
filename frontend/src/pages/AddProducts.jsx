@@ -1,6 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { toast } from 'sonner'
+
+
+
 const AddProducts = () => {
   const parset = "nazra-preset";
   const cloud_name = "dpzzuubck";
@@ -182,11 +186,12 @@ const AddProducts = () => {
       }
 
       if (response.data.success) {
-        alert(
-          product?._id
+        toast.success(
+           product?._id
             ? "Product updated successfully!"
             : "Product added successfully!"
-        );
+        )
+        
         // Reset form only if adding new product
         if (!product) {
           setProductData({
@@ -201,11 +206,11 @@ const AddProducts = () => {
           });
         }
       } else {
-        alert("Error while saving product");
+        toast.error("Error while saving product");
       }
     } catch (err) {
       console.error("Error submitting product:", err);
-      alert(err.response?.data?.message || "Error submitting product");
+      toast.error(err.response?.data?.message || "Error submitting product");
     } finally {
       setIsUploading(false);
     }

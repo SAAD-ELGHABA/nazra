@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { trackVisit } from "./api/api";
+import {Toaster} from 'sonner'
+
 function App() {
   useEffect(() => {
     const trackVisitor = async () => {
@@ -28,6 +30,7 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <div className="min-h-screen flex flex-col">
           <RouterProvider router={Router} />
+          <Toaster />
         </div>
       </Suspense>
     </I18nextProvider>
