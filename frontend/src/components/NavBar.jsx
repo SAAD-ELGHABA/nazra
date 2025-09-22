@@ -22,9 +22,9 @@ const NavBar = () => {
     <header className="h-[60px] w-full flex items-center justify-between px-4 md:px-6 bg-white shadow-md sticky top-0 z-50">
       <Link className="overflow-hidden h-full">
         <img
-          src="/Main-logo.jpeg"
+          src="/S.svg"
           alt="Nazra"
-          className="object-cover w-[120px] h-full md:w-[180px] mt-2"
+          className="object-cover w-full h-full   "
         />
       </Link>
 

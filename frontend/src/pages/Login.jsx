@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {toast} from 'sonner'
@@ -15,26 +15,55 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/login`,
-      dataUser
-    );
-    if (response.status === 200) {
-      toast.success("Welcome back again to your dashboard accout.")
-      localStorage.setItem("User_Data", JSON.stringify(response.data));
-      // localStorage.setItem('User_Data_token',JSON.stringify(response.data.token))
-      localStorage.setItem("User_Data_token", response.data.token);
-      navigate("/dashboard");
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        dataUser,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true // Include credentials (cookies) with the request
+        }
+      );
+      
+      if (response.status === 200) {
+        toast.success("Welcome back to your dashboard account.");
+        localStorage.setItem("User_Data", JSON.stringify(response.data));
+        localStorage.setItem("User_Data_token", response.data.token);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (error.response.status === 401) {
+          setError("Invalid email or password");
+          toast.error("Invalid email or password");
+        } else {
+          setError("An error occurred. Please try again later.");
+          console.error('Login error:', error.response.data);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError("No response from server. Please check your connection.");
+        console.error('No response received:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError("An error occurred. Please try again.");
+        console.error('Error:', error.message);
+      }
     }
   };
 
+  useEffect(() => {
+    if(error){
+      toast.error(error)
+    }
+  }, [error]);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-white">
-      {error && (
-        <p className="text-red-600 py-2 px-6  border border-red-600 bg-red-600/50 text-center capitalize text-sm">
-          {error}
-        </p>
-      )}
       <div className="w-full max-w-md p-8 rounded-2xl shadow-lg border border-black/10">
         {/* Title */}
         <h2 className="text-3xl font-bold text-black text-center mb-6">

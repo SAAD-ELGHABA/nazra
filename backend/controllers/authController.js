@@ -32,12 +32,10 @@ export const registerUser = async (req, res) => {
 // Login user
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-console.log('Login attempt from controller:', { email, password: password ? 'provided' : 'missing' });
   try {
     const user = await User.findOne({ email });
-
     if (user && (await user.matchPassword(password))) {
-      res.json({
+      res.status(200).json({
         _id: user._id,
         name: user.name,
         email: user.email,
