@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {toast} from 'sonner'
 
 export default function LoginPage() {
   const [dataUser, setDataUser] = useState({
@@ -19,6 +20,7 @@ export default function LoginPage() {
       dataUser
     );
     if (response.status === 200) {
+      toast.success("Welcome back again to your dashboard accout.")
       localStorage.setItem("User_Data", JSON.stringify(response.data));
       // localStorage.setItem('User_Data_token',JSON.stringify(response.data.token))
       localStorage.setItem("User_Data_token", response.data.token);

@@ -28,7 +28,7 @@ function FeaturesSection() {
       <div>
         <h1
           className="font-bold text-[28px] md:text-left md:text-[56px]"
-          style={{ lineHeight: "1.2", letterSpacing: "4px" }}
+          style={{ lineHeight: "1.2", letterSpacing: "4px", textShadow:'4px 2px 4px black' }}
         >
           {t("features.title")}
         </h1>

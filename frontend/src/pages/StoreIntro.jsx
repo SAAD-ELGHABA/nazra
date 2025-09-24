@@ -5,6 +5,7 @@ import { HatGlasses, Sun, Palette } from 'lucide-react'
 import ReviewSection from '../components/store/ClientReview'
 import LuxuryCTA from '../components/store/LuxuryCTA'
 import FAQs from '../components/FAQs'
+import ProductsShortCut from '../components/home/ProductsShortCut'
 
 
 
@@ -41,20 +42,7 @@ const StoreIntro = () => {
           <p className='text-lg text-center '>Designed with precision, elegance, and UV protection</p>
         </div>
         <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-16'>
-          {
-            items.map(item => (
-              <div className='flex flex-col w-[250px] '>
-                <img src={item.image} alt={item.name} className='w-full object-cover h-[200px] md:h-[300px] shadow-md' />
-                <div className='flex flex-col items-center gap-1 pt-4'>
-                  <h3 className='text-xl md:text-2xl font-bold text-black text-center capitalize'>{item.name}</h3>
-                  <h6 className='text-lg md:text-xl font-bold text-center'>MAD {item.price}</h6>
-                  <Link to={'/store/products'} className='px-4 w-full text-center py-2 mt-2  border border-black hover:bg-black hover:text-white hover:shadow-lg transition-all duration-300 ease'>
-                    Discover more
-                  </Link>
-                </div>
-              </div>
-            ))
-          }
+          <ProductsShortCut/>
         </div>
       </div>
       <div className=' flex items-center justify-center gap-8 md:gap-16 bg-black w-full py-8'>

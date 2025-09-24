@@ -41,14 +41,14 @@ function StorePage() {
         </h1>
         <p>{t("store.description")}</p>
       </div>
-      <div>
+      {/* <div>
         <TrendingProducts
           products={products?.slice(
             products?.length - 10,
             products?.length - 1
           )}
         />
-      </div>
+      </div> */}
       <ListProducts products={products} />
     </div>
   );

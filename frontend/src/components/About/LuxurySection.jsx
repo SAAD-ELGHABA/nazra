@@ -10,7 +10,7 @@ function LuxurySection() {
       <div className="flex flex-col gap-8">
         <h1
           className="font-bold text-[28px] md:text-left md:text-[56px]"
-          style={{ lineHeight: "1.2", letterSpacing: "4px" }}
+          style={{ lineHeight: "1.2", letterSpacing: "4px" , textShadow:'4px 2px 4px black'}}
         >
           {t("luxury.title")}
         </h1>
@@ -18,7 +18,7 @@ function LuxurySection() {
         <div>
           <Link
             to="/shop"
-            className="px-6 py-3 text-white rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
+            className="px-6 py-3 text-white rounded transition-colors duration-300 hover:bg-white border border-black hover:shadow-none bg-black hover:text-black text-center shadow-md shadow-black/50"
           >
             {t("luxury.exploreButton")}
           </Link>
@@ -29,7 +29,7 @@ function LuxurySection() {
           src="/About/luxury-img.png"
           alt="luxury-img"
           loading="lazy"
-          className="max-w-full h-auto"
+          className="max-w-full h-auto shadow-md shadow-black/50 "
         />
       </div>
     </div>
