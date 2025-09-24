@@ -18,7 +18,7 @@ function StorySection() {
         </h1>
         <p>{t("story.paragraph1")}</p>
         <p>{t("story.paragraph2")}</p>
-        <p>hello world</p>
+        
       </div>
     </div>
   );
