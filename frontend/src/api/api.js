@@ -13,6 +13,11 @@ export const getProducts = async()=>{
     return response;
 }
 
+export const getProductsShortCut = async()=>{
+    const response = await api.get('/products/products-shortcut')
+    return response;
+}
+
 export const getSingleProduct = async (slug)=>{
     const response = await api.get(`/products/${slug}`)
     return response;
@@ -89,3 +94,4 @@ export const storeEmail = async (email)=>{
   const response = await api.post(`/emails/create`,{email})
   return response;
 }
+

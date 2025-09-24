@@ -8,6 +8,7 @@ import ElevateSection from "../components/home/ElevateSection";
 import OurTeam from "../components/home/OurTeam";
 import FAQs from "../components/FAQs";
 import MarkVid from "../components/home/MarkVid";
+import ProductsShortCut from "../components/home/ProductsShortCut";
 
 const HomePage = () => {
     useEffect(() => {
@@ -17,6 +18,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col gap-8 items-center justify-center min-h-screen w-full">
       <HeroSection />
+      <ProductsShortCut/>
       <UnmatchedSection />
       <ExperinceSection />
       <MarkVid/>
