@@ -34,7 +34,7 @@ function ListProducts({ products }) {
         {t("store.allProducts")}
       </h4>
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentProducts.map((product) => {
           const inFavorites = isFavorite(product._id);
           const inCard = isInCard ? isInCard(product.id) : false;
