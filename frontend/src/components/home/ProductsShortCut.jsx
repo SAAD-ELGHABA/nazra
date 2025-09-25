@@ -110,7 +110,7 @@ function ProductsShortCut() {
       <div className="w-full flex justify-center my-5">
         <button>
           <Link
-            to="/products"
+            to="/store/products"
             className="w-full h-full bg-gray-200 flex items-center justify-center text-center px-3"
           >
             <span className="font-semibold">View All Products</span>
