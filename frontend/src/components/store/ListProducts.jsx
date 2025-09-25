@@ -45,14 +45,14 @@ function ListProducts({ products }) {
               to={`/product/${product?.slug}`}
               className="group relative bg-white rounded-xl  hover:shadow-xl overflow-hidden transition-shadow duration-300"
             >
-              <div className="relative w-full h-64">
+              <div className="relative w-full h-64 overflow-hidden">
                 <img
                   src={
                     product?.colors[0]?.images[0]?.url ||
                     "/fall-back-sunglasses-image.webp"
                   }
                   alt={product.name}
-                  className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-0"
+                  className="w-full scale-220 h-full object-cover transition-opacity duration-300 group-hover:opacity-0"
                 />
                 {product?.colors[0]?.images[1] && (
                   <img
@@ -61,7 +61,7 @@ function ListProducts({ products }) {
                       "/fall-back-sunglasses-image.webp"
                     }
                     alt={product.name}
-                    className="absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    className="absolute scale-220 top-0 left-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   />
                 )}
 

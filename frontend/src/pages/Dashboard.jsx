@@ -87,43 +87,42 @@ const Dashboard = () => {
         Loading...
       </div>
     );
-
   const statCards = [
     {
       title: "Total Orders",
       value: totalOrders,
       icon: <ShoppingCart className="w-6 h-6" />,
-      color: "bg-blue-600",
+      color: "text-red-500 border-t-2 border-red-500",
     },
     {
       title: "Total Revenue",
       value: `MAD ${totalRevenue.toLocaleString()}`,
       icon: <DollarSign className="w-6 h-6" />,
-      color: "bg-green-600",
+      color: "text-green-500 border-t-2 border-green-500",
     },
     {
       title: "Total Products",
       value: totalProducts,
       icon: <Package className="w-6 h-6" />,
-      color: "bg-orange-500",
+      color: "text-orange-500 border-t-2 border-orange-500",
     },
     {
       title: "Total Customers",
       value: totalCustomers,
       icon: <Users className="w-6 h-6" />,
-      color: "bg-purple-600",
+      color: "text-purple-500 border-t-2 border-purple-500",
     },
     {
       title: "Total Views",
       value: totalViews,
       icon: <Eye className="w-6 h-6" />,
-      color: "bg-cyan-600",
+      color: "text-cyan-500 border-t-2 border-cyan-500",
     },
     {
       title: "Conversion Rate",
       value: `${conversionRate}%`,
       icon: <TrendingUp className="w-6 h-6" />,
-      color: "bg-red-600",
+      color: "text-red-600 border-t-2 border-red-600",
     },
   ];
 
@@ -153,7 +152,7 @@ const Dashboard = () => {
       {/* Other sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SectionCard title="Visitor Analytics (Last 7 Days)">
-          <VisitorStats visitors={totalViews}/>
+          <VisitorStats visitors={totalViews} />
         </SectionCard>
         <SectionCard title="Recent Orders">
           <RecentOrders />
@@ -168,7 +167,7 @@ const Dashboard = () => {
 
 const StatCard = ({ title, value, icon, color }) => (
   <div
-    className={`rounded-xl shadow-md p-4 flex flex-col items-center justify-center text-white ${color}`}
+    className={`rounded-xl shadow-md p-4 flex flex-col items-center justify-center ${color}`}
   >
     <div className="flex items-center gap-2 mb-2">
       {icon}

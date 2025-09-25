@@ -41,7 +41,7 @@ const StoreIntro = () => {
           <h1 className='text-4xl w-10/12 mx-auto text-center font-normal'>Explore Our Collection of Luxuury Sunglasses</h1>
           <p className='text-lg text-center '>Designed with precision, elegance, and UV protection</p>
         </div>
-        <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-16'>
+        <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-16 w-full'>
           <ProductsShortCut/>
         </div>
       </div>

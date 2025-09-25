@@ -129,7 +129,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
             className="font-bold text-[16px] w-1/2 text-center md:text-left md:text-[20px]"
             style={{ lineHeight: "1.2" }}
           >
-            MAD {product?.sale_price}
+            MAD {product?.sale_price+".00"}
           </p>
           <button
             className="py-2 text-sm text-white bg-black rounded transition-colors duration-300 hover:bg-transparent border hover:text-black w-1/2"

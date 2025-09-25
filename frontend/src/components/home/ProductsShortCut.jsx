@@ -56,14 +56,14 @@ function ProductsShortCut() {
                 to={`/product/${product?.slug}`}
                 className="md:h-full  flex-shrink-0"
               >
-                <div className="relative md:w-full md:h-full">
+                <div className="relative md:w-full md:h-full overflow-hidden">
                   <img
                     src={
                       product?.colors[0]?.images[0]?.url ||
                       "/fall-back-sunglasses-image.webp"
                     }
                     alt={product.name}
-                    className="w-full md:h-full object-cover transition-opacity duration-300 group-hover:opacity-0"
+                    className="w-full md:h-full scale-150 object-cover transition-opacity duration-300 group-hover:opacity-0"
                   />
 
                   <div className="absolute inset-0 md:opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between items-center">
@@ -90,7 +90,7 @@ function ProductsShortCut() {
                         {product?.colors?.map((clr, index) => (
                           <li key={index}>
                             <div
-                              className="h-5 w-5 rounded-full"
+                              className="h-5 w-5 rounded-full border border-gray-300"
                               style={{ backgroundColor: clr?.value }}
                             ></div>
                           </li>
@@ -104,9 +104,61 @@ function ProductsShortCut() {
           </div>
         </div>
       </div>
-      <div>
-        {/* phone device */}
+      {/* phone device */}
+      <div className="flex md:hidden overflow-x-auto hide-scrollbar gap-4">
+        {products.map((product) => (
+          <Link
+            key={product.id}
+            to={`/product/${product?.slug}`}
+            className="flex-shrink-0 w-[90vw] h-[300px]" 
+          >
+            <div className="relative w-full h-full overflow-hidden">
+              <img
+                src={
+                  product?.colors[0]?.images[0]?.url ||
+                  "/fall-back-sunglasses-image.webp"
+                }
+                alt={product.name}
+                className="w-full h-full scale-150 object-cover transition-opacity duration-300 group-hover:opacity-0 rounded-lg"
+              />
+
+              <div className="absolute inset-0 md:opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between items-center">
+                <h2 className="bg-black bg-opacity-50 text-white w-full text-center py-2 text-sm md:text-lg">
+                  {product.name.length > 40
+                    ? product.name.slice(0, 40) + "..."
+                    : product.name}
+                </h2>
+
+                <div className="flex flex-col gap-2 items-center mb-2">
+                  <div className="flex gap-2 items-center">
+                    <h5 className="text-xs md:text-sm font-light line-through">
+                      {product?.sale_price -
+                        product?.original_price +
+                        product?.sale_price +
+                        ".00"}
+                    </h5>
+                    <h2 className="font-semibold text-sm md:text-xl">
+                      {product?.sale_price + ".00 MAD"}
+                    </h2>
+                  </div>
+
+                  <ul className="flex gap-1 items-center justify-center">
+                    {product?.colors?.map((clr, index) => (
+                      <li key={index}>
+                        <div
+                          className="h-5 w-5 rounded-full border border-gray-300"
+                          style={{ backgroundColor: clr?.value }}
+                        ></div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
+
       <div className="w-full flex justify-center my-5">
         <button>
           <Link
