@@ -34,7 +34,7 @@ function ListProducts({ products }) {
         {t("store.allProducts")}
       </h4>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentProducts.map((product) => {
           const inFavorites = isFavorite(product._id);
           const inCard = isInCard ? isInCard(product.id) : false;
@@ -109,29 +109,43 @@ function ListProducts({ products }) {
                     )}
                   </div>
                 </div>
-
-                <span className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-lg font-semibold text-sm">
-                  MAD {product.sale_price}
-                </span>
+                <div className="absolute bottom-3 left-0 px-3  flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <span className=" bg-black/70 text-white px-3 py-1 rounded-lg font-semibold text-sm">
+                      MAD {product.sale_price + ".00"}
+                    </span>
+                    <span className="line-through">
+                      {(product?.sale_price -
+                        product?.original_price +
+                        product?.sale_price)?.toFixed(2) }
+                    </span>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold">
+                      1/{product?.colors?.length}-Colors
+                    </h5>
+                  </div>
+                </div>
               </div>
 
               <div className="p-4 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <h5 className="text-sm font-semibold text-gray-900">
                     {product?.name?.length >= 35
-                      ? product?.name?.substring(0, 35)+".."
+                      ? product?.name?.substring(0, 35) + ".."
                       : product?.name}
                   </h5>
                 </div>
 
                 <button
-                  className="mt-2 py-2 w-full text-sm font-medium bg-black text-white rounded-lg hover:bg-transparent hover:text-black border transition-colors"
+                  className="mt-2 py-2 w-full text-sm font-medium bg-black text-white rounded-lg hover:bg-transparent hover:text-black border transition-colors flex items-center gap-2 justify-center"
                   onClick={(e) => {
                     e.preventDefault();
                     AddItemToCard(product);
                   }}
                 >
-                  {t("cart.addToBag")}
+                  <span>{t("cart.addToBag")}</span>
+                  <ShoppingCart className="h-5 w-5" />
                 </button>
               </div>
             </Link>

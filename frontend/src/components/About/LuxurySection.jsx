@@ -29,7 +29,7 @@ function LuxurySection() {
           src="/About/luxury-img.png"
           alt="luxury-img"
           loading="lazy"
-          className="max-w-full h-auto shadow-md shadow-black/50"
+          className="max-w-full h-auto shadow-md shadow-black/50 "
         />
       </div>
     </div>

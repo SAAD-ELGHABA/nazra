@@ -18,6 +18,7 @@ function StorySection() {
         </h1>
         <p>{t("story.paragraph1")}</p>
         <p>{t("story.paragraph2")}</p>
+        
       </div>
     </div>
   );

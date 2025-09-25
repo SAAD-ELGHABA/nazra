@@ -95,6 +95,27 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get products shortcut (3 most recent active products)
+router.get("/products-shortcut", async (req, res) => {
+    try {
+    const products = await Product.find({ isActive: true })
+      .limit(3)
+      .sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    console.error('Error fetching products shortcut:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching products shortcut',
+      error: error.message
+    });
+  }
+});
+
+
 // Admin route to get all products
 router.get("/admin/all", auth, async (req, res) => {
   try {
@@ -123,6 +144,8 @@ router.get("/admin/all", auth, async (req, res) => {
   }
 });
 
+
+
 // Get single product by slug
 router.get('/:slug', async (req, res) => {
   try {
@@ -149,6 +172,8 @@ router.get('/:slug', async (req, res) => {
     });
   }
 });
+
+
 
 
 // Update product
