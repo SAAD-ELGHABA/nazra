@@ -160,14 +160,14 @@ function ProductsShortCut() {
       </div>
 
       <div className="w-full flex justify-center my-5">
-        <button>
+       
           <Link
             to="/store/products"
-            className="w-full h-full bg-gray-200 flex items-center justify-center text-center px-3"
+            className=" bg-transparent border border-black py-1 hover:bg-black hover:text-white transition-colors duration-300 ease-in-out flex items-center justify-center text-center px-3"
           >
-            <span className="font-semibold">View All Products</span>
+            View All Products
           </Link>
-        </button>
+        
       </div>
     </div>
   );

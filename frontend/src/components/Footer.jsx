@@ -143,7 +143,7 @@ const Footer = () => {
           © {year} Nazra Sunglasses. {t("footer.rights")}
         </p>
         <img
-          src="/Main-logo.jpeg"
+          src="/S.svg"
           className="w-[100px] mx-auto md:m-0 object-cover"
           alt="NAZRA"
         />
