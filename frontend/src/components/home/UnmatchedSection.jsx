@@ -35,7 +35,7 @@ function UnmatchedSection() {
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-4">
             <Link
-              to="/shop"
+              to="/store/products"
               className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black"
             >
               {t("unmatched.cards.crafted.shop")}
