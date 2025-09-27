@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Heart, ChevronDown, Menu, X, ShoppingCart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Heart, ChevronDown, Menu, X, ShoppingCart, ChevronLeft, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useFavorites } from "../context/FavoritesContext";
@@ -11,6 +11,7 @@ import { useCard } from "../context/CardContext";
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -20,11 +21,12 @@ const NavBar = () => {
   const [toggleCart, setToggleCart] = useState(false);
   return (
     <header className="h-[60px] w-full flex items-center justify-between px-4 md:px-6 bg-white shadow-md sticky top-0 z-50">
-      <Link className="overflow-hidden h-full">
+      <ArrowLeft className='md:hidden' onClick={() => navigate(-1)} />
+      <Link className="overflow-hidden h-full flex-1 flex pl-10 md:p-0 items-center justify-center md:flex-none bg-orang-600">
         <img
           src="/S.svg"
           alt="Nazra"
-          className="object-cover w-full h-full   "
+          className="object-cover w-[100px] h-[50px] md:w-full md:h-full"
         />
       </Link>
 
@@ -76,10 +78,36 @@ const NavBar = () => {
           <LanguageSwitcher />
         </div>
       </nav>
-
-      <button className="md:hidden p-2" onClick={toggleMobileMenu}>
-        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      <div className='md:hidden flex items-center gap-2'>
+         <Link className="relative" to={"/favorites"}>
+              <Heart
+                className="cursor-pointer hover:fill-black"
+                color="black"
+              />
+              {favorites.length > 0 && (
+                <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
+                  {favorites.length}
+                </span>
+              )}
+            </Link>
+            <button
+              className=""
+              onClick={() => {
+                // toggleMobileMenu();
+                setToggleCart(!toggleCart);
+              }}
+            >
+              <ShoppingCart />
+              {cardItems.length > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-[12px] rounded-full px-1">
+                  {cardItems.length}
+                </span>
+              )}
+            </button>
+        <button className="" onClick={toggleMobileMenu}>
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
       {isMobileMenuOpen && (
         <div
@@ -120,35 +148,10 @@ const NavBar = () => {
               <CollectionDropdown />
             </li>
           </ul>
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t">
-            <Link className="relative" to={"/favorites"}>
-              <Heart
-                className="cursor-pointer hover:fill-black"
-                color="black"
-              />
-              {favorites.length > 0 && (
-                <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
-                  {favorites.length}
-                </span>
-              )}
-            </Link>
-            <button
-              className="bg-black text-white px-4 py-2 shadow-sm hover:text-black border border-black hover:bg-transparent transition-colors duration-300 flex-1"
-              onClick={() => {
-                toggleMobileMenu();
-                setToggleCart(!toggleCart);
-              }}
-            >
-              {t("navbar.cart")}
-              {cardItems.length > 0 && (
-                <span className="ml-2 bg-red-500 text-white text-[12px] rounded-full px-1">
-                  {cardItems.length}
-                </span>
-              )}
-            </button>
-          </div>
+          {/* <div className="flex items-center gap-4 mt-4 pt-4 border-t">
+           
+          </div> */}
           <LanguageSwitcher />
-
         </div>
       )}
 

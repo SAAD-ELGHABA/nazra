@@ -17,28 +17,28 @@ export default function ContactUs() {
     // here the promise ...
   }, []);
   return (
-    <section className="w-full bg-black text-white py-16 px-4 md:px-12 lg:px-20">
+    <section className="w-full text-black py-16 px-4 md:px-12 lg:px-20">
       <div className="md:max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start md:items-center">
         <div className="space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold tracking-wide uppercase">
             {t("contact.title")}
           </h2>
-          <p className="text-gray-300 text-sm md:text-base">
+          <p className="text-gray-800 text-sm md:text-base">
             {t("contact.subtitle")}
           </p>
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <MapPin className="w-5 h-5 text-white" />
-              <span className="text-gray-300">{t("contact.address")}</span>
+              <span className="text-gray-700">{t("contact.address")}</span>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="w-5 h-5 text-white" />
-              <span className="text-gray-300">{t("contact.phone")}</span>
+              <span className="text-gray-700">{t("contact.phone")}</span>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-white" />
-              <span className="text-gray-300">{t("contact.email")}</span>
+              <span className="text-gray-700">{t("contact.email")}</span>
             </div>
           </div>
 

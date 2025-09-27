@@ -11,14 +11,14 @@ export default function Privacy() {
   }, []);
   return (
     <section
-      className="w-full bg-black text-white py-16 px-6 md:px-12 lg:px-20"
+      className="w-full  text-black py-16 px-6 md:px-12 lg:px-20"
       dir={currentLanguage === "ar" ? "rtl" : "ltr"}
     >
       <div className="max-w-5xl mx-auto space-y-8">
         <h1 className="text-3xl md:text-4xl font-bold tracking-wide">
           {t("privacyPolicy.title")}
         </h1>
-        <p className="text-gray-300 text-sm md:text-base">
+        <p className="text-gray-700 text-sm md:text-base">
           {t("privacyPolicy.intro")}
         </p>
 
@@ -26,7 +26,7 @@ export default function Privacy() {
           (section, index) => (
             <div key={index} className="space-y-2">
               <h2 className="text-xl font-semibold">{section.heading}</h2>
-              <p className="text-gray-300">{section.content}</p>
+              <p className="text-gray-700">{section.content}</p>
             </div>
           )
         )}
@@ -39,7 +39,7 @@ export default function Privacy() {
             {t("privacyPolicy.contactEmail")}: nazraglasses@gmail.com
           </p>
           <p className="">
-            {t("privacyPolicy.contactPhone")}: +212 600 000 000
+            {t("privacyPolicy.contactPhone")}: +212 638 995 117
           </p>
         </div>
       </div>
