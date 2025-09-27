@@ -7,7 +7,7 @@ export default function HelpCenter() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
   return (
-    <section className="w-full bg-black text-white py-16 px-6 md:px-12 lg:px-20">
+    <section className="w-full  text-black py-16 px-6 md:px-12 lg:px-20">
       <div></div>
       <div>
         <FAQs color={`white`}/>

@@ -18,6 +18,7 @@ import ReturnsPolicy from "./pages/ReturnsPolicy";
 import ShippingInfo from "./pages/ShippingInfo";
 import TermsOfUse from "./pages/TermsOfUse";
 import Privacy from "./pages/Privacy";
+import WhyChooseUsPage from "./pages/WhyChooseUsPage";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import StoreIntro from "./pages/StoreIntro";
 
@@ -26,6 +27,7 @@ import ComingSoonPage from "./pages/CommingSoonPage";
 import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
 import NazraIcon from "./pages/NazraIcon";
+import UVProtectionPage from "./pages/UVProtectionPage";
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -54,6 +56,14 @@ export const Router = createBrowserRouter([
       {
         path: "/about",
         element: <AboutPage />,
+      },
+      {
+        path: "/discover",
+        element: <WhyChooseUsPage />,
+      },
+      {
+        path: "/explore",
+        element: <UVProtectionPage />,
       },
       {
         path: "/store/products",

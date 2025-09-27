@@ -25,7 +25,7 @@ const LINKS = [
     key: "followUs",
     links: [
       { key: "instagram", path: "https://www.instagram.com/nazra.sunglasses/" },
-      { key: "facebook", path: "https://www.facebook.com/nazra.sunglasses/" },
+      { key: "facebook", path: "https://web.facebook.com/profile.php?id=61581395211534" },
       { key: "twitter", path: "https://twitter.com/nazra_sunglasses" },
       { key: "pinterest", path: "https://pinterest.com/nazra_sunglasses" },
     ],
@@ -37,23 +37,23 @@ const LINKS = [
       { key: "termsAndConditions", path: "/terms-and-conditions" },
     ],
   },
-  {
-    key: "stayConnected",
-    links: [
-      { key: "subscribeNewsletter", path: "/subscribe" },
-      { key: "exclusiveOffers", path: "/offers" },
-      { key: "joinCommunity", path: "/community" },
-      { key: "feedback", path: "/feedback" },
-    ],
-  },
-  {
-    key: "contactUs",
-    links: [
-      { key: "emailUs", path: "/email-us" },
-      { key: "callUs", path: "/call-us" },
-      { key: "liveChat", path: "/live-chat" },
-    ],
-  },
+  // {
+  //   key: "stayConnected",
+  //   links: [
+  //     { key: "subscribeNewsletter", path: "/subscribe" },
+  //     { key: "exclusiveOffers", path: "/offers" },
+  //     { key: "joinCommunity", path: "/community" },
+  //     { key: "feedback", path: "/feedback" },
+  //   ],
+  // },
+  // {
+  //   key: "contactUs",
+  //   links: [
+  //     { key: "emailUs", path: "/email-us" },
+  //     { key: "callUs", path: "/call-us" },
+  //     { key: "liveChat", path: "/live-chat" },
+  //   ],
+  // },
 ];
 
 const Footer = () => {
@@ -116,7 +116,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="w-11/12 grid grid-cols-3 md:grid-cols-6 gap-2 md:place-items-center border-black border-y py-10">
+      <div className="w-11/12 grid grid-cols-3 md:grid-cols-4 gap-2 md:place-items-center border-black border-y py-10">
         {LINKS.map((section, idx) => (
           <div key={idx} className="flex flex-col gap-2 h-full">
             <h3 className="font-bold text-sm md:text-lg">
