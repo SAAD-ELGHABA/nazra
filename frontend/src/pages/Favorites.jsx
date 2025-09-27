@@ -6,6 +6,7 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCard } from "../context/CardContext";
 import { toast } from "sonner";
+import ProductComponent from "../components/store/ProductComponent";
 function Favorites() {
   const { t } = useTranslation();
   const { addToCard } = useCard();
@@ -38,66 +39,20 @@ function Favorites() {
   return (
     <div className="min-h-screen w-[90%] mx-auto my-8 p-4">
       <h2 className="text-2xl font-bold mb-4">Your Favorites</h2>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {favorites.map((product) => (
-          <Link
-            key={product.id}
-            className="relative rounded-lg shadow hover:shadow-lg transition group"
-            to={`/product/${product?.slug}`}
-          >
-            <div className="relative">
-              <img
-                src={product?.colors[0]?.images[0]?.url || "/fall-back-sunglasses-image.webp"}
-                alt={product.name}
-                className="w-full h-60 object-cover rounded-t-lg"
-              />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {favorites.map((product) => {
+          const inFavorites = isFavorite(product._id);
 
-              <div className="absolute top-3 right-3 flex gap-2">
-                <button className="p-1 bg-red-500 text-white rounded-full shadow hover:bg-black/70 transition-colors">
-                  <Heart
-                    size={26}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (isFavorite(product._id)) {
-                        removeFavorite(product._id);
-                      } else {
-                        addFavorite(product);
-                      }
-                    }}
-                    className={`${
-                      isFavorite(product._id)
-                        ? "fill-red-500"
-                        : "fill-transparent"
-                    } hover:fill-black transition-colors duration-300 text-white`}
-                  />
-                </button>
-              </div>
-
-              <p className="text-white font-bold absolute bottom-2 right-2 bg-black/70 px-3 py-1 rounded-lg">
-                MAD {product.sale_price}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2 w-full mt-2 p-3">
-              <div className="flex items-center justify-between">
-                <h5 className="font-semibold text-gray-900">{product.name}</h5>
-                <div className="flex items-center gap-1 text-yellow-500">
-                  {product?.rating} <Star size={12} className="fill-current" />
-                </div>
-              </div>
-
-              <button
-                className="mt-2 py-2 w-full text-sm font-medium bg-black text-white rounded-lg hover:bg-transparent hover:text-black border transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  AddItemToCard(product);
-                }}
-              >
-                {t("cart.addToBag")}
-              </button>
-            </div>
-          </Link>
-        ))}
+          return (
+            <ProductComponent
+              product={product}
+              inFavorites={inFavorites}
+              removeFavorite={removeFavorite}
+              addFavorite={addFavorite}
+              AddItemToCard={AddItemToCard}
+            />
+          );
+        })}
       </div>
     </div>
   );

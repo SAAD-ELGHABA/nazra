@@ -1,4 +1,4 @@
-import { Glasses, Heart, Star } from "lucide-react";
+import { Glasses, Heart, ShoppingCart, Star } from "lucide-react";
 import React, { useState } from "react";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCard } from "../../context/CardContext";
@@ -29,118 +29,101 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
     toast.success(t("cart.addItem"));
   };
   return (
-    <div className="md:h-[80vh] flex flex-col justify-between relative p-2 md:p-4">
+    <div className="md:h-[80vh] flex flex-col relative p-4">
       <div className="w-full max-w-2xl mx-auto flex-1">
-        <div className="flex items-center justify-between mb-4">
-          <h1
-            className="font-bold text-[22px] text-center md:text-left md:text-[26px]"
-            style={{ lineHeight: "1.2" }}
-          >
-            {product?.name}
-          </h1>
-        </div>
-
-        <div className="flex justify-between items-center gap-2 mb-4">
-          {product?.colors && product?.colors.length > 0 && (
-            <div>
-              <div className="mb-4">
-                <h1
-                  className="font-bold text-[12px] text-start md:text-left md:text-[20px]"
-                  style={{ lineHeight: "1.2", letterSpacing: "2px" }}
-                >
-                  Colors
-                </h1>
-              </div>
-              <div className="flex items-center gap-2 mb-4">
-                {product.colors.map((color) => (
-                  <button
-                    key={color.name}
-                    style={{ backgroundColor: color?.value }}
-                    className={`
-                  w-10 h-10 rounded-full cursor-pointer 
-                  ${
+        <h1 className="font-bold text-2xl md:text-3xl text-gray-900 mb-4 text-left">
+          {product?.name}
+        </h1>
+        <button
+          onClick={toggleFavorite}
+          className="mb-6 flex items-center gap-2 px-4 py-2 text-sm rounded-lg border bg-gray-50 hover:bg-gray-100 transition"
+        >
+          <Heart
+            size={18}
+            className={`transition ${
+              isFavorite(product?._id)
+                ? "fill-black text-black"
+                : "fill-none text-gray-700"
+            }`}
+          />
+          <span>
+            {isFavorite(product?._id)
+              ? t("product.RemoveFromFavoriteBTN")
+              : t("product.AddToFavoriteBTN")}
+          </span>
+        </button>
+        {product?.colors && product?.colors.length > 0 && (
+          <div className="mb-6">
+            <h2 className="font-semibold text-sm md:text-lg uppercase tracking-wide mb-3">
+              Colors
+            </h2>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {product.colors.map((color) => (
+                <button
+                  key={color.name}
+                  onClick={() => setSelectedColor(color)}
+                  title={`${color?.name}-color`}
+                  className={`relative h-14 w-20 rounded-lg overflow-hidden border-2 transition ${
                     color.name === selectedColor?.name
-                      ? "border-2 border-black"
-                      : "border border-gray-300"
-                  }
-                  hover:border-black transition-colors duration-300
-                `}
-                    onClick={() => setSelectedColor(color)}
-                  ></button>
-                ))}
-              </div>
+                      ? "border-black"
+                      : "border-gray-300 hover:border-black"
+                  }`}
+                  style={{ backgroundColor: color?.value }}
+                >
+                  <img
+                    src={color?.images[0]?.url}
+                    alt={color?.name}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
             </div>
-          )}
-          <button
-            onClick={toggleFavorite}
-            className="group p-2 text-xs rounded-full flex gap-1 items-center bg-black/10 hover:bg-black/20 cursor-pointer"
-          >
-            <Heart
-              size={18}
-              className={`
-      cursor-pointer 
-      transition-colors duration-300
-      ${
-        isFavorite(product?._id)
-          ? "fill-black"
-          : "fill-transparent group-hover:fill-black"
-      }
-    `}
-            />
-            <span className="hidden md:flex">
-              {!isFavorite(product?._id)
-                ? t("product.AddToFavoriteBTN")
-                : t("product.RemoveFromFavoriteBTN")}
-            </span>
-          </button>
-        </div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 ">
-            <span>{product?.type}</span>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center gap-2 text-gray-700">
+            <span className="capitalize">{product?.type}</span>
             <Glasses />
           </div>
-          <div className="flex items-center gap-2 border border-gray-300 rounded">
+
+          <div className="flex items-center gap-2 text-gray-700">
+            <span className="font-semibold capitalize">Category :</span>
+            <span>{product?.category}</span>
+          </div>
+
+          <div className="flex items-center border rounded-lg w-max overflow-hidden">
             <button
               onClick={decrement}
-              className="px-4 py-1 text-lg font-bold hover:bg-gray-200 rounded"
+              className="px-4 py-2 text-lg font-bold hover:bg-gray-100"
             >
               -
             </button>
-            <span className="w-6 text-center">{quantity}</span>
+            <span className="px-4">{quantity}</span>
             <button
               onClick={increment}
-              className="px-4 py-1 text-lg font-bold hover:bg-gray-200 rounded"
+              className="px-4 py-2 text-lg font-bold hover:bg-gray-100"
             >
               +
             </button>
           </div>
         </div>
+      </div>
 
-        <p className=" mb-6 md:mb-0 overflow-y-auto h-full md:h-50">
-          {i18n.language === "en"
-            ? product?.description?.en
-            : i18n.language === "fr"
-            ? product?.description?.fr
-            : product?.description?.ar}
+      <div className="md:absolute sticky bottom-0 left-0 w-full border-t border-gray-200 bg-white p-4 flex items-center justify-between shadow-md">
+        <p className="font-bold text-lg md:text-2xl text-gray-900">
+          MAD {product?.sale_price + ".00"}
         </p>
-
-        <div className="md:absolute sticky bottom-0 bg-white px-4 md:pt-1 py-1 border-t flex items-center justify-between w-full">
-          <p
-            className="font-bold text-[16px] w-1/2 text-center md:text-left md:text-[20px]"
-            style={{ lineHeight: "1.2" }}
-          >
-            MAD {product?.sale_price+".00"}
-          </p>
-          <button
-            className="py-2 text-sm text-white bg-black rounded transition-colors duration-300 hover:bg-transparent border hover:text-black w-1/2"
-            onClick={(e) => {
-              e.preventDefault();
-              AddItemToCard(product);
-            }}
-          >
-            Add To Bag
-          </button>
-        </div>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            AddItemToCard(product);
+          }}
+          className="px-6 py-3 bg-black text-white text-sm md:text-base rounded-lg hover:bg-gray-800 transition shadow-sm flex items-center justify-center gap-2 "
+        >
+          <ShoppingCart className="h-5 w-5" />
+          <span>Add To Bag</span>
+        </button>
       </div>
     </div>
   );

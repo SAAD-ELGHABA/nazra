@@ -19,7 +19,7 @@ const HeroSection = () => {
         </p>
         <div className="flex gap-4 md:self-start">
           <Link
-          to={`/store`}
+          to={`/store/products`}
             className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center flex items-center"
             style={{ letterSpacing: "2px" }}
           >

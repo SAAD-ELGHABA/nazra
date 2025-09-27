@@ -28,7 +28,7 @@ function ElevateSection() {
 
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
-            to="/shop"
+            to="/store/products"
             className="px-6 py-3 border border-white rounded transition-colors duration-300  bg-white text-black text-center hover:bg-transparent hover:text-white"
           >
             {t("elevate.shop")}

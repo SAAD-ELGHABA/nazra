@@ -1,14 +1,23 @@
 import React from "react";
 import { ShieldCheck, Truck, CreditCard, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
+import {Link} from 'react-router-dom'
 function MarkVid() {
   const { t } = useTranslation();
 
   const features = [
-    { icon: <ShieldCheck className="w-5 h-5" />, text: t("markVid.features.uvProtection") },
-    { icon: <Truck className="w-5 h-5" />, text: t("markVid.features.shipping") },
-    { icon: <CreditCard className="w-5 h-5" />, text: t("markVid.features.cod") },
+    {
+      icon: <ShieldCheck className="w-5 h-5" />,
+      text: t("markVid.features.uvProtection"),
+    },
+    {
+      icon: <Truck className="w-5 h-5" />,
+      text: t("markVid.features.shipping"),
+    },
+    {
+      icon: <CreditCard className="w-5 h-5" />,
+      text: t("markVid.features.cod"),
+    },
     { icon: <Star className="w-5 h-5" />, text: t("markVid.features.trusted") },
   ];
 
@@ -49,9 +58,11 @@ function MarkVid() {
             ))}
           </div>
 
-          <button className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black">
+          <Link 
+          to={'/store/products'}
+          className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center">
             {t("markVid.shopButton")}
-          </button>
+          </Link>
         </div>
       </div>
     </section>

@@ -44,7 +44,7 @@ function ProductPage() {
     };
     getProduct();
   }, [slug]);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (statusPromise == false) {
     return <ProductNotAvailable />;
@@ -80,6 +80,22 @@ function ProductPage() {
           />
         </div>
       </div>
+      <div className="w-[90%]">
+        <div className="md:w-3/4 md:ms-5 m-5">
+          <h2 className="font-semibold text-lg md:text-2xl text-gray-900 mb-3 border-b pb-2">
+            Frame Description
+          </h2>
+
+          <p className="text-gray-700 leading-relaxed text-sm md:text-base max-h-40 overflow-y-auto pr-2">
+            {i18n.language === "en"
+              ? product?.description?.en
+              : i18n.language === "fr"
+              ? product?.description?.fr
+              : product?.description?.ar}
+          </p>
+        </div>
+      </div>
+
       <div>
         <Suggestions
           products={products
