@@ -9,7 +9,7 @@ import ProductComponent from "./ProductComponent";
 
 function ListProducts({ products }) {
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 8;
+  const productsPerPage = 12;
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
