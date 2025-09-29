@@ -18,18 +18,25 @@ const VisitorStats = () => {
     const res = await getVisitors();
     const views = res?.data?.views || [];
 
-    // Group by date
-    const grouped = views.reduce((acc, curr) => {
-      const day = curr.date; // e.g. "2025-09-13"
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7); 
+
+    const last7DaysViews = views.filter((view) => {
+      const viewDate = new Date(view.date);
+      return viewDate >= sevenDaysAgo && viewDate <= today;
+    });
+
+    const grouped = last7DaysViews.reduce((acc, curr) => {
+      const day = curr.date;
       if (!acc[day]) {
         acc[day] = { day, visitors: 0, pageViews: 0 };
       }
-      acc[day].visitors += 1;   // count visitors
-      acc[day].pageViews += 1; // here I'm treating "views" as pageViews too
+      acc[day].visitors += 1;
+      acc[day].pageViews += 1;
       return acc;
     }, {});
 
-    // Convert object to array sorted by date
     const formatted = Object.values(grouped).sort(
       (a, b) => new Date(a.day) - new Date(b.day)
     );
@@ -41,7 +48,6 @@ const VisitorStats = () => {
     getVisitorsData();
   }, []);
 
-  // Custom tooltip
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -77,7 +83,6 @@ const VisitorStats = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Custom legend */}
       <div className="flex justify-center sm:justify-start gap-4 mt-3">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-purple-600 rounded-sm"></div>
