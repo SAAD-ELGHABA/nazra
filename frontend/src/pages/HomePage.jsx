@@ -15,7 +15,7 @@ const HomePage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
   return (
-    <div className="flex flex-col gap-8 items-center justify-center min-h-screen w-full">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full">
       {/* <HeroSection /> */}
       <IntroSlider />
       <ProductsShortCut />
