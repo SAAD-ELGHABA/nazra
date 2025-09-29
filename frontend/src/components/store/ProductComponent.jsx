@@ -11,11 +11,11 @@ function ProductComponent({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="relative group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl">
+    <div className="relative group bg-white rounded-xl overflow-hidden shadow-sm transition-transform duration-300 hover:scale-101 hover:shadow-xl hover:z-30">
       <Link
         key={product.id}
         to={`/product/${product?.slug}`}
-        className="block  duration-300 "
+        className="block duration-300"
       >
         <div className="relative w-full h-65 overflow-hidden">
           <img
@@ -68,9 +68,8 @@ function ProductComponent({
 
       <div className="px-3 pb-3">
         <div
-          className="flex gap-2 items-center justify-center 
-      sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-4 sm:group-hover:translate-y-0 
-      transition-all duration-300"
+          className="flex gap-2 items-center justify-center md:hidden md:translate-y-4 
+      md:group-hover:flex md:group-hover:translate-y-0 transition-all duration-300"
         >
           <button
             className={`p-3 rounded-full shadow transition-colors ${

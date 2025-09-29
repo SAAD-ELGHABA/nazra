@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createMyOrder } from "../api/api";
+import OrderConfirmationUpsell from "./OrderConfirmationUpsell";
 
 function CheckoutCard() {
   const { t } = useTranslation();
@@ -85,6 +86,18 @@ function CheckoutCard() {
         phone: "",
         adresse: "",
       });
+      return (
+        <div className="max-w-4xl mx-auto p-8">
+            <h1 className="text-5xl font-light text-center text-green-600 mb-4">
+                Order Placed Successfully!
+            </h1>
+            <p className="text-center text-xl text-gray-700 mb-8">
+                Your order #{mockOrderId} is confirmed and will ship soon.
+            </p>
+
+            <OrderConfirmationUpsell orderId={order._id} />
+        </div>
+      )
     } catch (error) {
       console.log(error);
     } finally {

@@ -91,7 +91,7 @@ const NavBar = () => {
               )}
             </Link>
             <button
-              className=""
+              className="relative"
               onClick={() => {
                 // toggleMobileMenu();
                 setToggleCart(!toggleCart);
@@ -99,7 +99,7 @@ const NavBar = () => {
             >
               <ShoppingCart />
               {cardItems.length > 0 && (
-                <span className="ml-2 bg-red-500 text-white text-[12px] rounded-full px-1">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[12px] rounded-full px-1">
                   {cardItems.length}
                 </span>
               )}

@@ -28,6 +28,7 @@ import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
 import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
+import OrderConfirmationUpsell from "./pages/OrderConfirmationUpsell";
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -49,6 +50,10 @@ export const Router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
+      // {
+      //   path: "/checkoutConfirmation",
+      //   element: <OrderConfirmationUpsell />,
+      // },
       {
         path: "/nazra-icon.png",
         element: <NazraIcon />,
