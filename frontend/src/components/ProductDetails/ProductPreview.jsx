@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Expand } from "lucide-react";
-import ProductPreviewExpanded from './ProductPreviewExpanded'
+import ProductPreviewExpanded from "./ProductPreviewExpanded";
+import DeepARTryOn from "../VirtualTryOn";
+import VirtualTryOn from "../VirtualTryOn";
+
 export default function ProductPreview({ product, selectedColor }) {
   const [selectedImage, setSelectedImage] = useState("");
   const [loadedImages, setLoadedImages] = useState({});
@@ -14,7 +17,7 @@ export default function ProductPreview({ product, selectedColor }) {
       ? product.colors[0]
       : null);
 
-  const deepAREffectPath = activeColor?.deepAREffectPath;
+  const deepAREffectPath = activeColor?.test;
 
   useEffect(() => {
     if (activeColor) {
@@ -25,7 +28,6 @@ export default function ProductPreview({ product, selectedColor }) {
   const handleImageLoad = (image) => {
     setLoadedImages((prev) => ({ ...prev, [image]: true }));
   };
-
 
   return (
     <div className="p-2 md:p-4 w-full">
@@ -86,7 +88,7 @@ export default function ProductPreview({ product, selectedColor }) {
               <span>Expand</span>
             </button>
 
-            {deepAREffectPath ? (
+            {deepAREffectPath && (
               <button
                 className="bg-indigo-600 text-white px-4 py-2 rounded-full flex items-center justify-center gap-2 shadow-lg hover:bg-indigo-700 transition duration-200"
                 onClick={() => setIsTryOnOpen(true)}
@@ -94,14 +96,7 @@ export default function ProductPreview({ product, selectedColor }) {
               >
                 🤳 Try On
               </button>
-            ) : (
-              <button
-                className="bg-gray-400 text-white px-4 py-2 rounded-full cursor-not-allowed"
-                disabled
-              >
-                Try On (N/A)
-              </button>
-            )}
+            ) }
           </div>
         </div>
       </div>
@@ -132,7 +127,7 @@ export default function ProductPreview({ product, selectedColor }) {
               fit.
             </p>
 
-            <DeepARTryOn effectPath={deepAREffectPath} />
+            <VirtualTryOn glassesImage={selectedColor?.images[3]?.url} />
           </div>
         </div>
       )}

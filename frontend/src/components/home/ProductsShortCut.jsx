@@ -75,7 +75,7 @@ function ProductsShortCut() {
 
                     <div className="flex flex-col gap-2 items-center mb-2">
                       <div className="flex gap-2 items-center">
-                        <h5 className="text-xs md:text-sm font-light line-through">
+                        <h5 className="text-xs md:text-sm font-light line-through text-red-500">
                           {product?.sale_price -
                             product?.original_price +
                             product?.sale_price +

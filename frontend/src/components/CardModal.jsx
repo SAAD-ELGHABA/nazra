@@ -89,7 +89,7 @@ function CardModal({ isOpen, onClose }) {
       >
         
         {/* Modal Header: High Contrast */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-100">
           <h2 className="text-xl font-extrabold tracking-tight text-gray-900">
             {t("cart.yourCart")}
             <span className="ml-2 text-sm font-medium text-green-600">
@@ -199,7 +199,7 @@ function CardModal({ isOpen, onClose }) {
 
         {/* Fixed Footer: Total and Checkout (Luxury Dark Block) */}
         {cardItems.length > 0 && (
-          <div className="border-t border-gray-700 p-6 w-full bg-gray-900 text-white sticky bottom-0">
+          <div className="border-t border-gray-200 p-6 w-full bg-gray-100  sticky bottom-0">
             
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-medium tracking-wide capitalize">{t("cart.total")}:</span>
@@ -213,7 +213,7 @@ function CardModal({ isOpen, onClose }) {
             <Link
               to="/checkout-card"
               onClick={onClose}
-              className="block w-full text-center bg-green-600 text-white py-3 rounded-lg text-lg font-bold transition-colors duration-300 hover:bg-green-700 shadow-xl shadow-green-600/30 tracking-wider uppercase"
+              className="block w-full text-center bg-green-600 text-white py-3 rounded-lg text-sm font-bold transition-colors duration-300 hover:bg-green-700 shadow-xl shadow-green-600/30 tracking-wider uppercase"
             >
               {t("cart.checkout")}
             </Link>
