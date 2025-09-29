@@ -35,7 +35,7 @@ function ProductsShortCut() {
       <p className="text-center my-10">No products found</p>
     </div>
   ) : (
-    <div className="my-10 w-[95%]">
+    <div className="my-10 w-[95%] bg-gray-100">
       <div className="w-full text-center my-5">
         <h1 className="text-2xl font-bold">Our Latest Product</h1>
       </div>

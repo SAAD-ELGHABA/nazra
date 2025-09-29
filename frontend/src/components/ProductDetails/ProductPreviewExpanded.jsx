@@ -23,7 +23,7 @@ function ProductPreviewExpanded({ images, onclose }) {
         {images?.map((img, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-transform duration-500 ease-in-out ${
+            className={`absolute inset-0 transition-transform duration-500 w-full ease-in-out ${
               index === current
                 ? "translate-x-0"
                 : index < current

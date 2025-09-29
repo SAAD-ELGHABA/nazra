@@ -110,7 +110,6 @@ const DashboardLayout = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {/* Header */}
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
           {isMobile && (
@@ -199,7 +198,6 @@ const DashboardLayout = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
       <Drawer
         anchor="left"
         open={drawerOpen}
@@ -208,12 +206,10 @@ const DashboardLayout = () => {
         {drawer}
       </Drawer>
 
-      {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: isMobile ? 1 : 3 }}>
         <Outlet />
       </Box>
 
-      {/* Footer */}
       <Box
         component="footer"
         sx={{
@@ -231,7 +227,7 @@ const DashboardLayout = () => {
       >
         <Box
           component="img"
-          src="/Main-logo.jpeg"
+          src="/S.svg"
           sx={{
             height: isMobile ? 80 : 120,
             objectFit: "contain"
