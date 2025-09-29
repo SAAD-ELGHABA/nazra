@@ -21,7 +21,7 @@ function ListProducts({ products }) {
 
   const { t } = useTranslation();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
-  const { addToCard, isInCard } = useCard();
+  const { addToCard } = useCard();
 
   const AddItemToCard = (product) => {
     const choosedItem = { ...product, colors: [product.colors[0]], quantiy: 1 };
@@ -30,7 +30,7 @@ function ListProducts({ products }) {
   };
 
   return (
-    <div className="w-[90%] mx-auto my-8">
+    <div className="w-[90%] mx-auto my-8 ">
       <h4 className="underline text-lg font-semibold mb-6">
         {t("store.allProducts")}
       </h4>

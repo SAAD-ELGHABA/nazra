@@ -31,24 +31,16 @@ function StorePage() {
     );
   }
   return (
-    <div className="min-h-screen flex flex-col py-10 md:px-4">
-      <div className="w-full flex flex-col items-center justify-center gap-5">
+    <div className="min-h-screen flex flex-col py-10 md:px-4 bg-gray-100">
+      <div className="w-full flex flex-col items-center justify-start gap-5">
         <h1
-          className="font-bold text-[16px] text-center md:text-left md:text-[36px]"
+          className="font-bold text-[16px] text-left md:text-left md:text-[36px]"
           style={{ lineHeight: "1.2", letterSpacing: "4px" }}
         >
           {t("store.title")}
         </h1>
         <p>{t("store.description")}</p>
       </div>
-      {/* <div>
-        <TrendingProducts
-          products={products?.slice(
-            products?.length - 10,
-            products?.length - 1
-          )}
-        />
-      </div> */}
       <ListProducts products={products} />
     </div>
   );
