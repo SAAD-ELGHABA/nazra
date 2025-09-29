@@ -12,6 +12,7 @@ const allowedOrigins = [
   "https://nazra-eta.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://192.168.0.122:5173/"
 ].filter(Boolean);
 
 app.use(cors({

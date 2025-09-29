@@ -19,25 +19,25 @@ function ProductPreviewExpanded({ images, onclose }) {
           <X />
         </button>
       </div>
+
       <div className="relative w-full h-full overflow-hidden">
-        {images?.map((img, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-transform duration-500 w-full ease-in-out ${
-              index === current
-                ? "translate-x-0"
-                : index < current
-                ? "-translate-x-full"
-                : "translate-x-full"
-            }`}
-          >
-            <img
-              src={img?.url}
-              alt={`slide-${index}`}
-              className="w-full h-full object-contain scale-120 md:scale-200"
-            />
-          </div>
-        ))}
+        <div
+          className="flex transition-transform duration-500 ease-in-out h-full"
+          style={{ transform: `translateX(-${current * 100}%)` }}
+        >
+          {images?.map((img, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 w-full h-full flex items-center justify-center"
+            >
+              <img
+                src={img?.url}
+                alt={`slide-${index}`}
+                className="w-full h-full object-contain scale-150"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       <button
