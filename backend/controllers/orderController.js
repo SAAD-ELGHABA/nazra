@@ -39,7 +39,7 @@ exports.createOrder = async (req, res) => {
     });
 
     await sendEmail({
-      to: "nazraglasses@gmail.com",
+      to: process.env.ADMIN_EMAIL,
       subject: "New Order Received",
       html: adminOrderEmail(order, customer),
     });

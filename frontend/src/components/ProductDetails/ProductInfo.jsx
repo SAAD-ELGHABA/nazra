@@ -17,7 +17,7 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
       addFavorite(product);
     }
   };
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { addToCard } = useCard();
   const AddItemToCard = (product) => {
     const choosedItem = {
@@ -31,27 +31,21 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
   return (
     <div className="md:h-[80vh] flex flex-col relative p-4">
       <div className="w-full max-w-2xl mx-auto flex-1">
-        <h1 className="font-bold text-2xl md:text-3xl text-gray-900 mb-4 text-left">
+        <h1 className="font-bold text-2xl md:text-2xl text-gray-900 mb-4 text-left">
           {product?.name}
         </h1>
-        <button
-          onClick={toggleFavorite}
-          className="mb-6 flex items-center gap-2 px-4 py-2 text-sm rounded-lg border bg-gray-50 hover:bg-gray-100 transition"
-        >
-          <Heart
-            size={18}
-            className={`transition ${
-              isFavorite(product?._id)
-                ? "fill-black text-black"
-                : "fill-none text-gray-700"
-            }`}
-          />
-          <span>
-            {isFavorite(product?._id)
-              ? t("product.RemoveFromFavoriteBTN")
-              : t("product.AddToFavoriteBTN")}
-          </span>
-        </button>
+        <div className="mb-6 flex items-center gap-2">
+          <h1 className="font-bold text-2xl md:text-3xl text-gray-900 ">
+            MAD {product?.sale_price + ".00"}
+          </h1>
+          <h6 className="line-through text-red-500">
+            MAD {product?.sale_price -
+              product?.original_price +
+              product?.sale_price +
+              ".00"}
+          </h6>
+        </div>
+
         {product?.colors && product?.colors.length > 0 && (
           <div className="mb-6">
             <h2 className="font-semibold text-sm md:text-lg uppercase tracking-wide mb-3">
@@ -110,16 +104,27 @@ function ProductInfo({ product, selectedColor, setSelectedColor }) {
         </div>
       </div>
 
-      <div className="md:absolute sticky bottom-0 left-0 w-full border-t border-gray-200 bg-white p-4 flex items-center justify-between shadow-md">
-        <p className="font-bold text-lg md:text-2xl text-gray-900">
-          MAD {product?.sale_price + ".00"}
-        </p>
+      <div className="md:static sticky bottom-0 left-0 w-full  py-4 flex items-center justify-between bg-white">
+        <button
+          onClick={toggleFavorite}
+          className=" flex items-center gap-2 px-6 py-3 text-sm rounded-lg  bg-gray-50 hover:bg-gray-100 transition border border-gray-300"
+        >
+          <Heart
+            size={22}
+            className={`transition ${
+              isFavorite(product?._id)
+                ? "fill-red-500 text-red-500"
+                : "fill-none text-gray-700"
+            }`}
+          />
+        </button>
         <button
           onClick={(e) => {
             e.preventDefault();
             AddItemToCard(product);
           }}
-          className="px-6 py-3 bg-black text-white text-sm md:text-base rounded-lg hover:bg-gray-800 transition shadow-sm flex items-center justify-center gap-2 "
+          className="px-6 py-3 bg-black text-white 
+        hover:bg-transparent hover:text-black border transition-colors text-sm md:text-base  shadow-sm flex items-center justify-center gap-2 w-2/3"
         >
           <ShoppingCart className="h-5 w-5" />
           <span>Add To Bag</span>

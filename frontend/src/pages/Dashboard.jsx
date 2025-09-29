@@ -66,7 +66,13 @@ const Dashboard = () => {
       const productsArr = products?.data?.products ?? [];
       const visitorsArr = visitors?.data?.views ?? [];
 
-      setTotalViews(visitorsArr.length);
+      const uniqueIPs = new Set(
+        visitorsArr.map((visitor) => visitor.ipAddress)
+      );
+      const totalUniqueVisitors = uniqueIPs.size;
+
+      setTotalViews(totalUniqueVisitors);
+
       setTotalOrders(ordersArr.length);
       setTotalProducts(productsArr.length);
       setTotalCustomers(getUniqueEmail(ordersArr));

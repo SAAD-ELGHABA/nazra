@@ -50,10 +50,6 @@ export const Router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
-      // {
-      //   path: "/checkoutConfirmation",
-      //   element: <OrderConfirmationUpsell />,
-      // },
       {
         path: "/nazra-icon.png",
         element: <NazraIcon />,
