@@ -95,3 +95,12 @@ export const storeEmail = async (email)=>{
   return response;
 }
 
+export const getSubEmails = async ()=>{
+  const response = await api.get(`/emails/get-emails`,{
+    headers:{
+      Authorization:`Bearer ${localStorage.getItem('User_Data_token')}`
+    }
+  })
+  return response;
+}
+

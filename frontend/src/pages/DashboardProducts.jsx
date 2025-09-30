@@ -45,7 +45,6 @@ const DashboardProducts = () => {
       <div className="mt-8 flex flex-col">
         {loading ? (
           <div className="flex justify-center items-center py-10 gap-2">
-            {/* Simple bubble loading animation */}
             <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-75"></div>
             <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-150"></div>
             <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-300"></div>
@@ -57,6 +56,9 @@ const DashboardProducts = () => {
                 <table className="min-w-full divide-y divide-gray-300">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                        Image
+                      </th>
                       <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
                         Name
                       </th>
@@ -87,6 +89,15 @@ const DashboardProducts = () => {
                         key={product?._id}
                         className="hover:bg-gray-200 transition-colors duration-300 ease-in-out"
                       >
+                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                          <div className="h-8 w-12 rounded overflow-hidden">
+                            <img
+                              src={product?.colors[0]?.images[0]?.url}
+                              alt="image-product"
+                              className="scale-200 w-full h-full object-cover"
+                            />
+                          </div>
+                        </td>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                           {product?.name}
                         </td>

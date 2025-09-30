@@ -6,18 +6,15 @@ import {
   TrendingUp,
   Package,
   DollarSign,
-} from "lucide-react"; // using lucide icons instead of MUI
+} from "lucide-react";
 import OrderStats from "../components/OrderStats";
 import ProductStats from "../components/ProductStats";
 import VisitorStats from "../components/VisitorStats";
 import RecentOrders from "../components/RecentOrders";
 import TopProducts from "../components/TopProducts";
-import {
-  getOrders,
-  getProducts,
-  getProductsAsAdmin,
-  getVisitors,
-} from "../api/api";
+import { getOrders, getProductsAsAdmin, getVisitors } from "../api/api";
+
+import SubEmails from "../components/Dashboard/SubEmails";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -138,14 +135,12 @@ const Dashboard = () => {
         Dashboard Overview
       </h1>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         {statCards.map((c, i) => (
           <StatCard key={i} {...c} />
         ))}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <SectionCard title="Monthly Orders">
           <OrderStats />
@@ -155,7 +150,6 @@ const Dashboard = () => {
         </SectionCard>
       </div>
 
-      {/* Other sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SectionCard title="Visitor Analytics (Last 7 Days)">
           <VisitorStats visitors={totalViews} />
@@ -165,6 +159,9 @@ const Dashboard = () => {
         </SectionCard>
         <SectionCard title="Top Products" className="lg:col-span-2">
           <TopProducts />
+        </SectionCard>
+        <SectionCard title="Subscribes Emails" className="lg:col-span-2">
+          <SubEmails />
         </SectionCard>
       </div>
     </div>

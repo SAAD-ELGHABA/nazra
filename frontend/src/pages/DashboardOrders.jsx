@@ -11,7 +11,7 @@ function OrderManagementPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -20,7 +20,7 @@ function OrderManagementPage() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -81,7 +81,6 @@ function OrderManagementPage() {
       setEditingStatus(null);
     }
   };
-
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
@@ -185,7 +184,7 @@ function OrderManagementPage() {
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped</option>
                 <option value="delivered">Delivered</option>
-                <option value="canceled">Canceled</option>
+                <option value="cancelled">Canceled</option>
               </select>
             </div>
           </div>
@@ -228,114 +227,122 @@ function OrderManagementPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOrders.length > 0 ? (
-                  filteredOrders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {order._id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {order.fullName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {order?.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {order?.phone}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                        <div
-                          className="line-clamp-2 cursor-pointer text-blue-600 hover:underline"
-                          onClick={() => showProductDetails(order?.products)}
-                        >
-                          {order.products.map((p, idx) => (
-                            <span key={idx}>
-                              {p.product?.name} (x{p.quantity},{" "}
-                              {p.color || "N/A"})
-                              {idx < order.products.length - 1 && ", "}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        MAD{" "}
-                        {order.products
-                          ?.reduce(
-                            (total, p) =>
-                              total +
-                              (p.product?.sale_price || 0) * (p.quantity || 1),
-                            0
-                          )
-                          .toFixed(2)}
-                      </td>
+                {filteredOrders?.length > 0 ? (
+                  filteredOrders
+                    ?.sort(
+                      (a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)
+                    )
+                    ?.map((order) => (
+                      <tr key={order._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {order._id}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {order.fullName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {order?.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {order?.phone}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                          <div
+                            className="line-clamp-2 cursor-pointer text-blue-600 hover:underline"
+                            onClick={() => showProductDetails(order?.products)}
+                          >
+                            {order.products.map((p, idx) => (
+                              <span key={idx}>
+                                {p.product?.name} (x{p.quantity},{" "}
+                                {p.color || "N/A"})
+                                {idx < order.products.length - 1 && ", "}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          MAD{" "}
+                          {order.products
+                            ?.reduce(
+                              (total, p) =>
+                                total +
+                                (p.product?.sale_price || 0) *
+                                  (p.quantity || 1),
+                              0
+                            )
+                            .toFixed(2)}
+                        </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {editingStatus?.orderId === order._id ? (
-                          <div className="flex flex-col gap-2">
-                            <select
-                              value={editingStatus.status}
-                              onChange={(e) =>
-                                setEditingStatus({
-                                  ...editingStatus,
-                                  status: e.target.value,
-                                })
-                              }
-                              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                              disabled={isUpdating}
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="processing">Processing</option>
-                              <option value="shipped">Shipped</option>
-                              <option value="delivered">Delivered</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {editingStatus?.orderId === order._id ? (
+                            <div className="flex flex-col gap-2">
+                              <select
+                                value={editingStatus.status}
+                                onChange={(e) =>
+                                  setEditingStatus({
+                                    ...editingStatus,
+                                    status: e.target.value,
+                                  })
+                                }
+                                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                disabled={isUpdating}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
 
-                            <div className="flex gap-2 flex-col">
+                              <div className="flex gap-2 flex-col">
+                                <button
+                                  onClick={() =>
+                                    updateStatus(
+                                      order._id,
+                                      editingStatus.status
+                                    )
+                                  }
+                                  disabled={isUpdating}
+                                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                                >
+                                  {isUpdating ? "Saving..." : "Save"}
+                                </button>
+
+                                <button
+                                  onClick={() => setEditingStatus(null)}
+                                  disabled={isUpdating}
+                                  className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400 disabled:opacity-50"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <span
+                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(
+                                  order.status
+                                )}`}
+                              >
+                                {order.status}
+                              </span>
                               <button
                                 onClick={() =>
-                                  updateStatus(order._id, editingStatus.status)
+                                  startEditing(order._id, order.status)
                                 }
-                                disabled={isUpdating}
-                                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                                className="ml-2 text-gray-500 hover:text-gray-700"
+                                title="Edit status"
                               >
-                                {isUpdating ? "Saving..." : "Save"}
-                              </button>
-
-                              <button
-                                onClick={() => setEditingStatus(null)}
-                                disabled={isUpdating}
-                                className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400 disabled:opacity-50"
-                              >
-                                Cancel
+                                ✏️
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center">
-                            <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(
-                                order.status
-                              )}`}
-                            >
-                              {order.status}
-                            </span>
-                            <button
-                              onClick={() =>
-                                startEditing(order._id, order.status)
-                              }
-                              className="ml-2 text-gray-500 hover:text-gray-700"
-                              title="Edit status"
-                            >
-                              ✏️
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                          )}
+                        </td>
+                      </tr>
+                    ))
                 ) : (
                   <tr>
                     <td colSpan={8} className="text-center py-12 text-gray-500">
