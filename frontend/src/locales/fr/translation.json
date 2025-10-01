@@ -466,5 +466,122 @@
     "ctaLink": "/store/products"
   }
 ]
+,
+"introHomePage":[
+  {
+    "id": 1,
+    "title": "Nouvelles Arrivées : La Collection Été",
+    "subtitle": "Découvrez les dernières tendances en lunettes. Stock limité !",
+    "imageUrl": "/slider/slider-1.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Jusqu'à -50 % : Vente de Déstockage",
+    "subtitle": "Ne manquez pas nos plus grandes réductions de la saison.",
+    "imageUrl": "/slider/Octagonal Sunglasses-1.png"
+  },
+  {
+    "id": 3,
+    "title": "Verres Polarisés Premium",
+    "subtitle": "Clarté et protection supérieures pour vos yeux. Voyez la différence.",
+    "imageUrl": "/slider/Sophisticated Seascape Reflection Sunglasses-1.png"
+  }
+]
+,"introHomePageBtn":"En savoir plus",
+"WhyChooseUsPage":{
+  "header": {
+    "subtitle": "Notre Promesse pour Vous",
+    "title": "Pourquoi Nazra Store est Votre Meilleur Choix en Lunettes",
+    "description": "Nous sommes plus qu'une simple boutique de lunettes de soleil, nous sommes votre partenaire local pour le style, la protection et la valeur."
+  },
+ "features": [
+    {
+      "id": 1,
+      "icon": "CheckCircleIcon",
+      "title": "Qualité et Style Inégalés",
+      "description": "Nous sélectionnons chaque paire de lunettes de soleil à la main, en veillant à ce qu'elles répondent aux normes les plus strictes en matière de clarté des verres, de protection UV et de durabilité des montures. Soyez élégant tout en restant protégé.",
+      "color": "text-indigo-600"
+    },
+    {
+      "id": 2,
+      "icon": "TruckIcon",
+      "title": "Livraison Rapide à Travers le Maroc",
+      "description": "Basés ici même au Maroc, nous garantissons un traitement rapide et une livraison fiable à votre porte, où que vous soyez dans le royaume. Recevez vos lunettes quand vous en avez besoin.",
+      "color": "text-teal-600"
+    },
+    {
+      "id": 3,
+      "icon": "ShieldCheckIcon",
+      "title": "Garantie Sans Souci",
+      "description": "Nous soutenons nos produits avec une politique simple de retours et d'échanges. Si elles ne vous conviennent pas ou ne correspondent pas à vos attentes, nous facilitons la démarche.",
+      "color": "text-yellow-600"
+    },
+    {
+      "id": 4,
+      "icon": "HeartIcon",
+      "title": "Support Local Dédié",
+      "description": "Une question sur un style ou une commande ? Notre équipe locale marocaine est prête à vous aider rapidement et personnellement. Votre satisfaction est notre priorité.",
+      "color": "text-rose-600"
+    }
+  ],
+  "cta": {
+    "title": "Prêt à Trouver Votre Paire Parfaite ?",
+    "description": "Découvrez nos collections sélectionnées dès aujourd'hui et vivez la différence Nazra par vous-même.",
+    "button": "Commencer vos Achats"
+  }
+}
+,
+"ExplorePage":{
+  "hero": {
+    "smallTitle": "Au-delà de la mode",
+    "title": "Protégez vos yeux avec style",
+    "description": "Comprendre la protection UV ne se résume pas à des mots à la mode ; il s'agit de protéger la santé de vos yeux sur le long terme tout en ayant fière allure. Découvrez pourquoi les lunettes de soleil de Nazra Store sont votre meilleure défense.",
+    "primaryButton": "Achetez des lunettes protégées UV",
+    "secondaryButton": "En savoir plus →"
+  },
+  "whatIsUV": {
+    "title": "Qu'est-ce que le rayonnement UV exactement ?",
+    "description": "Le rayonnement ultraviolet (UV) est une forme de rayonnement électromagnétique provenant du soleil et de sources artificielles. Bien qu'il soit invisible à l'œil humain, ses effets sont très réels. Les deux types les plus nocifs pour vos yeux sont les UVA et les UVB.",
+    "points": [
+      {
+        "icon": "ShieldIcon",
+        "title": "Rayons UVA",
+        "description": "Pénètrent profondément dans la peau et les yeux, contribuant au vieillissement et potentiellement à la formation de cataractes au fil du temps."
+      },
+      {
+        "icon": "ShieldIcon",
+        "title": "Rayons UVB",
+        "description": "Plus intenses et dommageables, ils sont la principale cause des coups de soleil et peuvent entraîner des affections comme la photokératite, les cataractes et le ptérygion."
+      }
+    ],
+    "image": "/slider/uv.jpg"
+  },
+  "whyUVMatters": {
+    "title": "Pourquoi une protection UV réelle est indispensable",
+    "description": "Porter des lunettes de soleil ne se limite pas à la mode. C'est une étape essentielle pour protéger vos yeux des dommages cumulés du soleil.",
+    "features": [
+      {
+        "icon": "EyeIcon",
+        "title": "Prévention des affections oculaires",
+        "description": "Une exposition régulière aux UV peut augmenter le risque de maladies graves comme les cataractes, la dégénérescence maculaire et le pinguecula."
+      },
+      {
+        "icon": "SunIcon",
+        "title": "Réduit l'éblouissement et améliore le confort",
+        "description": "Une protection UV de qualité est souvent dotée de propriétés anti-reflets, réduisant la fatigue oculaire et améliorant le confort visuel, surtout par temps lumineux."
+      },
+      {
+        "icon": "ShieldIcon",
+        "title": "Protège la peau délicate",
+        "description": "La peau autour des yeux est fine et sensible aux dommages du soleil. Les lunettes offrent une protection supplémentaire contre le vieillissement prématuré et le cancer de la peau."
+      }
+    ]
+  },
+  "nazraPromise": {
+    "title": "Nazra Store : Votre garantie de protection",
+    "description": "Chaque paire de lunettes chez Nazra Store est choisie pour fournir une **protection 100% UVA et UVB**, garantissant la sécurité de vos yeux sans compromettre les derniers styles. Ne vous contentez pas de moins pour votre vision.",
+    "button": "Trouvez votre style protégé"
+  }
+}
 
 }

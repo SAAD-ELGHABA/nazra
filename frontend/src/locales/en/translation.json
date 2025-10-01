@@ -462,4 +462,123 @@
       "ctaLink": "/store/products"
     }
   ]
+  ,
+  "introHomePage":[
+  {
+    "id": 1,
+    "title": "New Arrivals: The Summer Collection",
+    "subtitle": "Explore the latest trends in eyewear. Limited stock!",
+    "imageUrl": "/slider/slider-1.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Up to 50% Off: Clearance Sale",
+    "subtitle": "Don't miss out on our biggest discounts of the season.",
+    "imageUrl": "/slider/Octagonal Sunglasses-1.png"
+  },
+  {
+    "id": 3,
+    "title": "Premium Polarized Lenses",
+    "subtitle": "Superior clarity and protection for your eyes. See the difference.",
+    "imageUrl": "/slider/Sophisticated Seascape Reflection Sunglasses-1.png"
+  }
+],
+"introHomePageBtn":"Learn more",
+"WhyChooseUsPage":{
+  "header": {
+    "subtitle": "Our Promise to You",
+    "title": "Why Nazra Store is Your Best Choice for Eyewear",
+    "description": "We are more than just a sunglasses shop, we are your local partner for style, protection, and value."
+  },
+"features": [
+    {
+      "id": 1,
+      "icon": "CheckCircleIcon",
+      "title": "Unmatched Quality & Style",
+      "description": "We hand-select every pair of sunglasses, ensuring they meet the highest standards for lens clarity, UV protection, and frame durability. Look great and stay protected.",
+      "color": "text-indigo-600"
+    },
+    {
+      "id": 2,
+      "icon": "TruckIcon",
+      "title": "Fast Shipping Across Morocco",
+      "description": "Based right here in Morocco, we guarantee swift processing and reliable delivery to your door, wherever you are in the kingdom. Get your shades when you need them.",
+      "color": "text-teal-600"
+    },
+    {
+      "id": 3,
+      "icon": "ShieldCheckIcon",
+      "title": "Worry-Free Guarantee",
+      "description": "We stand by our products with a straightforward returns and exchange policy. If they don't fit or aren't what you expected, we make it easy to sort out.",
+      "color": "text-yellow-600"
+    },
+    {
+      "id": 4,
+      "icon": "HeartIcon",
+      "title": "Dedicated Local Support",
+      "description": "Have a question about a style or an order? Our local Moroccan support team is ready to help you quickly and personally. Your satisfaction is our priority.",
+      "color": "text-rose-600"
+    }
+  ],
+  "cta": {
+    "title": "Ready to Find Your Perfect Pair?",
+    "description": "Browse our curated collections today and experience the Nazra difference for yourself.",
+    "button": "Start Shopping Now"
+  }
+},
+"ExplorePage":{
+  "hero": {
+    "smallTitle": "Beyond Fashion",
+    "title": "Protect Your Eyes in Style",
+    "description": "Understanding UV protection isn't just about buzzwords; it's about safeguarding your long-term eye health while looking great. Learn why Nazra Store sunglasses are your best defense.",
+    "primaryButton": "Shop UV Protected Sunglasses",
+    "secondaryButton": "Learn more →"
+  },
+  "whatIsUV": {
+    "title": "What Exactly is UV Radiation?",
+    "description": "Ultraviolet (UV) radiation is a form of electromagnetic radiation that comes from the sun and artificial sources. While it's invisible to the human eye, its effects are very real. The two types most harmful to your eyes are UVA and UVB.",
+    "points": [
+      {
+        "icon": "ShieldIcon",
+        "title": "UVA Rays",
+        "description": "Penetrate deeply into the skin and eyes, contributing to aging and potentially cataracts over time."
+      },
+      {
+        "icon": "ShieldIcon",
+        "title": "UVB Rays",
+        "description": "More intense and damaging, these are the primary cause of sunburn and can lead to conditions like photokeratitis, cataracts, and pterygium."
+      }
+    ],
+    "image": "/slider/uv.jpg"
+  },
+  "whyUVMatters": {
+    "title": "Why True UV Protection is Non-Negotiable",
+    "description": "Wearing sunglasses is about much more than fashion. It's a vital step in protecting your eye health from cumulative sun damage.",
+    "features": [
+      {
+        "icon": "EyeIcon",
+        "title": "Prevents Eye Conditions",
+        "description": "Regular exposure to UV light can increase the risk of serious conditions like cataracts, macular degeneration, and pinguecula."
+      },
+      {
+        "icon": "SunIcon",
+        "title": "Reduces Glare & Enhances Comfort",
+        "description": "Quality UV protection often comes with anti-glare properties, reducing eye strain and improving visual comfort, especially on bright days."
+      },
+      {
+        "icon": "ShieldIcon",
+        "title": "Protects Delicate Skin",
+        "description": "The skin around your eyes is thin and susceptible to sun damage. Sunglasses add an extra layer of protection against premature aging and skin cancer."
+      }
+    ]
+  },
+  "nazraPromise": {
+    "title": "Nazra Store: Your Assurance of Protection",
+    "description": "Every pair of sunglasses at Nazra Store is selected to provide **100% UVA and UVB protection**, ensuring your eyes are safe without ever compromising on the latest styles. Don't settle for less when it comes to your vision.",
+    "button": "Find Your Protected Style"
+  }
+}
+
+
+
 }

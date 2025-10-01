@@ -100,7 +100,7 @@ const Dashboard = () => {
     {
       title: "Total Revenue",
       value: `MAD ${totalRevenue.toLocaleString()}`,
-      icon: <DollarSign className="w-6 h-6" />,
+      icon: <></>,
       color: "text-green-500 border-t-2 border-green-500",
     },
     {

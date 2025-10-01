@@ -17,7 +17,7 @@ export default function ProductPreview({ product, selectedColor }) {
       ? product.colors[0]
       : null);
 
-  const deepAREffectPath = activeColor?.test;
+  const deepAREffectPath = activeColor;
 
   useEffect(() => {
     if (activeColor) {
@@ -127,7 +127,10 @@ export default function ProductPreview({ product, selectedColor }) {
               fit.
             </p>
 
-            <VirtualTryOn glassesImage={selectedColor?.images[3]?.url} />
+            <VirtualTryOn 
+            glassesImage={selectedColor?.images[3]?.url}
+            // glassesImage={"/model3d/eyeglasses_3d_model.glb"}
+             />
           </div>
         </div>
       )}

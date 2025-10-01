@@ -34,7 +34,6 @@ const LuxurySlider = () => {
         : i18n.language === "fr"
         ? setSlides(fr?.LuxurySlider)
         : setSlides(ar?.LuxurySlider);
-      console.log(slides);
     }
   }, [i18n.language, slides]);
   useEffect(() => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { ShieldCheck, Truck, CreditCard, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {Link} from 'react-router-dom'
+import { Link } from "react-router-dom";
 function MarkVid() {
   const { t } = useTranslation();
 
@@ -22,7 +22,7 @@ function MarkVid() {
   ];
 
   return (
-    <section className="w-full px-6 py-12 bg-gray-50">
+    <section className="w-full px-6 py-12 bg-gray-100">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div className="flex flex-col gap-6 justify-center">
           <h2
@@ -31,15 +31,20 @@ function MarkVid() {
           >
             {t("markVid.title")}
           </h2>
-          <video
-            src="https://res.cloudinary.com/dmiaxmuiy/video/upload/v1755626196/video-ad_b79qe2.mp4"
-            autoPlay
-            preload="auto"
-            loop
-            muted
-            playsInline
-            controls={false}
-            className="w-full max-w-lg rounded-xl shadow-lg"
+          <div
+          className="bg-white rounded overflow-hidden"
+            dangerouslySetInnerHTML={{
+              __html: `
+      <model-viewer
+        src="/model3d/eyeglasses_3d_model.glb"
+        alt="3D Sunglasses"
+        auto-rotate
+        camera-controls
+        ar
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+    `,
+            }}
           />
         </div>
 
@@ -58,9 +63,10 @@ function MarkVid() {
             ))}
           </div>
 
-          <Link 
-          to={'/store/products'}
-          className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center">
+          <Link
+            to={"/store/products"}
+            className="px-6 py-3 text-white  rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-center"
+          >
             {t("markVid.shopButton")}
           </Link>
         </div>
