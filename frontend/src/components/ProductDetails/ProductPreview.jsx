@@ -17,7 +17,7 @@ export default function ProductPreview({ product, selectedColor }) {
       ? product.colors[0]
       : null);
 
-  const deepAREffectPath = activeColor;
+  const deepAREffectPath = activeColor?.test;
 
   useEffect(() => {
     if (activeColor) {
