@@ -49,6 +49,7 @@ const DashboardLayout = () => {
     setAnchorEl(null);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const currentPath = (url) => {
     return location.pathname === url ? "border-b-2 border-primary" : "text-gray-700";
   };
