@@ -229,7 +229,7 @@ const DashboardLayout = () => {
           component="img"
           src="/S.svg"
           sx={{
-            height: isMobile ? 80 : 120,
+            height: isMobile ? 80 : 80,
             objectFit: "contain"
           }}
           alt="Nazra Sunglasses Logo"
