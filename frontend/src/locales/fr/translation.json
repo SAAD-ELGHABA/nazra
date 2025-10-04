@@ -588,6 +588,12 @@
       "message": "Votre paiement est presque terminé. Confirmez pour continuer.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
-    }
+    },
+"EmailModal":{
+      "title": "Abonnez-vous à notre newsletter",
+      "message": "Restez informé de nos dernières actualités, conseils et offres.",
+      "placeholder": "Entrez votre email",
+      "subscribe": "S'abonner"
+}
 
 }

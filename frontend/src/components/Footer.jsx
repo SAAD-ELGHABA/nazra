@@ -37,23 +37,6 @@ const LINKS = [
       { key: "termsAndConditions", path: "/terms-and-conditions" },
     ],
   },
-  // {
-  //   key: "stayConnected",
-  //   links: [
-  //     { key: "subscribeNewsletter", path: "/subscribe" },
-  //     { key: "exclusiveOffers", path: "/offers" },
-  //     { key: "joinCommunity", path: "/community" },
-  //     { key: "feedback", path: "/feedback" },
-  //   ],
-  // },
-  // {
-  //   key: "contactUs",
-  //   links: [
-  //     { key: "emailUs", path: "/email-us" },
-  //     { key: "callUs", path: "/call-us" },
-  //     { key: "liveChat", path: "/live-chat" },
-  //   ],
-  // },
 ];
 
 const Footer = () => {

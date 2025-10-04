@@ -584,7 +584,13 @@
       "cancel": "Cancel",
       "confirm": "Confirm"
     }
-
+,
+"EmailModal":{
+        "title": "Subscribe to our newsletter",
+      "message": "Stay updated with our latest news, tips, and offers.",
+      "placeholder": "Enter your email",
+      "subscribe": "Subscribe"
+}
 
 
 }

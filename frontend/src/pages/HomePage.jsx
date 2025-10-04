@@ -8,6 +8,7 @@ import FAQs from "../components/FAQs";
 import MarkVid from "../components/home/MarkVid";
 import ProductsShortCut from "../components/home/ProductsShortCut";
 import IntroSlider from "../components/IntroSlider";
+import EmailSubModal from "../components/home/EmailSubModal";
 
 const HomePage = () => {
   useEffect(() => {
@@ -25,7 +26,7 @@ const HomePage = () => {
       <DiscoverSection />
       {/* <WebflowSection /> */}
       <ElevateSection />
-
+    <EmailSubModal/>
       <FAQs />
     </div>
   );
