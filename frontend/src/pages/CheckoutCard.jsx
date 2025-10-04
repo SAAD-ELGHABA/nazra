@@ -25,13 +25,15 @@ function CheckoutCard() {
   };
 
   const toggleSelect = (item) => {
-    const key = `${item.id}-${item.colors[0]?.name}`;
+    const key = `${item?._id}-${item?.colors[0]?._id}`;
+    console.log(key);
+    
     if (selectedItems.some((i) => i.key === key)) {
       setSelectedItems(selectedItems.filter((i) => i.key !== key));
     } else {
       setSelectedItems([
         ...selectedItems,
-        { ...item, key, color: item.colors[0]?.name },
+        { ...item, key, color: item.colors[0]?._id },
       ]);
     }
   };
@@ -42,8 +44,8 @@ function CheckoutCard() {
     } else {
       const allItems = cardItems.map((item) => ({
         ...item,
-        key: `${item.id}-${item.colors[0]?.name}`,
-        color: item.colors[0]?.name,
+        key: `${item?._id}-${item?.colors[0]?._id}`,
+        color: item?.colors[0]?.name,
       }));
       setSelectedItems(allItems);
     }
@@ -148,7 +150,7 @@ function CheckoutCard() {
               </thead>
               <tbody>
                 {cardItems.map((item) => {
-                  const key = `${item.id}-${item.colors[0]?.name}`;
+                  const key = `${item._id}-${item.colors[0]?._id}`;
                   const isChecked = selectedItems.some((i) => i.key === key);
 
                   return (
@@ -180,8 +182,8 @@ function CheckoutCard() {
                                 ? "text-black"
                                 : "text-white"
                             }`}
+                            title={item?.colors[0]?.name}
                           >
-                            {item?.colors[0]?.name}
                           </span>
                         </div>
                       </td>
