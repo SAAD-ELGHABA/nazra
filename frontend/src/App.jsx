@@ -7,9 +7,11 @@ import { useEffect } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { trackVisit } from "./api/api";
-import {Toaster} from 'sonner'
-
+import { Toaster } from "sonner";
+import { useCard } from "./context/CardContext";
+import CheckoutModal from './components/CheckoutModal'
 function App() {
+  const { setHasProductAddedToCardEvent, hasProductAddedToCard } = useCard();
   useEffect(() => {
     const trackVisitor = async () => {
       try {
@@ -33,6 +35,12 @@ function App() {
           <Toaster />
         </div>
       </Suspense>
+      {hasProductAddedToCard && (
+        <CheckoutModal
+          isOpen={hasProductAddedToCard}
+          onClose={setHasProductAddedToCardEvent}
+        />
+      )}
     </I18nextProvider>
   );
 }

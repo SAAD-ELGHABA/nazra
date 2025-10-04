@@ -42,6 +42,7 @@ function StorePage() {
         <p>{t("store.description")}</p>
       </div>
       <ListProducts products={products} />
+
     </div>
   );
 }

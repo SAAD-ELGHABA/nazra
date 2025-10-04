@@ -582,6 +582,12 @@
     "description": "Chaque paire de lunettes chez Nazra Store est choisie pour fournir une **protection 100% UVA et UVB**, garantissant la sécurité de vos yeux sans compromettre les derniers styles. Ne vous contentez pas de moins pour votre vision.",
     "button": "Trouvez votre style protégé"
   }
-}
+},
+"checkoutModal":{
+      "title": "Paiement",
+      "message": "Votre paiement est presque terminé. Confirmez pour continuer.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    }
 
 }

@@ -577,7 +577,13 @@
     "description": "Every pair of sunglasses at Nazra Store is selected to provide **100% UVA and UVB protection**, ensuring your eyes are safe without ever compromising on the latest styles. Don't settle for less when it comes to your vision.",
     "button": "Find Your Protected Style"
   }
-}
+},
+"checkoutModal":{
+      "title": "Checkout",
+      "message": "Your checkout is almost done. Confirm to continue.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
 
 
 

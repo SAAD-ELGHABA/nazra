@@ -88,16 +88,16 @@ function CheckoutCard() {
       });
       return (
         <div className="max-w-4xl mx-auto p-8">
-            <h1 className="text-5xl font-light text-center text-green-600 mb-4">
-                Order Placed Successfully!
-            </h1>
-            <p className="text-center text-xl text-gray-700 mb-8">
-                Your order #{mockOrderId} is confirmed and will ship soon.
-            </p>
+          <h1 className="text-5xl font-light text-center text-green-600 mb-4">
+            Order Placed Successfully!
+          </h1>
+          <p className="text-center text-xl text-gray-700 mb-8">
+            Your order #{mockOrderId} is confirmed and will ship soon.
+          </p>
 
-            <OrderConfirmationUpsell orderId={order._id} />
+          <OrderConfirmationUpsell orderId={order._id} />
         </div>
-      )
+      );
     } catch (error) {
       console.log(error);
     } finally {
@@ -194,7 +194,7 @@ function CheckoutCard() {
                         <button
                           className="p-2 hover:bg-gray-200 rounded"
                           onClick={() => {
-                            removeFromCard(item?.id, item?.colors[0]?.name);
+                            removeFromCard(item?._id, item?.colors[0]?._id);
                             toast.success(t("cart.removeItem"));
                           }}
                         >

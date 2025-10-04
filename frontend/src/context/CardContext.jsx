@@ -11,49 +11,56 @@ export const CardProvider = ({ children }) => {
       return [];
     }
   });
-
+  const [hasProductAddedToCard, setHasProductAddedToCard] = useState(false);
   useEffect(() => {
     localStorage.setItem("cardItems", JSON.stringify(cardItems));
   }, [cardItems]);
 
   const addToCard = (sunglass) => {
+    setHasProductAddedToCard(true);
     setCardItems((prev) => {
       const existingItem = prev.find(
         (item) =>
-          item.id === sunglass.id && item.colors[0] === sunglass.colors[0]
+          item?._id === sunglass?._id &&
+          item?.colors[0]?._id === sunglass?.colors[0]?._id
       );
       if (existingItem) {
         return prev.map((item) =>
-          item.id === sunglass.id
-            ? { ...item, quantity: item.quantity + 1 }
+          item?._id === sunglass?._id
+            ? { ...item, quantity: item?.quantity + 1 }
             : item
         );
       }
-      return [...prev, { ...sunglass, quantity: sunglass.quantiy || 1 }];
+      return [...prev, { ...sunglass, quantity: sunglass?.quantiy || 1 }];
     });
   };
   const isInCard = (id) => {
-    return cardItems.some((item) => item.id === id);
+    return cardItems.some((item) => item._id === id);
   };
-  const removeFromCard = (id, color) => {
+  const removeFromCard = (id, colorId) => {
     setCardItems((prev) =>
       prev.filter(
-        (item) => !(item.id === id && item?.colors[0]?.name === color)
+        (item) => !(item?._id === id && item?.colors[0]?._id === colorId)
       )
     );
   };
+  const setHasProductAddedToCardEvent = () => {
+    setHasProductAddedToCard(false);
+  };
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = (id, quantity, colorId) => {
     setCardItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+        item?._id === id && item?.colors[0]?._id === colorId
+          ? { ...item, quantity: Math.max(1, quantity) }
+          : item
       )
     );
   };
 
   return (
     <CardContext.Provider
-      value={{ cardItems, addToCard, removeFromCard, updateQuantity, isInCard }}
+      value={{ cardItems, addToCard, removeFromCard, updateQuantity, isInCard ,setHasProductAddedToCardEvent,hasProductAddedToCard}}
     >
       {children}
     </CardContext.Provider>
