@@ -15,6 +15,7 @@ import TopProducts from "../components/TopProducts";
 import { getOrders, getProductsAsAdmin, getVisitors } from "../api/api";
 
 import SubEmails from "../components/Dashboard/SubEmails";
+import VisitorAnalytics from "../components/Dashboard/VisitorAnalytics";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -156,6 +157,9 @@ const Dashboard = () => {
         </SectionCard>
         <SectionCard title="Recent Orders">
           <RecentOrders />
+        </SectionCard>
+        <SectionCard title="Visitors Analytics" className="lg:col-span-2">
+          <VisitorAnalytics/>
         </SectionCard>
         <SectionCard title="Top Products" className="lg:col-span-2">
           <TopProducts />

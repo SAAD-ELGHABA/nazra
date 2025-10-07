@@ -82,7 +82,12 @@ export const getVisitors = async ()=>{
 }
 
 export const trackVisit = async (visitorId)=>{
-  const response = await api.post(`/visitors/track-visit/${visitorId}`)
+    const referrer = document.referrer || "direct";
+    const userAgent = navigator.userAgent;
+    const response = await api.post(`/visitors/track-visit/${visitorId}`, {
+      referrer,
+      userAgent,
+    });
   return response;
 }
 
