@@ -6,6 +6,9 @@ const VisitorAnalyticsTable = () => {
   const [byReferrer, setByReferrer] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const allBrowsers = ["Chrome", "Firefox", "Safari", "Edge", "Other"];
+  const allReferrers = ["direct", "facebook.com", "instagram.com", "tiktok.com", "twitter.com", "linkedin.com", "youtube.com", "other"];
+
   useEffect(() => {
     const fetchVisitors = async () => {
       try {
@@ -13,9 +16,8 @@ const VisitorAnalyticsTable = () => {
         const res = await getVisitors();
         const visits = res?.data?.views || [];
 
-        // Browser grouping
         const getBrowser = (ua) => {
-          if (!ua) return "Unknown";
+          if (!ua) return "Other";
           if (ua.includes("Chrome")) return "Chrome";
           if (ua.includes("Firefox")) return "Firefox";
           if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
@@ -26,17 +28,16 @@ const VisitorAnalyticsTable = () => {
         const browserGrouped = {};
         visits.forEach((v) => {
           const browser = getBrowser(v.userAgent);
-          const id = v.visitorId || v.ipAddress; // unique user identifier
+          const id = v.visitorId || v.ipAddress;
           if (!browserGrouped[browser]) browserGrouped[browser] = new Set();
           browserGrouped[browser].add(id);
         });
 
-        const browserData = Object.keys(browserGrouped).map((browser) => ({
+        const browserData = allBrowsers.map((browser) => ({
           browser,
-          visitors: browserGrouped[browser].size,
+          visitors: browserGrouped[browser]?.size || 0,
         }));
 
-        // Referrer grouping
         const referrerGrouped = {};
         visits.forEach((v) => {
           let ref = "direct";
@@ -48,14 +49,15 @@ const VisitorAnalyticsTable = () => {
               ref = v.referrer;
             }
           }
-          const id = v.visitorId || v.ipAddress; // unique user identifier
+          if (!allReferrers.includes(ref)) ref = "other";
+          const id = v.visitorId || v.ipAddress;
           if (!referrerGrouped[ref]) referrerGrouped[ref] = new Set();
           referrerGrouped[ref].add(id);
         });
 
-        const referrerData = Object.keys(referrerGrouped).map((ref) => ({
+        const referrerData = allReferrers.map((ref) => ({
           referrer: ref,
-          visitors: referrerGrouped[ref].size,
+          visitors: referrerGrouped[ref]?.size || 0,
         }));
 
         setByBrowser(browserData);
@@ -70,9 +72,9 @@ const VisitorAnalyticsTable = () => {
     fetchVisitors();
   }, []);
 
+
   if (loading) return <div>Loading visitor analytics...</div>;
 
-  // Gray icons
   const iconStyle = "w-5 h-5 text-gray-400";
 
   const getBrowserIcon = (browser) => {
@@ -98,46 +100,65 @@ const VisitorAnalyticsTable = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Browser table */}
-      <SectionCard title="Visitors by Browser / Device">
-        <table className="w-full border border-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2 text-left">Browser</th>
-              <th className="p-2 text-left">Unique Visitors</th>
-            </tr>
-          </thead>
-          <tbody>
-            {byBrowser.map((b) => (
-              <tr key={b.browser} className="border-t border-gray-100 hover:bg-gray-50">
-                <td className="p-2 flex items-center gap-2">{getBrowserIcon(b.browser)}{b.browser || "Unknown"}</td>
-                <td className="p-2">{b.visitors}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </SectionCard>
+    <div className="flex flex-col items-start justify-center gap-6">
+    {/* <SectionCard title="" > */}
+    <h1>
+Visitors by Referrer / Source
+    </h1>
+  <table className="w-full border border-gray-200 text-center ">
+    <thead className="bg-gray-100">
+      <tr>
+        {byReferrer.map((r) => (
+          <th key={r.referrer} className="p-2">{r.referrer}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        {byReferrer.map((r) => (
+          <td key={r.referrer} className="p-2 ">
+            <div className="flex items-center justify-center gap-2">
+              
+            {getReferrerIcon(r.referrer)}
 
-      {/* Referrer table */}
-      <SectionCard title="Visitors by Referrer / Source">
-        <table className="w-full border border-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2 text-left">Source</th>
-              <th className="p-2 text-left">Unique Visitors</th>
-            </tr>
-          </thead>
-          <tbody>
-            {byReferrer.map((r) => (
-              <tr key={r.referrer} className="border-t border-gray-100 hover:bg-gray-50">
-                <td className="p-2 flex items-center gap-2">{getReferrerIcon(r.referrer)}{r.referrer || "direct"}</td>
-                <td className="p-2">{r.visitors}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </SectionCard>
+            <span>{r.visitors}
+            </span>
+            </div>
+            </td>
+        ))}
+      </tr>
+    </tbody>
+  </table>
+    <h1>
+Visitors by Browser / Device
+    </h1>
+  <table className="w-full border border-gray-200 text-center ">
+    <thead className="bg-gray-100">
+      <tr>
+        {byBrowser.map((b) => (
+          <th key={b.browser} className="p-2">{b.browser}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        {byBrowser.map((b) => (
+          <td key={b.browser} className="p-2">            
+          <div className="flex items-center justify-center gap-2">
+              
+            {getBrowserIcon(b.browser)}
+
+            <span>{b.visitors}
+            </span>
+            </div></td>
+        ))}
+      </tr>
+    </tbody>
+  </table>
+
+
+
+
     </div>
   );
 };
