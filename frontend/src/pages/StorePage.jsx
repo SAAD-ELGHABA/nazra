@@ -6,6 +6,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { getProducts } from "../api/api";
 import { LoaderCircle } from "lucide-react";
+import Offer from "../components/store/Offer";
 function StorePage() {
   const [products, setProducts] = useState(() => {
     const stored = sessionStorage.getItem("products");
@@ -31,15 +32,9 @@ function StorePage() {
     );
   }
   return (
-    <div className="min-h-screen flex flex-col py-10 md:px-4 bg-gray-100">
+    <div className="min-h-screen flex flex-col py-10 md:px-4 bg-gray-200">
+      <Offer/>
       <div className="w-full flex flex-col items-center justify-start gap-5">
-        <h1
-          className="font-bold text-[16px] text-left md:text-left md:text-[36px]"
-          style={{ lineHeight: "1.2", letterSpacing: "4px" }}
-        >
-          {t("store.title")}
-        </h1>
-        <p>{t("store.description")}</p>
       </div>
       <ListProducts products={products} />
 

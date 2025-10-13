@@ -99,7 +99,7 @@ router.get('/', async (req, res) => {
 router.get("/products-shortcut", async (req, res) => {
     try {
     const products = await Product.find({ isActive: true })
-      .limit(3)
+      .limit(4)
       .sort({ createdAt: -1 });
     res.status(200).json({
       success: true,

@@ -10,7 +10,8 @@ const CollectionDropdown = () => {
   return (
     <div className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        onMouseEnter={() => setOpen(true)}
+
         className="flex items-center gap-1 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors font-medium"
       >
         {t("navbar.collection")} <ChevronDown size={16} />

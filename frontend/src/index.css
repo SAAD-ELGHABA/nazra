@@ -225,3 +225,19 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
 }
+
+
+
+@keyframes gradientMove {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-gradient-move {
+  background-size: 200% auto;
+  animation: gradientMove 20s linear infinite;
+}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Heart, LayoutGrid, LayoutList, ShoppingCart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useFavorites } from "../../context/FavoritesContext";
@@ -28,14 +28,35 @@ function ListProducts({ products }) {
     addToCard(choosedItem);
     toast.success(t("cart.addItem"));
   };
-
+  const [gridType,setGridType] = useState("block-grid")
   return (
     <div className="w-[90%] mx-auto my-8 ">
-      <h4 className="underline text-lg font-semibold mb-6">
+      <div className="flex items-center justify-between">
+      <h4 className="text-lg font-semibold mb-6 ">
         {t("store.allProducts")}
       </h4>
+      <div className="flex items-center justify-center gap-2">
+        <button className={`p-2 rounded  cursor-pointer ${
+          gridType == "block-grid" ? "bg-black text-white":"hover:bg-gray-300"
+        }`}
+          onClick={()=>setGridType("block-grid")}
+        >
+          <LayoutGrid />
+        </button>
+        <button
+        className={`p-2 rounded  cursor-pointer ${
+          gridType == "list-grid" ? "bg-black text-white":"hover:bg-gray-300"
+        }`}
+        onClick={()=>setGridType("list-grid")}
+        >
+          <LayoutList />
+        </button>
+      </div>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={`grid  gap-2 ${
+        gridType == "block-grid" ? "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4":"grid-cols-1 md:grid-cols-2"
+      }`}>
         {currentProducts.map((product) => {
           const inFavorites = isFavorite(product._id);
 
@@ -46,6 +67,7 @@ function ListProducts({ products }) {
               removeFavorite={removeFavorite}
               addFavorite={addFavorite}
               AddItemToCard={AddItemToCard}
+              gridType={gridType}
             />
           );
         })}

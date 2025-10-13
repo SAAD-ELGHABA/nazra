@@ -25,6 +25,7 @@ function ProductsShortCut() {
         <div className="flex  md:flex-row gap-2 md:gap-6 w-[95%] mx-auto my-5 h-full">
           <div className="md:w-1/3 w-1/2  bg-gray-300 animate-pulse h-full"></div>
           <div className="md:w-1/3 w-1/2  bg-gray-300 animate-pulse h-full"></div>
+          <div className="md:w-1/3 w-1/2  bg-gray-300 animate-pulse h-full"></div>
           <div className="md:w-1/3 w-full hidden md:flex bg-gray-300 animate-pulse h-full"></div>
         </div>
       </div>
@@ -36,7 +37,7 @@ function ProductsShortCut() {
     </div>
   ) : (
     <div className="my-10 w-[95%] bg-gray-100">
-      <div className="w-full text-center my-5">
+      <div className="text-start my-5 w-[95%] mx-auto">
         <h1 className="text-2xl font-bold">Our Latest Product</h1>
       </div>
       <div className="hidden md:flex flex-col">
@@ -44,8 +45,8 @@ function ProductsShortCut() {
           <div
             className="
         grid grid-flow-col md:grid-flow-row 
-        auto-cols-[80%] sm:auto-cols-[50%] 
-        md:grid-cols-3 
+         
+        md:grid-cols-4 
         gap-4 
         w-max md:w-[95%] mx-auto h-full
       "
@@ -54,7 +55,7 @@ function ProductsShortCut() {
               <Link
                 key={product.id}
                 to={`/product/${product?.slug}`}
-                className="md:h-full  flex-shrink-0"
+                className="md:h-full  flex-shrink-0 border border-gray-300 rounded"
               >
                 <div className="relative md:w-full md:h-full overflow-hidden">
                   <img
@@ -63,17 +64,27 @@ function ProductsShortCut() {
                       "/fall-back-sunglasses-image.webp"
                     }
                     alt={product.name}
-                    className="w-full md:h-full scale-150 object-cover transition-opacity duration-300 group-hover:opacity-0"
+                    className="w-full md:h-full scale-120 object-cover transition-opacity duration-300 group-hover:opacity-0 group-hover:scale-150"
                   />
 
-                  <div className="absolute inset-0 md:opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between items-center">
-                    <h2 className="bg-black bg-opacity-50 text-white w-full text-center py-2 text-sm md:text-lg">
-                      {product.name.length > 40
-                        ? product.name.slice(0, 40) + "..."
+                  <div className="absolute inset-0 md:opacity-50 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between items-center">
+                    
+                    <div className="flex gap-2 text-xs mt-2">
+                      <span className="bg-gray-400 px-1.5 py-1 text-white border rounded border-gray-300">
+                        {product?.category}
+                      </span>
+                      <span className="bg-black text-white border border-gray-300 px-1.5 py-1 rounded ">
+                        {
+                          product?.type
+                        }
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2 items-center mb-2">
+                    <h2 className="bg-opacity-50 text-black w-full text-center py-2 text-sm md:text-sm">
+                      {product.name.length > 30
+                        ? product.name.slice(0,30) + "..."
                         : product.name}
                     </h2>
-
-                    <div className="flex flex-col gap-2 items-center mb-2">
                       <div className="flex gap-2 items-center">
                         <h5 className="text-xs md:text-sm font-light line-through text-red-500">
                           {product?.sale_price -
@@ -110,7 +121,7 @@ function ProductsShortCut() {
           <Link
             key={product.id}
             to={`/product/${product?.slug}`}
-            className="flex-shrink-0 w-[90vw] h-[300px]" 
+            className="flex-shrink-0 w-[90vw] h-[300px] rounded border border-gray-300" 
           >
             <div className="relative w-full h-full overflow-hidden">
               <img
@@ -119,41 +130,51 @@ function ProductsShortCut() {
                   "/fall-back-sunglasses-image.webp"
                 }
                 alt={product.name}
-                className="w-full h-full scale-150 object-cover transition-opacity duration-300 group-hover:opacity-0 rounded-lg"
+                className="w-full h-full scale-120 object-cover transition-opacity duration-300 group-hover:opacity-0 rounded-lg"
               />
 
-              <div className="absolute inset-0 md:opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between items-center">
-                <h2 className="bg-black bg-opacity-50 text-white w-full text-center py-2 text-sm md:text-lg">
-                  {product.name.length > 40
-                    ? product.name.slice(0, 40) + "..."
-                    : product.name}
-                </h2>
-
-                <div className="flex flex-col gap-2 items-center mb-2">
-                  <div className="flex gap-2 items-center">
-                    <h5 className="text-xs md:text-sm font-light line-through">
-                      {product?.sale_price -
-                        product?.original_price +
-                        product?.sale_price +
-                        ".00"}
-                    </h5>
-                    <h2 className="font-semibold text-sm md:text-xl">
-                      {product?.sale_price + ".00 MAD"}
+                  <div className="absolute inset-0 md:opacity-50 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between items-center">
+                    
+                    <div className="flex gap-2 text-xs mt-2">
+                      <span className="bg-gray-400 px-1.5 py-1 text-white border rounded border-gray-300">
+                        {product?.category}
+                      </span>
+                      <span className="bg-black text-white border border-gray-300 px-1.5 py-1 rounded ">
+                        {
+                          product?.type
+                        }
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2 items-center mb-2">
+                    <h2 className="bg-opacity-50 text-black w-full text-center py-2 text-sm md:text-sm">
+                      {product.name.length > 30
+                        ? product.name.slice(0,30) + "..."
+                        : product.name}
                     </h2>
-                  </div>
+                      <div className="flex gap-2 items-center">
+                        <h5 className="text-xs md:text-sm font-light line-through text-red-500">
+                          {product?.sale_price -
+                            product?.original_price +
+                            product?.sale_price +
+                            ".00"}
+                        </h5>
+                        <h2 className="font-semibold text-sm md:text-xl">
+                          {product?.sale_price + ".00 MAD"}
+                        </h2>
+                      </div>
 
-                  <ul className="flex gap-1 items-center justify-center">
-                    {product?.colors?.map((clr, index) => (
-                      <li key={index}>
-                        <div
-                          className="h-5 w-5 rounded-full border border-gray-300"
-                          style={{ backgroundColor: clr?.value }}
-                        ></div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+                      <ul className="flex gap-1 items-center justify-center">
+                        {product?.colors?.map((clr, index) => (
+                          <li key={index}>
+                            <div
+                              className="h-5 w-5 rounded-full border border-gray-300"
+                              style={{ backgroundColor: clr?.value }}
+                            ></div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
             </div>
           </Link>
         ))}
