@@ -138,7 +138,7 @@ function ProductComponent({
             </div>
           </div>
   
-          <div className="px-3 flex-col flex gap-2 w-2/3 md:w-3/5 items-center py-2 relative z-20 bg-white transition-all duration-500 group-hover:pb-4">
+          <div className="px-3 flex-col flex gap-4 w-2/3 md:w-3/5 items-center py-2 relative z-20 bg-white transition-all duration-500 group-hover:pb-4">
             <div className="flex items-start text-start justify-center w-full gap-2 transform transition-transform duration-300 ">
               <div className="flex gap-2 items-center justify-start text-start  w-full">
                 <span className="text-black px-3 py-1 text-sm md:text-xl rounded-lg font-black backdrop-blur-sm">
@@ -158,12 +158,12 @@ function ProductComponent({
                 {product?.name}
               </h5>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 w-full">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 justify-start  gap-3 md:w-full">
               {product.colors.map((color) => (
                 <button
                   key={color.name}
                   title={`${color?.name}-color`}
-                  className={`relative h-10 md:h-14 w-16 md:w-20 rounded-lg overflow-hidden border-2 transition ${
+                  className={` h-4 md:h-14 w-4 md:w-20 rounded-full md:rounded-lg overflow-hidden border-2 transition ${
                     color.name === product?.colors[0]?.images?.name
                       ? "border-black"
                       : "border-gray-300 hover:border-black"
@@ -173,13 +173,28 @@ function ProductComponent({
                   <img
                     src={color?.images[0]?.url}
                     alt={color?.name}
-                    className="w-full h-full object-cover scale-130"
+                    className="w-full hidden md:block h-full object-cover scale-130"
                   />
                 </button>
               ))}
             </div>
           <div className="flex gap-2 w-full items-center justify-start">
+
+  
             <button
+              className="py-3 flex-1 max-w-[200px] text-sm font-medium bg-black/95 backdrop-blur-sm text-white 
+              hover:bg-white hover:text-black border border-transparent hover:border-black transition-all duration-300 ease-out flex items-center gap-2 justify-center rounded-lg "
+              onClick={(e) => {
+                e.preventDefault();
+                AddItemToCard(product);
+              }}
+            >
+              <span className="transition-all duration-300">
+                {t("cart.addToBag")}
+              </span>
+              <ShoppingCart className="h-5 w-5 transition-transform duration-300" />
+            </button>
+                        <button
               className={`p-3 rounded-full transition-all duration-300 ease-out hover:bg-gray-100`}
               onClick={(e) => {
                 e.preventDefault();
@@ -194,20 +209,6 @@ function ProductComponent({
                     : "text-black"
                 }`}
               />
-            </button>
-  
-            <button
-              className="py-3 flex-1 max-w-[200px] text-sm font-medium bg-black/95 backdrop-blur-sm text-white 
-              hover:bg-white hover:text-black border border-transparent hover:border-black transition-all duration-300 ease-out flex items-center gap-2 justify-center rounded-lg "
-              onClick={(e) => {
-                e.preventDefault();
-                AddItemToCard(product);
-              }}
-            >
-              <span className="transition-all duration-300">
-                {t("cart.addToBag")}
-              </span>
-              <ShoppingCart className="h-5 w-5 transition-transform duration-300" />
             </button>
           </div>
           </div>
