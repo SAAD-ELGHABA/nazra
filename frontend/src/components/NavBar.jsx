@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Heart, ChevronDown, Menu, X, ShoppingCart, ChevronLeft, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -11,7 +11,9 @@ import { useCard } from "../context/CardContext";
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -21,7 +23,12 @@ const NavBar = () => {
   const [toggleCart, setToggleCart] = useState(false);
   return (
     <header className="h-[60px] w-full flex items-center justify-between px-4 md:px-6 bg-white shadow-md sticky top-0 z-50">
-      <ArrowLeft className='md:hidden' onClick={() => navigate(-1)} />
+      {!isHome && (
+        <ArrowLeft
+          className="md:hidden"
+          onClick={() => navigate(-1)}
+        />
+      )}
       <Link className="overflow-hidden h-full flex-1 flex pl-10 md:p-0 items-center justify-center md:flex-none bg-orang-600">
         <img
           src="/S.svg"

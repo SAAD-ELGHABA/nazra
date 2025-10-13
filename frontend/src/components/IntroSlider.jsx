@@ -50,7 +50,7 @@ const IntroSlider = () => {
               />
               <div className="absolute inset-0 bg-black/40" />
 
-              <div className="relative z-10 flex flex-col justify-center items-center text-center h-full px-4 sm:px-10 text-white">
+              <div className="relative z-10 flex flex-col justify-center items-center text-center h-full px-4 sm:px-10 text-white max-w-3xl mx-auto">
                 <h1 className="text-2xl sm:text-4xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg">
                   {slide.title}
                 </h1>
