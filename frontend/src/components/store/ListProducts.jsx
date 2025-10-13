@@ -9,7 +9,9 @@ import ProductComponent from "./ProductComponent";
 
 function ListProducts({ products }) {
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 12;
+  const [gridType,setGridType] = useState("block-grid")
+
+  const productsPerPage = gridType == "block-grid" ? 12 :8;
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -28,7 +30,6 @@ function ListProducts({ products }) {
     addToCard(choosedItem);
     toast.success(t("cart.addItem"));
   };
-  const [gridType,setGridType] = useState("block-grid")
   return (
     <div className="w-[90%] mx-auto my-8 ">
       <div className="flex items-center justify-between">

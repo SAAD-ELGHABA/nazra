@@ -59,9 +59,9 @@ const IntroSlider = () => {
                 </p>
                 <Link
                   to="/store/products"
-                  className="px-6 py-3 sm:px-8 sm:py-4 text-md sm:text-lg font-semibold rounded-full border border-white hover:bg-white hover:text-black transition duration-300"
+                  className="px-8 py-3 text-md md:text-lg font-semibold rounded-full shadow-lg border border-white overflow-hidden relative"
                 >
-                  {t("introHomePageBtn")}
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/30 via-black/30 to-white/30 animate-gradient-move"></span> <span className="relative z-10 text-white">{t("introHomePageBtn")}</span>
                 </Link>
               </div>
             </div>
