@@ -82,7 +82,7 @@ const VisitorAnalyticsTable = () => {
       case "Chrome": return <img src="https://img.icons8.com/ios-filled/50/808080/chrome.png" className={iconStyle} alt="Chrome" />;
       case "Firefox": return <img src="https://img.icons8.com/ios-filled/50/808080/firefox.png" className={iconStyle} alt="Firefox" />;
       case "Safari": return <img src="https://img.icons8.com/ios-filled/50/808080/safari.png" className={iconStyle} alt="Safari" />;
-      case "Edge": return <img src="https://img.icons8.com/ios-filled/50/808080/edge.png" className={iconStyle} alt="Edge" />;
+      case "Edge": return <img src="https://img.icons8.com/?size=100&id=-5h34CbaUb09&format=png&color=000000" className={iconStyle} alt="Edge" />;
       default: return <img src="https://img.icons8.com/ios-filled/50/808080/laptop.png" className={iconStyle} alt="Other" />;
     }
   };
@@ -100,8 +100,7 @@ const VisitorAnalyticsTable = () => {
   };
 
   return (
-    <div className="flex flex-col items-start justify-center gap-6">
-    {/* <SectionCard title="" > */}
+    <div className="flex flex-col items-start justify-center gap-6 w-full overflow-auto">
     <h1>
 Visitors by Referrer / Source
     </h1>
