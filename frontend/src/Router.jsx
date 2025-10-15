@@ -29,6 +29,7 @@ import Favorites from "./pages/Favorites";
 import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
 import OrderConfirmationUpsell from "./pages/OrderConfirmationUpsell";
+import AdminsPage from "./pages/AdminsPage";
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -132,20 +133,24 @@ export const Router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/dashboard",
+        path: "/admins/dashboard",
         element: <Dashboard />,
       },
       {
-        path: "/dashboard/products",
+        path: "/admins/dashboard/products",
         element: <DashboardProducts />,
       },
       {
-        path: "/dashboard/products/new",
+        path: "/admins/dashboard/products/new",
         element: <AddProducts />,
       },
       {
-        path: "/dashboard/orders",
+        path: "/admins/dashboard/orders",
         element: <OrderManagementPage />,
+      },
+      {
+        path: "/admins/dashboard/admins",
+        element: <AdminsPage />,
       },
     ],
   },

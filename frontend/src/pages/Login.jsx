@@ -31,7 +31,7 @@ export default function LoginPage() {
         toast.success("Welcome back to your dashboard account.");
         localStorage.setItem("User_Data", JSON.stringify(response.data));
         localStorage.setItem("User_Data_token", response.data.token);
-        navigate("/dashboard");
+        navigate("/admins/dashboard");
       }
     } catch (error) {
       if (error.response) {

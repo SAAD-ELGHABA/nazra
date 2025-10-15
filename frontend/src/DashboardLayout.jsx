@@ -21,8 +21,10 @@ import {
   Home,
   ShoppingBag,
   ShoppingCart,
-  ArrowBack
+  ArrowBack,
+  
 } from "@mui/icons-material";
+import { User } from 'lucide-react'
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -55,9 +57,10 @@ const DashboardLayout = () => {
   };
 
   const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: <Home /> },
-    { path: "/dashboard/products", label: "Products", icon: <ShoppingBag /> },
-    { path: "/dashboard/orders", label: "Orders", icon: <ShoppingCart /> },
+    { path: "/admins/dashboard", label: "Dashboard", icon: <Home /> },
+    { path: "/admins/dashboard/products", label: "Products", icon: <ShoppingBag /> },
+    { path: "/admins/dashboard/orders", label: "Orders", icon: <ShoppingCart /> },
+    { path: "/admins/dashboard/admins", label: "Admins", icon: <User />}
   ];
 
   const drawer = (

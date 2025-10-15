@@ -8,6 +8,19 @@ const api = axios.create({
 });
 
 
+//admins
+export const getAdmins = async() => {
+  const response = await api.get('/auth/users')
+  console.log(response)
+  return response;
+}
+
+export const createAdmin = async(payload) => {
+  const response = await api.post('/auth/register', payload)
+  return response;
+}
+
+
 export const getProducts = async()=>{
     const response = await api.get('/products')
     return response;

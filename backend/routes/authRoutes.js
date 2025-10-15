@@ -133,4 +133,14 @@ router.get("/debug-token", async (req, res) => {
   }
 });
 
+router.get("/users", async (req,res) => {
+  const users = await User.find();
+  if(!users) {
+    return res.status(404).json({message: "there is not Admin founded!."})
+  }
+  res.status(201).json({
+   users: users
+  });
+})
+
 module.exports = router;
