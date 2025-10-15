@@ -19,7 +19,6 @@ const AdminsPage = () => {
       try {
         setLoading(true);
         const res = await getAdmins();
-        // Ensure we're working with an array
         const adminsData = Array.isArray(res?.data?.users)
           ? res.data?.users
           : [];
@@ -70,7 +69,7 @@ const AdminsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen  flex items-center justify-center">
+      <div className="min-h-screen w-full flex items-center justify-center">
         <div className="bg-red-900/30 border border-red-500/50 rounded-2xl p-8 backdrop-blur-sm">
           <p className="text-red-200 text-xl font-light">{error}</p>
         </div>
@@ -79,7 +78,7 @@ const AdminsPage = () => {
   }
 
   return (
-    <div className="min-h-screen px-4 relative">
+    <div className="min-h-screen px-4 w-full relative overflow-hidden">
       <button 
         onClick={()=>setIsModalOpen(true)}
         className="absolute top-2 right-2 p-2 bg-slate-800 rounded-xl shadow-md hover:bg-slate-950 hover:scale-105">
@@ -87,7 +86,7 @@ const AdminsPage = () => {
       </button>
 
       {/* Header */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 ">
         <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-400 via-slate-800 to-gold-500 mb-4">
           Administrators
         </h1>
@@ -99,7 +98,7 @@ const AdminsPage = () => {
 
       {/* Admins Grid */}
       {admins.length > 0 ? (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl  mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 place-content-center">
             {admins.map((admin) => (
               <AdminCard key={admin._id} admin={admin} />
@@ -120,18 +119,21 @@ const AdminsPage = () => {
         </div>
       )}
 
+{
+  isModalOpen &&
        <CreateAdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreateAdmin={handleCreateAdmin}
       />
+}
     </div>
   );
 };
 
 export const AdminCard = ({ admin }) => {
   return (
-    <div className="group relative">
+    <div className="group relative overflow-hidden">
       {/* Background Glow Effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-gold-500/20 to-purple-600/20 rounded-3xl blur-lg group-hover:blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
 

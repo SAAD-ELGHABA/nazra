@@ -32,8 +32,8 @@ const IntroSlider = () => {
   }, [currentSlide, totalSlides]);
 
   return (
-    <div className="w-full h-[500px] sm:h-[600px] md:h-screen overflow-hidden">
-      <div className="relative w-full h-full mx-auto rounded-xl">
+    <div className="w-full h-[500px] sm:h-[600px] md:h-screen overflow-hidden flex pt-5 justify-center">
+      <div className="relative w-[95%] overflow-hidden h-[90%] mx-auto rounded-xl">
         <div
           className="flex h-full transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}

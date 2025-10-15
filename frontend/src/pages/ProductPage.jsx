@@ -11,6 +11,9 @@ import {
   trackVisitPerProduct,
 } from "../api/api";
 import ProductNotAvailable from "./ProductNotAvailable";
+import FAQs from '../components/FAQs'
+
+
 function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -105,6 +108,7 @@ function ProductPage() {
             ?.slice(0, 4)}
         />
       </div>
+      <FAQs/>
     </div>
   );
 }

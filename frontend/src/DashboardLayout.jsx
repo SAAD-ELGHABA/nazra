@@ -24,7 +24,7 @@ import {
   ArrowBack,
   
 } from "@mui/icons-material";
-import { User } from 'lucide-react'
+import { ScrollText, User } from 'lucide-react'
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -60,7 +60,9 @@ const DashboardLayout = () => {
     { path: "/admins/dashboard", label: "Dashboard", icon: <Home /> },
     { path: "/admins/dashboard/products", label: "Products", icon: <ShoppingBag /> },
     { path: "/admins/dashboard/orders", label: "Orders", icon: <ShoppingCart /> },
-    { path: "/admins/dashboard/admins", label: "Admins", icon: <User />}
+    { path: "/admins/dashboard/admins", label: "Admins", icon: <User />},
+    { path: "/admins/dashboard/blog", label: "Blog", icon: <ScrollText />}
+
   ];
 
   const drawer = (

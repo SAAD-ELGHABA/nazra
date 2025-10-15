@@ -30,6 +30,7 @@ import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
 import OrderConfirmationUpsell from "./pages/OrderConfirmationUpsell";
 import AdminsPage from "./pages/AdminsPage";
+import BlogPage from './Dashboard/BlogPage'
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -151,6 +152,10 @@ export const Router = createBrowserRouter([
       {
         path: "/admins/dashboard/admins",
         element: <AdminsPage />,
+      },
+      {
+        path: "/admins/dashboard/blog",
+        element: <BlogPage />,
       },
     ],
   },
