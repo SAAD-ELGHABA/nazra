@@ -134,20 +134,15 @@ const AdminsPage = () => {
 export const AdminCard = ({ admin }) => {
   return (
     <div className="group relative overflow-hidden">
-      {/* Background Glow Effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-gold-500/20 to-purple-600/20 rounded-3xl blur-lg group-hover:blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-gold-500/20 to-purple-600/20 rounded-3xl blur-lg group-hover:blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100 "></div>
 
-      {/* Card */}
-      <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/80 border border-gold-500/30 rounded-2xl p-8 backdrop-blur-sm transform transition-all duration-500 group-hover:scale-105 group-hover:border-gold-400/50 group-hover:shadow-2xl group-hover:shadow-gold-500/10 overflow-hidden">
-        {/* Shine Effect */}
+      <div className="relative bg-gradient-to-br from-slate-800/10 to-slate-900/40 border border-gold-500/30 rounded-2xl p-8 backdrop-blur-sm transform transition-all duration-500 group-hover:scale-105 group-hover:border-gold-400/50 group-hover:shadow-2xl group-hover:shadow-gold-500/10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
 
-        {/* Content */}
         <div className="relative z-10">
-          {/* Avatar Placeholder with Crown */}
           <div className="relative mb-6">
             <div className="w-24 h-24 mx-auto bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center shadow-2xl shadow-gold-500/30">
-              <span className="text-2xl font-bold text-slate-100">
+              <span className="text-2xl font-bold text-slate-900">
                 {admin.name?.charAt(0)?.toUpperCase() || "A"}
               </span>
             </div>
@@ -158,7 +153,7 @@ export const AdminCard = ({ admin }) => {
 
           {/* Admin Info */}
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gold-300 mb-2 font-serif text-slate-100 uppercase">
+            <h2 className="text-2xl font-semibold text-gold-300 mb-2 font-serif text-slate-900 uppercase">
               {admin.name || "Administrator"}
             </h2>
 
@@ -172,7 +167,7 @@ export const AdminCard = ({ admin }) => {
 
             {/* Additional Info */}
             {admin.email && (
-              <p className="text-purple-200 text-sm font-light mb-2 truncate">
+              <p className="text-purple-800 text-sm font-light mb-2 truncate">
                 {admin.email}
               </p>
             )}

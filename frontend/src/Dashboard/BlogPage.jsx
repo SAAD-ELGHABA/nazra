@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import {
@@ -9,19 +9,38 @@ import {
   Edit3,
   Check,
   X,
+  LoaderCircle,
 } from "lucide-react";
+import { uploadMultipleImagesToCloudinary } from "../utils/cloudinary";
+import { createBlogArticle, deleteBlog, updateBlogArticle } from "../api/api";
+import { toast } from "sonner";
+import Blog from "../pages/Blog";
 
 function BlogPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]); // both existing + new images
   const [selectedImages, setSelectedImages] = useState([]);
   const fileInputRef = useRef(null);
+  const [blog, setBlog] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({top:0,behavior:"smooth"})
+    if (blog) {
+      setTitle(blog.title || "");
+      setContent(blog.content || "");
+      if (blog.images && blog.images.length > 0) {
+        setImages(blog.images.map((img) => ({ ...img, isExisting: true })));
+      }
+    }
+  }, [blog]);
 
   const handleFiles = (files) => {
     const newImages = Array.from(files).map((file) => ({
       file,
       url: URL.createObjectURL(file),
+      isExisting: false, 
     }));
     setImages((prev) => [...prev, ...newImages]);
   };
@@ -35,9 +54,7 @@ function BlogPage() {
 
   const toggleImageSelection = (img) => {
     setSelectedImages((prev) =>
-      prev.includes(img)
-        ? prev.filter((i) => i !== img)
-        : [...prev, img]
+      prev.includes(img) ? prev.filter((i) => i !== img) : [...prev, img]
     );
   };
 
@@ -46,18 +63,91 @@ function BlogPage() {
     setSelectedImages((prev) => prev.filter((i) => i !== img));
   };
 
-  const handleSubmit = () => {
+const handleSubmit = async () => {
+  if(!title || !content || images?.length === 0){
+    toast.info("You Must Fill up some data !!")
+    return ;
+  }
+  try {
+    setIsLoading(true);
+
+    const newImagesFiles = images.filter((img) => !img.isExisting);
+    let uploadedImages = [];
+    if (newImagesFiles.length > 0) {
+      uploadedImages = await uploadMultipleImagesToCloudinary(
+        newImagesFiles.map((img) => img.file),
+        "blog-images"
+      );
+    }
+
+    const finalImages = [
+      ...images.filter((img) => img.isExisting),
+      ...uploadedImages,
+    ];
+
     const blogData = {
       title,
       content,
-      images: images.map((img) => img.file),
+      images: finalImages,
     };
-    console.log("📰 Submitting Blog Article:", blogData);
-  };
+
+    let response;
+    if (blog?._id) {
+      response = await updateBlogArticle(blog._id, blogData);
+    } else {
+      response = await createBlogArticle(blogData);
+    }
+
+    if (response.status >= 200 && response.status < 302) {
+      toast.success(response?.data?.message || "Blog saved successfully!");
+      console.log(response);
+    }
+  } catch (error) {
+    console.log(error);
+    toast.error("An error occurred while saving the blog.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const onDelete = async (id, blogs, setBlogs) => {
+  // Show confirmation toast
+  toast(
+    (t) => (
+      <div className="flex flex-col gap-2 ">
+        <span>Are you sure you want to delete this blog?</span>
+        <div className="flex justify-end gap-2 mt-2 w-full ">
+          <button
+            className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-black"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white"
+            onClick={async () => {
+              toast.dismiss(t.id); // close toast
+              try {
+                const response = await deleteBlog(id);
+                toast.success(response?.data?.message)
+              } catch (error) {
+                console.error("Delete Blog Error:", error);
+                toast.error("Failed to delete the blog.");
+              }
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ),
+    { duration: 5000 } 
+  );
+};
 
   return (
-    <div className="min-h-screen bg-white text-black px-8 py-10 flex justify-center">
-      <div className="w-full max-w-5xl space-y-10">
+    <div className="min-h-screen bg-white text-black px-4 md:px-8 py-10 flex flex-col items-center justify-center">
+      <div className="w-full md:max-w-5xl space-y-10">
         <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
           <h1 className="md:text-3xl font-semibold flex items-center gap-2">
             <Edit3 className="w-3 h-3 md:w-6 md:h-6 text-black" />
@@ -68,15 +158,17 @@ function BlogPage() {
             onClick={handleSubmit}
             className="flex items-center gap-2 px-5 py-2.5 bg-black text-white font-medium rounded-lg shadow hover:bg-neutral-800 active:scale-95 transition-all duration-150"
           >
-            <Save className="w-4 h-4" />
+            {isLoading ? (
+              <LoaderCircle className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
             Publish
           </button>
         </div>
 
         <div className="space-y-2">
-          <label className=" font-medium text-neutral-600">
-            Article Title
-          </label>
+          <label className="font-medium text-neutral-600">Article Title</label>
           <input
             type="text"
             placeholder="Enter the article title..."
@@ -169,6 +261,10 @@ function BlogPage() {
             })}
           </div>
         )}
+      </div>
+
+      <div className="w-full">
+        <Blog isAdmin={true} setBlog={setBlog} onDelete={onDelete}/>
       </div>
     </div>
   );

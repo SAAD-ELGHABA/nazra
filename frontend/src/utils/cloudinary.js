@@ -1,9 +1,10 @@
 // Frontend utility for uploading images to Cloudinary
 // This is for your React frontend
 
-const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${import.meta.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`;
-const UPLOAD_PRESET = import.meta.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
-
+const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME}/image/upload`;
+const UPLOAD_PRESET = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
+  // const parset = "nazra-preset";
+  // const cloud_name = "dpzzuubck";
 // Upload single image to Cloudinary
 export const uploadImageToCloudinary = async (file, folder = 'sunglasses-products') => {
   try {

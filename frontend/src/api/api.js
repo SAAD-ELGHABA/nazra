@@ -122,3 +122,34 @@ export const getSubEmails = async ()=>{
   return response;
 }
 
+export const createBlogArticle = async (formData)=>{
+  const response = await api.post("/blog/create",formData,{
+    headers:{
+      Authorization:`Bearer ${localStorage.getItem("User_Data_token")}`
+    }
+  })
+  return response;
+}
+
+export const deleteBlog = async (id)=>{
+  const response = await api.post(`/blog/delete/${id}`,{},{
+    headers:{
+      Authorization:`Bearer ${localStorage.getItem("User_Data_token")}`
+    }
+  })
+  return response;
+}
+
+export const updateBlogArticle = async (id,formData)=>{
+  const response = await api.post(`/blog/update/${id}`,formData,{
+    headers:{
+      Authorization:`Bearer ${localStorage.getItem("User_Data_token")}`
+    }
+  })
+  return response;
+}
+
+export const getBlogs = async (pageNumber)=>{
+  const response = await api.get(`/blog?page=${pageNumber}`);
+  return response;
+}
