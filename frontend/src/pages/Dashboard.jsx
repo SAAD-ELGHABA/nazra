@@ -133,7 +133,7 @@ const Dashboard = () => {
   return (
     <div className="p-4 md:p-6 lg:p-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">
-        Dashboard Overview
+        Quick Statics Overview
       </h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
@@ -143,30 +143,18 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <SectionCard title="Monthly Orders">
           <OrderStats />
-        </SectionCard>
-        <SectionCard title="Product Status">
           <ProductStats />
-        </SectionCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SectionCard title="Visitor Analytics (Last 7 Days)">
           <VisitorStats visitors={totalViews} />
-        </SectionCard>
-        <SectionCard title="Recent Orders">
           <RecentOrders />
-        </SectionCard>
-        <SectionCard title="Visitors Analytics" className="lg:col-span-2">
           <VisitorAnalytics/>
-        </SectionCard>
-        <SectionCard title="Top Products" className="lg:col-span-2">
           <TopProducts />
-        </SectionCard>
-        <SectionCard title="Subscribes Emails" className="lg:col-span-2">
+        <div  className="lg:col-span-2">
           <SubEmails />
-        </SectionCard>
+        </div>
       </div>
     </div>
   );
@@ -184,11 +172,5 @@ const StatCard = ({ title, value, icon, color }) => (
   </div>
 );
 
-const SectionCard = ({ title, children, className = "" }) => (
-  <div className={`bg-white  rounded-xl shadow p-4 md:p-6 ${className}`}>
-    <h2 className="text-lg md:text-xl font-semibold mb-4">{title}</h2>
-    {children}
-  </div>
-);
 
 export default Dashboard;

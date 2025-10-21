@@ -1,14 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { 
+  UserPlus, 
+  Crown, 
+  Mail, 
+  Key, 
+  User, 
+  Shield,
+  AlertCircle,
+  CheckCircle2,
+  X,
+  Lock
+} from 'lucide-react';
 
-const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin }) => {
+const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'admin' // Default and disabled value
+    role: 'admin'
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // Check if current user is superadmin
+  useEffect(() => {
+    console.log(currentUser)
+    if (currentUser) {
+      const userIsSuperAdmin = currentUser.role === 'superadmin' || 
+                              currentUser.role === 'super-admin' ||
+                              currentUser.isSuperAdmin === true;
+      setIsSuperAdmin(userIsSuperAdmin);
+    }
+  }, [currentUser]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -20,7 +63,7 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin }) => {
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Please enter a valid email address';
     }
     
     if (!formData.password) {
@@ -64,6 +107,13 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin }) => {
     }
   };
 
+  const handleRoleChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      role: value
+    }));
+  };
+
   const handleClose = () => {
     setFormData({
       name: '',
@@ -75,190 +125,231 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin }) => {
     onClose();
   };
 
-  if (!isOpen) return null;
+  // If user is not superadmin, show restricted access view
+  if (!isSuperAdmin) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-4">
+              <div className="h-12 w-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                <Lock className="h-6 w-6 text-destructive" />
+              </div>
+            </div>
+            <DialogTitle className="text-xl text-destructive">
+              Access Denied
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              You don't have permission to create new administrators
+            </DialogDescription>
+          </DialogHeader>
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-        onClick={handleClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative w-full max-w-md transform transition-all">
-        {/* Background Glow */}
-        <div className="absolute inset-0 bg-white rounded-3xl blur-xl opacity-50"></div>
-        
-        <div className="relative bg-white border border-gold-500/30 rounded-2xl shadow-2xl shadow-gold-500/10 backdrop-blur-sm overflow-hidden">
-          
-          {/* Header */}
-          <div className="border-b border-gold-500/20 bg-white px-6 py-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center shadow-lg shadow-gold-500/30">
-                  <span className="text-lg">👑</span>
-                </div>
+          <div className="space-y-4">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Only Super Administrators can create new admin accounts.
+              </AlertDescription>
+            </Alert>
+
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Crown className="h-5 w-5 text-amber-500" />
                 <div>
-                  <h2 className="text-2xl font-bold text-gold-300 font-serif">
-                    Create Admin
-                  </h2>
-                  <p className="text-black text-sm font-light">
-                    Add a new administrator to the system
+                  <p className="font-medium text-sm">Super Admin Required</p>
+                  <p className="text-xs text-muted-foreground">
+                    Contact a super administrator to create new admin accounts
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleClose}
-                className="w-8 h-8 flex items-center justify-center text-gold-200 hover:text-gold-100 hover:bg-gold-500/20 rounded-full transition-all duration-200"
-              >
-                <span className="text-xl">×</span>
-              </button>
+              
+              {currentUser && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Your Role:</span>
+                  <Badge variant="outline" className="capitalize">
+                    {currentUser.role || 'admin'}
+                  </Badge>
+                </div>
+              )}
+            </div>
+
+            <Button onClick={handleClose} className="w-full">
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="text-center">
+          <div className="mx-auto mb-4">
+            <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+              <UserPlus className="h-6 w-6 text-white" />
             </div>
           </div>
+          <DialogTitle className="text-xl flex items-center justify-center gap-2">
+            <Shield className="h-5 w-5 text-blue-500" />
+            Create Administrator
+          </DialogTitle>
+          <DialogDescription>
+            Add a new administrator to your team with appropriate permissions
+          </DialogDescription>
+        </DialogHeader>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-2">
-            {errors.submit && (
-              <div className="bg-red-900/30 border border-red-500/50 rounded-xl p-4">
-                <p className="text-red-200 text-sm">{errors.submit}</p>
-              </div>
-            )}
-
-            {/* Name Field */}
-            <div>
-              <label className="block text-gold-200 text-sm font-medium mb-2 font-serif">
-                Full Name *
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`w-full bg-gray-100 border ${
-                    errors.name ? 'border-red-500/50' : 'border-gold-500/30'
-                  } rounded-xl px-4 py-3 text-black placeholder-slate-400 focus:outline-none focus:border-gold-400/50 focus:ring-2 focus:ring-gold-500/20 transition-all duration-200 backdrop-blur-sm`}
-                  placeholder="Enter full name"
-                />
-                {errors.name && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <span className="text-red-400 text-sm">⚠</span>
-                  </div>
-                )}
-              </div>
-              {errors.name && (
-                <p className="text-red-400 text-xs mt-2">{errors.name}</p>
-              )}
-            </div>
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-gold-200 text-sm font-medium mb-2 font-serif">
-                Email Address *
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full bg-gray-100 border ${
-                    errors.email ? 'border-red-500/50' : 'border-gold-500/30'
-                  } rounded-xl px-4 py-3 text-black placeholder-slate-400 focus:outline-none focus:border-gold-400/50 focus:ring-2 focus:ring-gold-500/20 transition-all duration-200 backdrop-blur-sm`}
-                  placeholder="Enter email address"
-                />
-                {errors.email && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <span className="text-red-400 text-sm">⚠</span>
-                  </div>
-                )}
-              </div>
-              {errors.email && (
-                <p className="text-red-400 text-xs mt-2">{errors.email}</p>
-              )}
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label className="block text-gold-200 text-sm font-medium mb-2 font-serif">
-                Password *
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full bg-gray-100 border ${
-                    errors.password ? 'border-red-500/50' : 'border-gold-500/30'
-                  } rounded-xl px-4 py-3 text-black placeholder-slate-400 focus:outline-none focus:border-gold-400/50 focus:ring-2 focus:ring-gold-500/20 transition-all duration-200 backdrop-blur-sm`}
-                  placeholder="Enter password"
-                />
-                {errors.password && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <span className="text-red-400 text-sm">⚠</span>
-                  </div>
-                )}
-              </div>
-              {errors.password && (
-                <p className="text-red-400 text-xs mt-2">{errors.password}</p>
-              )}
-              <p className="text-slate-400 text-xs mt-2">
-                Password must be at least 6 characters long
-              </p>
-            </div>
-
-            {/* Role Field (Disabled) */}
-            <div>
-              <label className="block text-gold-200 text-sm font-medium mb-2 font-serif">
-                Role
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="role"
-                  value={formData.role}
-                  disabled
-                  className="w-full bg-gray-100 border border-gold-500/20 rounded-xl px-4 py-3 text-black cursor-not-allowed backdrop-blur-sm"
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <span className="text-gold-400 text-sm">👑</span>
-                </div>
-              </div>
-              <p className="text-slate-400 text-xs mt-2">
-                Administrator role is automatically assigned
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-4 pt-4">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="flex-1 bg-red-700/80 hover:bg-red-800/80 border border-slate-500/30 text-slate-200 py-3 px-6 rounded-xl font-medium transition-all duration-200 hover:shadow-lg"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-slate-800 hover:from-gold-400 hover:bg-slate-950 text-slate-100 py-3 px-6 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 hover:shadow-lg hover:shadow-gold-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating...</span>
-                  </div>
-                ) : (
-                  'Create Admin'
-                )}
-              </button>
-            </div>
-          </form>
+        {/* Super Admin Badge */}
+        <div className="flex justify-center">
+          <Badge variant="default" className="flex items-center gap-1">
+            <Crown className="h-3 w-3" />
+            Super Admin Mode
+          </Badge>
         </div>
-      </div>
-    </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Error Alert */}
+          {errors.submit && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errors.submit}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Name Field */}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="flex items-center gap-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              Full Name *
+            </Label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter full name"
+              className={errors.name ? "border-destructive" : ""}
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.name}
+              </p>
+            )}
+          </div>
+
+          {/* Email Field */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              Email Address *
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email address"
+              className={errors.email ? "border-destructive" : ""}
+            />
+            {errors.email && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.email}
+              </p>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="flex items-center gap-2">
+              <Key className="h-4 w-4 text-muted-foreground" />
+              Password *
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password"
+              className={errors.password ? "border-destructive" : ""}
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.password}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Password must be at least 6 characters long
+            </p>
+          </div>
+
+          {/* Role Field */}
+          <div className="space-y-2">
+            <Label htmlFor="role" className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              Role
+            </Label>
+            <Select value={formData.role} onValueChange={handleRoleChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Administrator
+                  </div>
+                </SelectItem>
+                <SelectItem value="superadmin">
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-amber-500" />
+                    Super Administrator
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Super administrators have full system access
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Creating...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Create Admin
+                </div>
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

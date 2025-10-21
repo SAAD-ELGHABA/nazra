@@ -25,10 +25,14 @@ import {
   
 } from "@mui/icons-material";
 import { ScrollText, User } from 'lucide-react'
+import { SidebarProvider, SidebarTrigger  } from './components/ui/sidebar'
+import { AppSidebar   } from './components/app-sidebar'
+
+
+
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -52,200 +56,19 @@ const DashboardLayout = () => {
   };
 
   // eslint-disable-next-line no-unused-vars
-  const currentPath = (url) => {
-    return location.pathname === url ? "border-b-2 border-primary" : "text-gray-700";
-  };
 
-  const navItems = [
-    { path: "/admins/dashboard", label: "Dashboard", icon: <Home /> },
-    { path: "/admins/dashboard/products", label: "Products", icon: <ShoppingBag /> },
-    { path: "/admins/dashboard/orders", label: "Orders", icon: <ShoppingCart /> },
-    { path: "/admins/dashboard/admins", label: "Admins", icon: <User />},
-    { path: "/admins/dashboard/blog", label: "Blog", icon: <ScrollText />}
 
-  ];
 
-  const drawer = (
-    <Box sx={{ width: 250 }} role="presentation">
-      <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Typography variant="h6"   component="div">
-          NAZRA Dashboard
-        </Typography>
-      </Box>
-      <List>
-        {navItems.map((item) => (
-          <ListItem 
-            key={item.path} 
-            disablePadding
-            sx={{
-              borderLeft: location.pathname === item.path ? `4px solid ${theme.palette.primary.main}` : "none",
-              backgroundColor: location.pathname === item.path ? "action.selected" : "transparent"
-            }}
-          >
-            <Button
-              component={Link}
-              to={item.path}
-              fullWidth
-              sx={{
-                justifyContent: "flex-start",
-                px: 3,
-                py: 1.5,
-                color: location.pathname === item.path ? "primary.main" : "text.primary"
-              }}
-              onClick={() => setDrawerOpen(false)}
-              startIcon={item.icon}
-            >
-              {item.label}
-            </Button>
-          </ListItem>
-        ))}
-        <ListItem disablePadding>
-          <Button
-            fullWidth
-            sx={{ justifyContent: "flex-start", px: 3, py: 1.5 }}
-            onClick={handleLogOut}
-            startIcon={<ExitToApp />}
-            color="error"
-          >
-            Logout
-          </Button>
-        </ListItem>
-      </List>
-    </Box>
-  );
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar>
-          {isMobile && (
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={() => setDrawerOpen(true)}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-          
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            NAZRA Dashboard
-          </Typography>
-
-          {!isMobile && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Button
-                component={Link}
-                to="/"
-                target="_blank"
-                variant="outlined"
-                size="small"
-                startIcon={<ArrowBack />}
-              >
-                Visit Nazra
-              </Button>
-              
-              <Box sx={{ display: "flex", gap: 1 }}>
-                {navItems.map((item) => (
-                  <Button
-                    key={item.path}
-                    component={Link}
-                    to={item.path}
-                    color={location.pathname === item.path ? "primary" : "inherit"}
-                    sx={{
-                      borderBottom: location.pathname === item.path ? `2px solid ${theme.palette.primary.main}` : "none",
-                      borderRadius: 0
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </Box>
-
-              <Button
-                color="inherit"
-                onClick={handleLogOut}
-                startIcon={<ExitToApp />}
-              >
-                Logout
-              </Button>
-            </Box>
-          )}
-
-          {isMobile && (
-            <>
-              <Button
-                component={Link}
-                to="/"
-                target="_blank"
-                variant="outlined"
-                size="small"
-                sx={{ mr: 1 }}
-              >
-                Visit
-              </Button>
-              <IconButton
-                color="inherit"
-                onClick={handleMenuOpen}
-              >
-                <ExitToApp />
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem onClick={handleLogOut}>Logout</MenuItem>
-              </Menu>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
-
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      >
-        {drawer}
-      </Drawer>
-
-      <Box component="main" sx={{ flexGrow: 1, p: isMobile ? 1 : 3 }}>
-        <Outlet />
-      </Box>
-
-      <Box
-        component="footer"
-        sx={{
-          py: 3,
-          px: 2,
-          mt: "auto",
-          borderTop: 1,
-          borderColor: "divider",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 2
-        }}
-      >
-        <Box
-          component="img"
-          src="/S.svg"
-          sx={{
-            height: isMobile ? 80 : 80,
-            objectFit: "contain"
-          }}
-          alt="Nazra Sunglasses Logo"
-        />
-        <Typography variant="body2" color="text.secondary">
-          © {year} Nazra Sunglasses.
-        </Typography>
-      </Box>
-    </Box>
-  );
+    <SidebarProvider>
+<AppSidebar />
+<main className="flex justify-center  flex-1">
+  <SidebarTrigger />
+  <Outlet />
+</main>
+    </SidebarProvider>
+  )
 };
 
 export default DashboardLayout;

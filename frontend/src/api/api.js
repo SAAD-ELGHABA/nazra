@@ -11,7 +11,6 @@ const api = axios.create({
 //admins
 export const getAdmins = async() => {
   const response = await api.get('/auth/users')
-  console.log(response)
   return response;
 }
 
@@ -153,3 +152,4 @@ export const getBlogs = async (pageNumber)=>{
   const response = await api.get(`/blog?page=${pageNumber}`);
   return response;
 }
+

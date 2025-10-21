@@ -31,6 +31,7 @@ import UVProtectionPage from "./pages/UVProtectionPage";
 import OrderConfirmationUpsell from "./pages/OrderConfirmationUpsell";
 import AdminsPage from "./pages/AdminsPage";
 import BlogPage from './Dashboard/BlogPage'
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DISCOVER, EXPLORE, FAVORITES, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 
 const ProtectedRoutes = ({ children }) => {
   const localToken = localStorage.getItem("User_Data_token");
@@ -49,7 +50,7 @@ export const Router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: "/",
+        path: HOME,
         element: <HomePage />,
       },
       {
@@ -57,67 +58,67 @@ export const Router = createBrowserRouter([
         element: <NazraIcon />,
       },
       {
-        path: "/about",
+        path: ABOUT,
         element: <AboutPage />,
       },
       {
-        path: "/discover",
+        path: DISCOVER,
         element: <WhyChooseUsPage />,
       },
       {
-        path: "/explore",
+        path: EXPLORE,
         element: <UVProtectionPage />,
       },
       {
-        path: "/store/products",
+        path: STOREPRODUCTS,
         element: <StorePage />,
       },
       {
-        path: "/store",
+        path: STORE,
         element: <StoreIntro />,
       },
       {
-        path: "/product/:slug",
+        path: PRODUCTDETAILS,
         element: <ProductPage />,
       },
       {
-        path: "/favorites",
+        path: FAVORITES,
         element: <Favorites />,
       },
       {
-        path: "/checkout-card",
+        path: CHECKOUTCARD,
         element: <CheckoutCard />,
       },
       {
-        path: "/contact-us",
+        path: CONTACTUS,
         element: <ContactUs />,
       },
       {
-        path: "/help-center",
+        path: HELPCENTER,
         element: <HelpCenter />,
       },
       {
-        path: "/returns-policy",
+        path: RETURNPOLICY,
         element: <ReturnsPolicy />,
       },
       {
-        path: "/shipping-info",
+        path: SHIPPINGINFO,
         element: <ShippingInfo />,
       },
       {
-        path: "/terms-of-use",
+        path: TERMSOFUSE,
         element: <TermsOfUse />,
       },
       {
-        path: "/privacy-policy",
+        path: PRIVACYANDPOLICY,
         element: <Privacy />,
       },
       {
-        path: "/terms-and-conditions",
+        path: TERMSANDCONDITIONS,
         element: <TermsAndConditions />,
       },
       {
-        path: "/comming-soon-page",
+        path: COMMINGSOON,
         element: <ComingSoonPage />,
       },
       {
@@ -134,33 +135,33 @@ export const Router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/admins/dashboard",
+        path: DASHBOARDHOME,
         element: <Dashboard />,
       },
       {
-        path: "/admins/dashboard/products",
+        path: DASHBOARDPRODUCTS,
         element: <DashboardProducts />,
       },
       {
-        path: "/admins/dashboard/products/new",
+        path: DASHBOARDPRODUCTSNEW,
         element: <AddProducts />,
       },
       {
-        path: "/admins/dashboard/orders",
+        path: DASHBOARDORDERS,
         element: <OrderManagementPage />,
       },
       {
-        path: "/admins/dashboard/admins",
+        path: DASHBOARDADMINS,
         element: <AdminsPage />,
       },
       {
-        path: "/admins/dashboard/blog",
+        path: DASHBOARDBLOG,
         element: <BlogPage />,
       },
     ],
   },
   {
-    path: "/login",
+    path: LOGIN,
     element: <LoginPage />,
   },
   {

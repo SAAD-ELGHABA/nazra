@@ -2,16 +2,63 @@ import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import ProductDetailsModal from "../components/ProductDetailsModal";
 import { getOrders, updateOrderStatus } from "../api/api";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Search,
+  Download,
+  MoreHorizontal,
+  Edit,
+  Check,
+  X,
+  Package,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  DollarSign,
+} from "lucide-react";
 
 function OrderManagementPage() {
   const [orders, setOrders] = useState([]);
-  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingStatus, setEditingStatus] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -23,6 +70,7 @@ function OrderManagementPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -32,18 +80,20 @@ function OrderManagementPage() {
     setModalOpen(true);
   };
 
-  const getStatusClass = (status) => {
+  const getStatusVariant = (status) => {
     switch (status) {
       case "delivered":
-        return "bg-green-100 text-green-800";
+        return "success";
       case "processing":
-        return "bg-yellow-100 text-yellow-800";
+        return "secondary";
       case "shipped":
-        return "bg-blue-100 text-blue-800";
+        return "default";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "destructive";
+      case "pending":
+        return "outline";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "secondary";
     }
   };
 
@@ -57,17 +107,9 @@ function OrderManagementPage() {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
-      console.log(orderId, newStatus);
 
-      const response = await updateOrderStatus(orderId, newStatus);
-      fetchOrders();
-      if (!response.success) {
-        setOrders((prev) =>
-          prev.map((o) =>
-            o._id === orderId ? { ...o, status: editingStatus.status } : o
-          )
-        );
-      }
+      await updateOrderStatus(orderId, newStatus);
+      await fetchOrders();
     } catch (err) {
       console.error(err);
       setOrders((prev) =>
@@ -84,7 +126,7 @@ function OrderManagementPage() {
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
-      filterStatus === "All" || order.status === filterStatus;
+      filterStatus === "all" || order.status === filterStatus;
 
     const matchesSearch =
       order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -102,7 +144,7 @@ function OrderManagementPage() {
       Customer: order.fullName,
       Email: order.email,
       Phone: order.phone,
-      Adresse: order.adresse,
+      Address: order.adresse,
       Date: new Date(order.createdAt).toLocaleDateString(),
       Products: order.products
         .map((p) => `${p.product?.name} (x${p.quantity}, ${p.color || "N/A"})`)
@@ -140,221 +182,308 @@ function OrderManagementPage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
-  return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="md:flex md:items-center md:justify-between mb-8">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold text-gray-900 md:text-3xl sm:truncate">
-              Order Management
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Manage all customer orders and update their statuses.
-            </p>
-          </div>
-          <div className="mt-4 flex md:mt-0 md:ml-4">
-            <button
-              onClick={exportToExcel}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Export
-            </button>
-          </div>
-        </div>
 
-        <div className="bg-white shadow rounded-lg p-4 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <div className="w-full md:w-1/3">
-              <input
-                type="text"
+  const getTotalAmount = (order) => {
+    return order.products?.reduce(
+      (total, p) => total + (p.product?.sale_price || 0) * (p.quantity || 1),
+      0
+    );
+  };
+
+  const formatOrderId = (id) => {
+    return id.slice(-8).toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-12 flex-1" />
+                  <Skeleton className="h-12 w-24" />
+                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-12 w-24" />
+                  <Skeleton className="h-12 w-32" />
+                  <Skeleton className="h-12 w-20" />
+                  <Skeleton className="h-12 w-32" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Package className="h-6 w-6 text-blue-500" />
+            Order Management
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Manage all customer orders and update their statuses
+          </p>
+        </div>
+        <Button 
+          onClick={exportToExcel}
+          variant="outline" 
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Export Excel
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search by ID, customer, or product..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by ID, customer, or product"
-                className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 pr-3 py-2 sm:text-sm border-gray-300 rounded-md"
+                className="pl-9"
               />
             </div>
-            <div className="w-full md:w-1/4">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              >
-                <option value="All">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Canceled</option>
-              </select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="processing">Processing</SelectItem>
+                <SelectItem value="shipped">Shipped</SelectItem>
+                <SelectItem value="delivered">Delivered</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Orders Table */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Orders</CardTitle>
+              <CardDescription>
+                {filteredOrders.length} of {orders.length} orders
+              </CardDescription>
             </div>
           </div>
-        </div>
-        {loading ? (
-          <div className="flex justify-center items-center py-10 gap-2">
-            <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-75"></div>
-            <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-150"></div>
-            <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce delay-300"></div>
-          </div>
-        ) : (
-          <div className="bg-white shadow rounded-lg overflow-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    E-mail
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Products
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOrders?.length > 0 ? (
-                  filteredOrders
-                    ?.sort(
-                      (a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)
-                    )
+        </CardHeader>
+        <CardContent className="p-0">
+          {filteredOrders.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">Order ID</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Products</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-[80px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredOrders
+                    ?.sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt))
                     ?.map((order) => (
-                      <tr key={order._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {order._id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.fullName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order?.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order?.phone}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                          <div
-                            className="line-clamp-2 cursor-pointer text-blue-600 hover:underline"
+                      <TableRow key={order._id} className="group">
+                        <TableCell>
+                          <code className="text-xs bg-muted px-2 py-1 rounded font-medium">
+                            #{formatOrderId(order._id)}
+                          </code>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm">
+                              {order.fullName}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {order.adresse}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-xs">{order.email}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-xs">{order.phone}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm">
+                              {new Date(order.createdAt).toLocaleDateString()}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(order.createdAt).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-auto p-0 text-left"
                             onClick={() => showProductDetails(order?.products)}
                           >
-                            {order.products.map((p, idx) => (
-                              <span key={idx}>
-                                {p.product?.name} (x{p.quantity},{" "}
-                                {p.color || "N/A"})
-                                {idx < order.products.length - 1 && ", "}
-                              </span>
-                            ))}
+                            <div className="text-sm text-blue-600 hover:underline line-clamp-2 max-w-[200px]">
+                              {order.products.map((p, idx) => (
+                                <span key={idx}>
+                                  {p.product?.name} (x{p.quantity})
+                                  {idx < order.products.length - 1 && ", "}
+                                </span>
+                              ))}
+                            </div>
+                          </Button>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex flex-col items-end">
+                            <span className="font-medium">
+                              MAD {getTotalAmount(order).toFixed(2)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {order.products.length} items
+                            </span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          MAD{" "}
-                          {order.products
-                            ?.reduce(
-                              (total, p) =>
-                                total +
-                                (p.product?.sale_price || 0) *
-                                  (p.quantity || 1),
-                              0
-                            )
-                            .toFixed(2)}
-                        </td>
-
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        </TableCell>
+                        <TableCell>
                           {editingStatus?.orderId === order._id ? (
                             <div className="flex flex-col gap-2">
-                              <select
+                              <Select
                                 value={editingStatus.status}
-                                onChange={(e) =>
+                                onValueChange={(value) =>
                                   setEditingStatus({
                                     ...editingStatus,
-                                    status: e.target.value,
+                                    status: value,
                                   })
                                 }
-                                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                 disabled={isUpdating}
                               >
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
-
-                              <div className="flex gap-2 flex-col">
-                                <button
+                                <SelectTrigger className="w-full">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="processing">Processing</SelectItem>
+                                  <SelectItem value="shipped">Shipped</SelectItem>
+                                  <SelectItem value="delivered">Delivered</SelectItem>
+                                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  className="h-7 flex-1"
                                   onClick={() =>
-                                    updateStatus(
-                                      order._id,
-                                      editingStatus.status
-                                    )
+                                    updateStatus(order._id, editingStatus.status)
                                   }
                                   disabled={isUpdating}
-                                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
                                 >
-                                  {isUpdating ? "Saving..." : "Save"}
-                                </button>
-
-                                <button
+                                  <Check className="h-3 w-3 mr-1" />
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2"
                                   onClick={() => setEditingStatus(null)}
                                   disabled={isUpdating}
-                                  className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400 disabled:opacity-50"
                                 >
-                                  Cancel
-                                </button>
+                                  <X className="h-3 w-3" />
+                                </Button>
                               </div>
                             </div>
                           ) : (
-                            <div className="flex items-center">
-                              <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(
-                                  order.status
-                                )}`}
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={getStatusVariant(order.status)}
+                                className="capitalize"
                               >
                                 {order.status}
-                              </span>
-                              <button
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                                 onClick={() =>
                                   startEditing(order._id, order.status)
                                 }
-                                className="ml-2 text-gray-500 hover:text-gray-700"
-                                title="Edit status"
                               >
-                                ✏️
-                              </button>
+                                <Edit className="h-3 w-3" />
+                              </Button>
                             </div>
                           )}
-                        </td>
-                      </tr>
-                    ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} className="text-center py-12 text-gray-500">
-                      No orders found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => showProductDetails(order?.products)}
+                              >
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => startEditing(order._id, order.status)}
+                              >
+                                Edit Status
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Package className="h-12 w-12 mb-3 opacity-50" />
+              <p className="text-sm font-medium mb-1">No orders found</p>
+              <p className="text-xs text-center">
+                {searchQuery || filterStatus !== "all"
+                  ? "Try adjusting your search or filters"
+                  : "No orders have been placed yet"}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <ProductDetailsModal
         isOpen={modalOpen}
