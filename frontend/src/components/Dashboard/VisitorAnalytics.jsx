@@ -273,7 +273,7 @@ const VisitorAnalyticsTable = () => {
 
             {byReferrer.filter(item => item.visitors > 0).length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <Globe className="h-12 w-12 mb-3 opacity-50" />
+                <FaGlobe className="h-12 w-12 mb-3 opacity-50" />
                 <p className="text-sm font-medium mb-1">No referral data</p>
                 <p className="text-xs text-center">
                   No visitor data available for the selected period.
