@@ -1,138 +1,62 @@
 import React, { useState } from "react";
+import { Facebook, Instagram, LoaderCircle, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { storeEmail } from "../api/api";
-import { LoaderCircle } from "lucide-react";
-const LINKS = [
-  {
-    key: "quickLinks",
-    links: [
-      { key: "aboutUs", path: "/about" },
-      { key: "contactUs", path: "/contact-us" },
-      { key: "shopNow", path: "/store" },
-      { key: "returnsPolicy", path: "/returns-policy" },
-    ],
-  },
-  {
-    key: "customerService",
-    links: [
-      { key: "helpCenter", path: "/help-center" },
-      { key: "shippingInfo", path: "/shipping-info" },
-      { key: "termsOfUse", path: "/terms-of-use" },
-    ],
-  },
-  {
-    key: "followUs",
-    links: [
-      { key: "instagram", path: "https://www.instagram.com/nazra.sunglasses/" },
-      { key: "facebook", path: "https://web.facebook.com/profile.php?id=61581395211534" },
-      { key: "twitter", path: "https://twitter.com/nazra_sunglasses" },
-      { key: "pinterest", path: "https://pinterest.com/nazra_sunglasses" },
-    ],
-  },
-  {
-    key: "legal",
-    links: [
-      { key: "privacyPolicy", path: "/privacy-policy" },
-      { key: "termsAndConditions", path: "/terms-and-conditions" },
-    ],
-  },
+import { createWhatsAppLink, SITE_CONFIG } from "../config/site";
+
+const FOOTER_GROUPS = [
+  { title: "shop", links: [["men", "/store/products?category=Men"], ["women", "/store/products?category=Women"], ["collections", "/store/products"], ["bestSellers", "/store/products?sort=best-sellers"], ["all", "/store/products"]] },
+  { title: "help", links: [["shipping", "/shipping-info"], ["payment", "/help-center"], ["returns", "/returns-policy"], ["faq", "/help-center"]] },
+  { title: "about", links: [["story", "/about"], ["commitments", "/discover"], ["contact", "/contact-us"]] },
 ];
 
-const Footer = () => {
+function Newsletter() {
   const { t } = useTranslation();
-  const year = new Date().getFullYear();
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const handleEmail = async (e) => {
-    if(!email){
-      return
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
+
+  const submit = async (event) => {
+    event.preventDefault();
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setStatus("error"); setMessage(t("home.newsletter.required")); return;
     }
-    setIsLoading(true);
-    e?.preventDefault();
+    setStatus("loading"); setMessage("");
     try {
-      const response = storeEmail(email);
-      setEmail("");
+      await storeEmail(email);
+      setEmail(""); setStatus("success"); setMessage(t("home.newsletter.success"));
     } catch (error) {
-      console.log(error);
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 3000);
+      setStatus("error");
+      setMessage(error?.response?.data?.message || t("home.newsletter.error"));
     }
   };
+
   return (
-    <div className="min-h-[50vh] mt-12 flex flex-col items-center justify-center">
-      <div className="flex flex-col md:flex-row md:items-center justify-between w-11/12 mb-4 gap-6 mx-auto">
-        <div className="text-center md:text-left md:w-1/2">
-          <h3
-            className="font-bold text-lg md:text-2xl lg:text-3xl"
-            style={{ lineHeight: "1.2", letterSpacing: "2px" }}
-          >
-            {t("footer.subscribeTitle")}
-          </h3>
-          <p className="text-sm md:text-base mt-2">
-            {t("footer.subscribeSubtitle")}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-3 md:w-1/3">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-            <input
-              type="email"
-              className="flex-1 py-3 px-3 border rounded focus:outline-none outline-none text-sm md:text-base"
-              placeholder={t("footer.emailPlaceholder")}
-              value={email}
-              onChange={(e) => setEmail(e?.target?.value)}
-            />
-            <button
-              className="px-6 py-3 text-white rounded transition-colors duration-300 hover:bg-white border bg-black hover:text-black text-sm md:text-base"
-              onClick={handleEmail}
-            >
-              {isLoading ? <LoaderCircle className="h-5 w-5 animate-spin"/> : <span>{t("footer.join")}</span>}
-            </button>
-          </div>
-
-          <div className="text-xs sm:text-sm text-center sm:text-left">
-            <Link>{t("footer.privacyNotice")}</Link>
-          </div>
-        </div>
+    <section className="bg-[#151918] text-white" aria-labelledby="newsletter-title">
+      <div className="nazra-container flex flex-col gap-5 py-6 md:flex-row md:items-center md:justify-between">
+        <div><h2 id="newsletter-title" className="font-display text-xl">{t("home.newsletter.title")}</h2><p className="mt-1 text-[11px] text-white/60">{t("home.newsletter.copy")}</p></div>
+        <form onSubmit={submit} className="w-full md:max-w-lg" noValidate>
+          <div className="flex"><label htmlFor="newsletter-email" className="sr-only">{t("home.newsletter.label")}</label><input id="newsletter-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t("home.newsletter.placeholder")} disabled={status === "loading"} aria-describedby="newsletter-status" className="min-h-11 min-w-0 flex-1 border border-white/20 bg-white/5 px-4 text-xs text-white outline-none placeholder:text-white/50 focus:border-white" /><button disabled={status === "loading"} className="flex min-h-11 min-w-28 items-center justify-center bg-[#8d643d] px-5 text-xs font-semibold transition hover:bg-[#a97849] disabled:opacity-60">{status === "loading" ? <LoaderCircle size={16} className="animate-spin" aria-label={t("home.newsletter.loading")} /> : t("home.newsletter.submit")}</button></div>
+          <p id="newsletter-status" role="status" className={`mt-2 min-h-4 text-[11px] ${status === "error" ? "text-red-300" : "text-emerald-300"}`}>{message}</p>
+        </form>
       </div>
-
-      <div className="w-11/12 grid grid-cols-3 md:grid-cols-4 gap-2 md:place-items-center border-black border-y py-10">
-        {LINKS.map((section, idx) => (
-          <div key={idx} className="flex flex-col gap-2 h-full">
-            <h3 className="font-bold text-sm md:text-lg">
-              {t(`footer.links.${section.key}.title`)}
-            </h3>
-            <ul className="flex flex-col gap-1">
-              {section.links.map((link, i) => (
-                <li key={i} className="text-sm hover:underline cursor-pointer">
-                  <Link
-                    to={link.path}
-                    className="capitalize text-xs md:text-sm"
-                  >
-                    {t(`footer.links.${section.key}.items.${link.key}`)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-col-reverse md:flex-row-reverse justify-between items-center w-11/12 mt-6">
-        <p className="text-center text-sm mt-4">
-          © {year} Nazra Sunglasses. {t("footer.rights")}
-        </p>
-        <img
-          src="/S.svg"
-          className="w-[100px] mx-auto md:m-0 object-cover"
-          alt="NAZRA"
-        />
-      </div>
-    </div>
+    </section>
   );
-};
+}
 
-export default Footer;
+export default function Footer() {
+  const { t } = useTranslation();
+  const year = new Date().getFullYear();
+  return (
+    <footer className="bg-[#101413] text-white">
+      <Newsletter />
+      <div className="nazra-container grid gap-10 border-t border-white/10 py-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.25fr]">
+        <div><Link to="/" className="font-display text-2xl tracking-[.22em]">NAZRA</Link><p className="mt-4 max-w-52 text-xs leading-5 text-white/55">{t("home.footer.tagline")}</p><div className="mt-5 flex gap-2"><a href={SITE_CONFIG.social.instagram} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center border border-white/20" aria-label="Instagram"><Instagram size={15} /></a><a href={SITE_CONFIG.social.facebook} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center border border-white/20" aria-label="Facebook"><Facebook size={15} /></a></div></div>
+        {FOOTER_GROUPS.map((group) => <div key={group.title}><h2 className="text-xs font-semibold">{t(`home.footer.${group.title}`)}</h2><ul className="mt-4 space-y-2.5">{group.links.map(([key, href]) => <li key={key}><Link to={href} className="text-[11px] text-white/55 transition hover:text-white">{t(`home.footer.${key}`)}</Link></li>)}</ul></div>)}
+        <div><h2 className="text-xs font-semibold">{t("home.footer.support")}</h2><a href={createWhatsAppLink(t("home.whatsapp.message"))} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-2 text-xs text-white/70 hover:text-white"><MessageCircle size={16} /> {SITE_CONFIG.whatsapp}</a><a href={`mailto:${SITE_CONFIG.email}`} className="mt-3 block break-all text-[11px] text-white/55 hover:text-white">{SITE_CONFIG.email}</a></div>
+      </div>
+      <div className="border-t border-white/10"><div className="nazra-container flex flex-col gap-2 py-4 text-[10px] text-white/45 sm:flex-row sm:items-center sm:justify-between"><p>© {year} NAZRA. {t("home.footer.rights")}</p><p>{t("home.footer.secure")}</p></div></div>
+    </footer>
+  );
+}

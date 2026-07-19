@@ -6,6 +6,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import enTranslation from './locales/en/translation.json';
 import frTranslation from './locales/fr/translation.json';
 import arTranslation from './locales/ar/translation.json';
+import { homeTranslations } from "./locales/homeTranslations";
 
 // Configure i18next
 i18n
@@ -13,36 +14,30 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: enTranslation },
-      fr: { translation: frTranslation },
+      en: { translation: { ...enTranslation, home: homeTranslations.en } },
+      fr: { translation: { ...frTranslation, home: homeTranslations.fr } },
       ar: { 
-        translation: arTranslation,
-        dir: 'rtl' // Set RTL for Arabic
+        translation: { ...arTranslation, home: homeTranslations.ar },
       }
     },
-    lng: localStorage.getItem('i18nextLng') || 'en',
-    fallbackLng: 'en',
+    lng: localStorage.getItem('i18nextLng') || 'fr',
+    fallbackLng: 'fr',
     interpolation: {
       escapeValue: false
     }
   });
 
-// Function to set document direction based on language
-// export const setDocumentDirection = (lng) => {
-//   const dir = lng === 'ar' ? 'rtl' : 'ltr';
-//   document.documentElement.dir = dir;
-//   document.documentElement.lang = lng;
-//   document.body.style.direction = dir;
-//   document.body.style.textAlign = lng === 'ar' ? 'right' : 'left';
-// };
+export const setDocumentDirection = (lng) => {
+  const language = lng?.split("-")[0] || "fr";
+  document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  document.documentElement.lang = language;
+};
 
-// Set initial direction
 i18n.on('languageChanged', (lng) => {
-//   setDocumentDirection(lng);
+  setDocumentDirection(lng);
   localStorage.setItem('i18nextLng', lng);
 });
 
-// Set initial direction on load
-// setDocumentDirection(i18n.language);
+setDocumentDirection(i18n.language);
 
 export default i18n;

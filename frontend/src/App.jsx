@@ -7,7 +7,6 @@ import { useEffect } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { trackVisit } from "./api/api";
-import { Toaster } from "sonner";
 import { useCard } from "./context/CardContext";
 import CheckoutModal from './components/CheckoutModal'
 function App() {
@@ -32,7 +31,6 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <div className="min-h-screen flex flex-col">
           <RouterProvider router={Router} />
-          <Toaster />
         </div>
       </Suspense>
       {hasProductAddedToCard && (

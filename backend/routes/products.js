@@ -1,8 +1,47 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
+const Order = require('../models/Order');
 const auth = require('../middleware/auth');
 const ProductView = require("../models/ProductView");
+
+const HOMEPAGE_DEFAULT_LIMIT = 4;
+const HOMEPAGE_MAX_LIMIT = 12;
+const PRODUCT_LIST_MAX_LIMIT = 100;
+const SALES_STATUSES = ["processing", "shipped", "delivered"];
+const PUBLIC_PRODUCT_EXCLUSIONS = { createdBy: 0, __v: 0 };
+
+const parseHomepageLimit = (value) => {
+  if (value === undefined) return HOMEPAGE_DEFAULT_LIMIT;
+  if (typeof value !== "string" || !/^[1-9]\d*$/.test(value)) return null;
+
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed <= HOMEPAGE_MAX_LIMIT
+    ? parsed
+    : null;
+};
+
+const parseOptionalListLimit = (value) => {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || !/^[1-9]\d*$/.test(value)) return null;
+
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed <= PRODUCT_LIST_MAX_LIMIT
+    ? parsed
+    : null;
+};
+
+const parseOptionalQueryString = (value, maxLength) => {
+  if (value === undefined) return { value: undefined };
+  if (typeof value !== "string") return { error: true };
+
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > maxLength) return { error: true };
+
+  return { value: trimmed };
+};
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Create a new product
 router.post('/create', auth, async (req, res) => {
   try {
@@ -77,9 +116,35 @@ router.post('/create', auth, async (req, res) => {
 // Get all products
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true })
+    const type = parseOptionalQueryString(req.query.type, 100);
+    const category = parseOptionalQueryString(req.query.category, 100);
+    const search = parseOptionalQueryString(req.query.search, 100);
+    const limit = parseOptionalListLimit(req.query.limit);
+
+    if (type.error || category.error || search.error || limit === null) {
+      return res.status(400).json({
+        success: false,
+        message: `type, category and search must be non-empty strings of at most 100 characters; limit must be an integer between 1 and ${PRODUCT_LIST_MAX_LIMIT}`
+      });
+    }
+
+    const filter = { isActive: true };
+    if (type.value) {
+      filter.type = new RegExp(`^${escapeRegExp(type.value)}$`, 'i');
+    }
+    if (category.value) {
+      filter.category = new RegExp(`^${escapeRegExp(category.value)}$`, 'i');
+    }
+    if (search.value) {
+      filter.$text = { $search: search.value };
+    }
+
+    const query = Product.find(filter)
       .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
+    if (limit !== undefined) query.limit(limit);
+
+    const products = await query;
 
     res.status(200).json({
       success: true,
@@ -91,6 +156,83 @@ router.get('/', async (req, res) => {
       success: false,
       message: 'Server error while fetching products',
       error: error.message
+    });
+  }
+});
+
+// Homepage selection: verified sales ranking when enough data exists, otherwise recent products.
+router.get('/homepage-selection', async (req, res) => {
+  const limit = parseHomepageLimit(req.query.limit);
+
+  if (limit === null) {
+    return res.status(400).json({
+      success: false,
+      message: `limit must be an integer between 1 and ${HOMEPAGE_MAX_LIMIT}`
+    });
+  }
+
+  try {
+    const rankedProducts = await Order.aggregate([
+      { $match: { status: { $in: SALES_STATUSES } } },
+      { $unwind: '$products' },
+      {
+        $match: {
+          'products.product': { $type: 'objectId' },
+          'products.quantity': { $gt: 0 }
+        }
+      },
+      {
+        $group: {
+          _id: '$products.product',
+          salesQuantity: { $sum: '$products.quantity' }
+        }
+      },
+      { $sort: { salesQuantity: -1, _id: 1 } },
+      {
+        $lookup: {
+          from: Product.collection.name,
+          localField: '_id',
+          foreignField: '_id',
+          as: 'product'
+        }
+      },
+      { $unwind: '$product' },
+      { $match: { 'product.isActive': true } },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ['$product', { salesQuantity: '$salesQuantity' }]
+          }
+        }
+      },
+      { $project: PUBLIC_PRODUCT_EXCLUSIONS },
+      { $limit: limit }
+    ]);
+
+    const hasCompleteSalesRanking = rankedProducts.length === limit;
+    const products = hasCompleteSalesRanking
+      ? rankedProducts
+      : await Product.find({ isActive: true })
+          .select('-createdBy -__v')
+          .sort({ createdAt: -1, _id: 1 })
+          .limit(limit)
+          .lean();
+
+    return res.status(200).json({
+      success: true,
+      products,
+      meta: {
+        source: hasCompleteSalesRanking ? 'sales' : 'recent',
+        requestedLimit: limit,
+        count: products.length,
+        qualifyingOrderStatuses: SALES_STATUSES
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching homepage product selection:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching homepage product selection'
     });
   }
 });

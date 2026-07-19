@@ -1,34 +1,56 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import HeroSection from "../components/home/HeroSection";
-import UnmatchedSection from "../components/home/UnmatchedSection";
-import ExperinceSection from "../components/home/ExperinceSection";
-import DiscoverSection from "../components/home/DiscoverSection";
-import ElevateSection from "../components/home/ElevateSection";
-import FAQs from "../components/FAQs";
-import MarkVid from "../components/home/MarkVid";
-import ProductsShortCut from "../components/home/ProductsShortCut";
-import IntroSlider from "../components/IntroSlider";
-import EmailSubModal from "../components/home/EmailSubModal";
+import TrustBenefits from "../components/home/TrustBenefits";
+import BestSellersSection from "../components/home/BestSellersSection";
+import SocialProofStrip from "../components/home/SocialProofStrip";
+import PromotionBanner from "../components/home/PromotionBanner";
+import UserGeneratedContent from "../components/home/UserGeneratedContent";
+import StyleCollections from "../components/home/StyleCollections";
+import BrandStory from "../components/home/BrandStory";
+import ReviewsSection from "../components/home/ReviewsSection";
+import WhatsAppCTA from "../components/home/WhatsAppCTA";
+import { getHomepageProducts } from "../api/api";
 
 const HomePage = () => {
-  useEffect(() => {
-    document.title = "Home Page - Nazra";
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const response = await getHomepageProducts(4);
+      const payload = response?.data;
+      const list = Array.isArray(payload) ? payload : payload?.products;
+      setProducts(Array.isArray(list) ? list.slice(0, 4) : []);
+    } catch {
+      setError(true);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    document.title = "NAZRA | Lunettes de Soleil Homme & Femme au Maroc";
+    window.scrollTo({ top: 0 });
+    loadProducts();
+  }, [loadProducts]);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full">
-      {/* <HeroSection /> */}
-      <IntroSlider />
-      <ProductsShortCut />
-      <UnmatchedSection />
-      <ExperinceSection />
-      <MarkVid />
-      <DiscoverSection />
-      {/* <WebflowSection /> */}
-      <ElevateSection />
-    <EmailSubModal/>
-      <FAQs />
-    </div>
+    <>
+      <HeroSection />
+      <TrustBenefits />
+      <BestSellersSection products={products} loading={loading} error={error} onRetry={loadProducts} />
+      <SocialProofStrip />
+      <PromotionBanner />
+      <UserGeneratedContent />
+      <StyleCollections />
+      <BrandStory />
+      <ReviewsSection />
+      <WhatsAppCTA />
+    </>
   );
 };
 

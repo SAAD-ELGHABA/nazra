@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+
 @custom-variant dark (&:is(.dark *));
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -349,6 +351,28 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    margin: 0;
+    font-family: "DM Sans", system-ui, sans-serif;
+    overflow-x: hidden;
   }
+  html { scroll-behavior: smooth; }
+  button, a, input { @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black; }
+  img { max-width: 100%; }
+}
+
+@layer components {
+  .nazra-container { @apply mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-10; }
+  .nazra-section { @apply py-12 sm:py-14 lg:py-16; }
+  .nazra-heading { @apply text-3xl font-semibold leading-tight tracking-[-0.025em] sm:text-4xl; font-family: "Manrope", "DM Sans", system-ui, sans-serif; }
+  .nazra-eyebrow { @apply mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#906941]; }
+  .nazra-button { @apply inline-flex min-h-11 items-center justify-center px-6 text-[11px] font-bold uppercase tracking-wide transition; }
+  .nazra-count { @apply absolute end-0 top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-black px-1 text-[9px] text-white; }
+  .font-display { font-family: "Manrope", "DM Sans", system-ui, sans-serif; }
+}
+
+html[dir="rtl"] .nazra-hero img { transform: scaleX(-1); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

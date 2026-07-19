@@ -9,12 +9,11 @@ import { CardProvider } from "./context/CardContext.jsx";
 import { Toaster } from "sonner";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Toaster/>
+    <Toaster richColors position="top-center" />
     <FavoritesProvider>
       <CardProvider>
         <App />
       </CardProvider>
     </FavoritesProvider>
-    <Toaster />
   </StrictMode>
 );

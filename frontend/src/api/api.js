@@ -20,14 +20,30 @@ export const createAdmin = async(payload) => {
 }
 
 
-export const getProducts = async()=>{
-    const response = await api.get('/products')
+export const getProducts = async(params = {})=>{
+    const response = await api.get('/products', { params })
     return response;
 }
 
 export const getProductsShortCut = async()=>{
     const response = await api.get('/products/products-shortcut')
     return response;
+}
+
+export const getHomepageProducts = async (limit = 4) => {
+  try {
+    return await api.get('/products/homepage-selection', { params: { limit } });
+  } catch (homepageError) {
+    try {
+      return await getProductsShortCut();
+    } catch {
+      try {
+        return await api.get('/products', { params: { limit } });
+      } catch {
+        throw homepageError;
+      }
+    }
+  }
 }
 
 export const getSingleProduct = async (slug)=>{

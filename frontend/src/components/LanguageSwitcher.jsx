@@ -1,62 +1,33 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Globe, ChevronDown } from "lucide-react";
 
-const LanguageSwitcher = ({ className = "" }) => {
+const LANGUAGES = [{ code: "fr", label: "FR" }, { code: "ar", label: "AR" }, { code: "en", label: "EN" }];
+
+export default function LanguageSwitcher({ className = "" }) {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const rootRef = useRef(null);
+  const current = i18n.resolvedLanguage?.split("-")[0] || "fr";
 
-  const languages = [
-    { code: "en", label: "English" },
-    { code: "fr", label: "Français" },
-    { code: "ar", label: "العربية" },
-  ];
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem("lng", lng);
-    setOpen(false);
-  };
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const close = (event) => !rootRef.current?.contains(event.target) && setOpen(false);
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
   }, []);
 
   return (
-    <div ref={dropdownRef} className={`relative ${className} w-full `}>
-      <button
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 border border-gray-300 rounded-md px-3 cursor-pointer bg-black shadow-sm hover:bg-black/90 text-white transition py-3 md:py-2 w-full md:w-auto justify-center mt-4 md:mt-0"
-      >
-        <Globe size={18} />
-        <span className="text-sm font-medium">
-          {languages.find((l) => l.code === i18n.language)?.label || "Language"}
-        </span>
-        <ChevronDown size={16} />
+    <div ref={rootRef} className={`relative ${className}`}>
+      <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-10 items-center gap-1 px-2 text-[11px] font-semibold tracking-wide hover:bg-stone-100" aria-haspopup="listbox" aria-expanded={open} aria-label="Changer de langue">
+        {current.toUpperCase()} <ChevronDown size={12} aria-hidden="true" />
       </button>
       {open && (
-        <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 top-full" style={{zIndex:1000}}>
-          {languages.map((lang) => (
-            <div
-              key={lang.code}
-              onClick={() => changeLanguage(lang.code)}
-              className={`px-3 py-2 cursor-pointer text-sm hover:bg-gray-100 ${
-                i18n.language === lang.code ? "bg-gray-50 font-medium" : ""
-              }`}
-            >
-              {lang.label}
-            </div>
+        <div role="listbox" className="absolute end-0 top-full z-[70] min-w-20 border border-stone-200 bg-white py-1 shadow-lg">
+          {LANGUAGES.map((language) => (
+            <button key={language.code} type="button" role="option" aria-selected={current === language.code} onClick={() => { i18n.changeLanguage(language.code); setOpen(false); }} className={`block w-full px-4 py-2 text-start text-xs hover:bg-stone-100 ${current === language.code ? "font-bold" : ""}`}>{language.label}</button>
           ))}
         </div>
       )}
     </div>
   );
-};
-
-export default LanguageSwitcher;
+}

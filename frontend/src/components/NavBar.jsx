@@ -1,170 +1,73 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart, ChevronDown, Menu, X, ShoppingCart, ChevronLeft, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { useFavorites } from "../context/FavoritesContext";
 import CardModal from "./CardModal";
-import CollectionDropdown from "./CollectionDropdown";
+import { useFavorites } from "../context/FavoritesContext";
 import { useCard } from "../context/CardContext";
 
-const NavBar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isHome = location.pathname === "/";
+const NAV_LINKS = [
+  ["home.nav.men", "/store/products?category=Men"],
+  ["home.nav.women", "/store/products?category=Women"],
+  ["home.nav.collections", "/store/products"],
+  ["home.nav.bestSellers", "/store/products?sort=best-sellers"],
+  ["home.nav.about", "/about"],
+  ["home.nav.contact", "/contact-us"],
+];
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+export default function NavBar() {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [cartOpen, setCartOpen] = useState(false);
   const { favorites } = useFavorites();
   const { cardItems } = useCard();
-  const [toggleCart, setToggleCart] = useState(false);
+
+  useEffect(() => { setMenuOpen(false); setSearchOpen(false); }, [pathname]);
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  const submitSearch = (event) => {
+    event.preventDefault();
+    const value = query.trim();
+    if (value) navigate(`/store/products?search=${encodeURIComponent(value)}`);
+  };
+
   return (
-    <header className="h-[60px] w-full flex items-center justify-between px-4 md:px-6 bg-white shadow-md sticky top-0 z-50">
-      {!isHome && (
-        <ArrowLeft
-          className="md:hidden"
-          onClick={() => navigate(-1)}
-        />
-      )}
-      <Link className="overflow-hidden h-full flex-1 flex pl-10 md:p-0 items-center justify-center md:flex-none bg-orang-600">
-        <img
-          src="/S.svg"
-          alt="Nazra"
-          className="object-cover w-[100px] h-[50px] md:w-full md:h-full"
-        />
-      </Link>
-
-      <nav className="hidden md:flex items-center h-full gap-8 lg:gap-16">
-        <ul className="flex items-center gap-4 lg:gap-6">
-          <li>
-            <Link to={"/"} className="hover:text-gray-600">
-              {t("navbar.home")}
-            </Link>
-          </li>
-          <li>
-            <Link to={"/store"} className="hover:text-gray-600">
-              {t("navbar.shop")}
-            </Link>
-          </li>
-          <li>
-            <Link to={"/about"} className="hover:text-gray-600">
-              {t("navbar.about")}
-            </Link>
-          </li>
-          <li>
-            <CollectionDropdown />
-          </li>
-        </ul>
-
-        <div className="flex items-center gap-4">
-          <Link className="relative" to={"/favorites"}>
-            <Heart className="cursor-pointer hover:fill-black" color="black" />
-            {favorites.length > 0 && (
-              <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
-                {favorites.length}
-              </span>
-            )}
-          </Link>
-          <button
-            className="cursor-pointer relative"
-            onClick={() => {
-              setToggleCart(!toggleCart);
-            }}
-          >
-            <ShoppingCart className="hover:fill-black" />
-            {cardItems.length > 0 && (
-              <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
-                {cardItems.length}
-              </span>
-            )}
-          </button>
-
-          <LanguageSwitcher />
+    <header className="sticky top-0 z-50 bg-white">
+      <div className="bg-[#111] text-white">
+        <div className="nazra-container flex h-7 items-center justify-center overflow-hidden text-[9px] tracking-wide sm:justify-between sm:text-[10px]">
+          <span>{t("home.announcement.delivery")}</span><span className="hidden sm:inline">•</span>
+          <span className="hidden sm:inline">{t("home.announcement.cod")}</span><span className="hidden sm:inline">•</span>
+          <span className="hidden sm:inline">{t("home.announcement.exchange")}</span>
         </div>
-      </nav>
-      <div className='md:hidden flex items-center gap-2'>
-         <Link className="relative" to={"/favorites"}>
-              <Heart
-                className="cursor-pointer hover:fill-black"
-                color="black"
-              />
-              {favorites.length > 0 && (
-                <span className="absolute top-0 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
-                  {favorites.length}
-                </span>
-              )}
-            </Link>
-            <button
-              className="relative"
-              onClick={() => {
-                setToggleCart(!toggleCart);
-              }}
-            >
-              <ShoppingCart />
-              {cardItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[12px] rounded-full px-1">
-                  {cardItems.length}
-                </span>
-              )}
-            </button>
-        <button className="" onClick={toggleMobileMenu}>
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
-
-      {isMobileMenuOpen && (
-        <div
-          className={`
-        md:hidden absolute top-[60px] left-0 right-0 bg-white shadow-lg py-4 px-6 z-40 mobile-menu
-        ${isMobileMenuOpen ? "open" : ""}
-        `}
-        >
-          <ul className="flex flex-col gap-4">
-            <li>
-              <Link
-                to={"/"}
-                className="block py-2 hover:text-gray-600"
-                onClick={toggleMobileMenu}
-              >
-                {t("navbar.home")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={"/store"}
-                className="block py-2 hover:text-gray-600"
-                onClick={toggleMobileMenu}
-              >
-                {t("navbar.shop")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={"/about"}
-                className="block py-2 hover:text-gray-600"
-                onClick={toggleMobileMenu}
-              >
-                {t("navbar.about")}
-              </Link>
-            </li>
-            <li>
-              <CollectionDropdown />
-            </li>
-          </ul>
-          <LanguageSwitcher />
+      <div className="border-b border-stone-200 bg-white/95 backdrop-blur-md">
+        <div className="nazra-container grid h-16 grid-cols-[auto_1fr_auto] items-center gap-4 lg:h-[70px]">
+          <Link to="/" className="font-display text-xl font-semibold tracking-[.22em]" aria-label="NAZRA — accueil">NAZRA</Link>
+          <nav className="hidden justify-self-center lg:block" aria-label="Navigation principale">
+            <ul className="flex items-center gap-6 xl:gap-8">
+              {NAV_LINKS.map(([key, href]) => <li key={key}><Link to={href} className="text-[11px] font-medium transition hover:text-stone-500">{t(key)}</Link></li>)}
+            </ul>
+          </nav>
+          <div className="flex items-center justify-self-end">
+            <LanguageSwitcher className="hidden sm:block" />
+            <button type="button" onClick={() => setSearchOpen((value) => !value)} className="grid h-10 w-9 place-items-center hover:bg-stone-100" aria-label={t("home.nav.search")} aria-expanded={searchOpen}><Search size={17} /></button>
+            <Link to="/favorites" className="relative grid h-10 w-9 place-items-center hover:bg-stone-100" aria-label={t("navbar.wishlist")}><Heart size={17} />{favorites.length > 0 && <span className="nazra-count">{favorites.length}</span>}</Link>
+            <button type="button" onClick={() => setCartOpen(true)} className="relative grid h-10 w-9 place-items-center hover:bg-stone-100" aria-label={t("navbar.cart")}><ShoppingBag size={17} />{cardItems.length > 0 && <span className="nazra-count">{cardItems.reduce((sum, item) => sum + (item.quantity || 1), 0)}</span>}</button>
+            <button type="button" onClick={() => setMenuOpen((value) => !value)} className="grid h-10 w-9 place-items-center lg:hidden" aria-label={t(menuOpen ? "home.nav.close" : "home.nav.menu")} aria-expanded={menuOpen}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
+          </div>
         </div>
-      )}
-
-      {toggleCart && (
-        <CardModal isOpen={toggleCart} onClose={() => setToggleCart(false)}>
-          <p>This is the content of your card modal.</p>
-        </CardModal>
-      )}
+      </div>
+      {searchOpen && <form onSubmit={submitSearch} className="absolute inset-x-0 top-full border-b border-stone-200 bg-white p-4 shadow-lg"><div className="nazra-container flex"><label htmlFor="site-search" className="sr-only">{t("home.nav.search")}</label><input id="site-search" autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("home.nav.search")} className="min-h-11 flex-1 border border-stone-300 px-4 text-sm outline-none focus:border-black" /><button className="min-h-11 bg-black px-5 text-white" aria-label={t("home.nav.search")}><Search size={17} /></button></div></form>}
+      {menuOpen && <nav className="fixed inset-x-0 bottom-0 top-[92px] overflow-y-auto bg-white p-6 lg:hidden" aria-label="Navigation mobile"><ul className="divide-y divide-stone-200">{NAV_LINKS.map(([key, href]) => <li key={key}><Link to={href} className="block py-5 font-display text-2xl">{t(key)}</Link></li>)}</ul><LanguageSwitcher className="mt-6 sm:hidden" /></nav>}
+      {cartOpen && <CardModal isOpen={cartOpen} onClose={() => setCartOpen(false)} />}
     </header>
   );
-};
-
-export default NavBar;
+}
