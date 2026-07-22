@@ -5,6 +5,7 @@ const { contactNotificationEmail } = require("../emails/contactNotificationEmail
 const resolveNotificationRecipient = () => (
   process.env.CONTACT_EMAIL
   || process.env.ADMIN_EMAIL
+  || process.env.SMTP_USER
   || process.env.EMAIL_USER
   || null
 );
@@ -61,4 +62,3 @@ const submitContactMessage = async (
 };
 
 module.exports = { submitContactMessage, resolveNotificationRecipient };
-

@@ -27,7 +27,7 @@ Sous macOS ou Linux, remplacer `Copy-Item` par `cp`. Le serveur écoute sur `POR
 | `JWT_SECRET` | Requise | Signature HS256 des JWT ; valeur aléatoire forte d’au moins 32 caractères |
 | `PASSWORD_RESET_CODE_PEPPER` | Requise | HMAC des codes de réinitialisation ; valeur aléatoire indépendante d’au moins 32 caractères |
 | `AUTH_RATE_LIMIT_PEPPER` | Requise | HMAC des identifiants de limitation ; valeur aléatoire indépendante d’au moins 32 caractères |
-| `EMAIL_USER`, `EMAIL_PASS` | Requises pour le reset | Identifiants SMTP ; utiliser un mot de passe d’application lorsque le fournisseur l’exige |
+| `SMTP_USER`, `SMTP_PASS` | Requises pour le reset | Identifiants SMTP ; `EMAIL_USER`/`EMAIL_PASS` restent des alias historiques. Avec Gmail, utiliser un mot de passe d’application (les espaces d’affichage sont retirés côté serveur) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | Requises en production | Transport SMTP. Utiliser généralement `587`/`false` pour STARTTLS ou `465`/`true` pour TLS implicite |
 | `EMAIL_FROM` | Recommandée | Expéditeur autorisé par le fournisseur SMTP |
 | `FRONTEND_URL` | Requise | Origine frontend autorisée par CORS |
@@ -458,7 +458,7 @@ Une soumission valide est persistée dans `ContactMessage` avant la tentative de
 }
 ```
 
-L’échec SMTP n’annule pas un message enregistré. Son état interne passe à `failed`; si aucun destinataire n’est configuré, il passe à `skipped`. La notification utilise, dans l’ordre, `CONTACT_EMAIL`, `ADMIN_EMAIL`, puis `EMAIL_USER`. L’expéditeur peut être défini avec `EMAIL_FROM`; `SMTP_HOST`, `SMTP_PORT` et `SMTP_SECURE` sont facultatifs et conservent Gmail/465 comme valeurs compatibles avec la configuration historique. Les valeurs fournies par le client sont échappées avant insertion dans l’e-mail HTML.
+L’échec SMTP n’annule pas un message enregistré. Son état interne passe à `failed`; si aucun destinataire n’est configuré, il passe à `skipped`. La notification utilise, dans l’ordre, `CONTACT_EMAIL`, `ADMIN_EMAIL`, `SMTP_USER`, puis l’alias historique `EMAIL_USER`. L’expéditeur peut être défini avec `EMAIL_FROM`; `SMTP_HOST`, `SMTP_PORT` et `SMTP_SECURE` sont facultatifs et conservent Gmail/465 comme valeurs compatibles avec la configuration historique. Les valeurs fournies par le client sont échappées avant insertion dans l’e-mail HTML.
 
 La route applique un délai minimal de 10 secondes entre deux tentatives et une limite de 5 tentatives par fenêtre de 15 minutes. Les compteurs sont en mémoire et utilisent une empreinte éphémère de l’adresse réseau ; aucune adresse IP ni aucun user-agent n’est enregistré dans MongoDB. Sur une infrastructure multi-instance, utiliser à terme un compteur partagé (par exemple Redis) pour une limite globale.
 
@@ -502,7 +502,7 @@ npm run build
 ### Problèmes courants
 
 - **`DB connection failed`** : vérifier que `MONGO_URI` est défini et que MongoDB est accessible.
-- **Reset HTTP `503`** : contrôler les trois secrets d’authentification, `EMAIL_USER`, `EMAIL_PASS` et l’accès au serveur SMTP.
+- **Reset HTTP `503`** : contrôler les trois secrets d’authentification, `SMTP_USER`, `SMTP_PASS` (ou leurs alias historiques) et l’accès au serveur SMTP.
 - **E-mail absent après HTTP `202`** : la réponse est volontairement identique pour un compte inconnu ; pour un compte existant, contrôler le dossier indésirable, l’expéditeur autorisé et les journaux SMTP sans y inscrire le code.
 - **HTTP `429`** : respecter `Retry-After` ou `retryAfterSeconds`. Les compteurs sont conservés dans MongoDB et ne sont pas réinitialisés par un redémarrage applicatif.
 - **Code invalide ou expiré** : utiliser le dernier code reçu dans les 10 minutes ; un nouveau code, cinq erreurs ou une première utilisation réussie invalident le précédent.
