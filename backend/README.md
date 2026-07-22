@@ -4,18 +4,97 @@ Ce backend Express expose le catalogue public sous `/api/products`. Le contrat c
 
 ## Démarrage local
 
-Depuis `backend/` :
+Prérequis : Node.js, npm et MongoDB. La réinitialisation effective du mot de passe utilise une transaction ; MongoDB doit donc fonctionner en replica set, y compris pour un test local complet de ce parcours.
 
-```bash
+Depuis `backend/`, créer la configuration locale sans modifier l’exemple versionné :
+
+```powershell
+Copy-Item .env.example .env
 npm install
 npm run dev
 ```
 
-Variables utilisées par ce périmètre :
+Sous macOS ou Linux, remplacer `Copy-Item` par `cp`. Le serveur écoute sur `PORT` (`5000` par défaut).
 
-- `MONGO_URI` : connexion MongoDB requise ;
-- `JWT_SECRET` : vérification des Bearer tokens pour les mutations authentifiées ;
-- `PORT` : port HTTP optionnel, `5000` par défaut.
+### Variables d’environnement
+
+`backend/.env.example` contient uniquement des valeurs neutres. Chaque secret entre chevrons doit être remplacé localement ou dans le gestionnaire de secrets de l’hébergeur.
+
+| Variable | Statut | Utilisation |
+| --- | --- | --- |
+| `MONGO_URI` | Requise | Base MongoDB applicative, accessible comme replica set pour les transactions |
+| `TEST_MONGO_URI` | Requise pour l’intégration | Base isolée réservée aux tests ; ne jamais utiliser la production |
+| `JWT_SECRET` | Requise | Signature HS256 des JWT ; valeur aléatoire forte d’au moins 32 caractères |
+| `PASSWORD_RESET_CODE_PEPPER` | Requise | HMAC des codes de réinitialisation ; valeur aléatoire indépendante d’au moins 32 caractères |
+| `AUTH_RATE_LIMIT_PEPPER` | Requise | HMAC des identifiants de limitation ; valeur aléatoire indépendante d’au moins 32 caractères |
+| `EMAIL_USER`, `EMAIL_PASS` | Requises pour le reset | Identifiants SMTP ; utiliser un mot de passe d’application lorsque le fournisseur l’exige |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | Requises en production | Transport SMTP. Utiliser généralement `587`/`false` pour STARTTLS ou `465`/`true` pour TLS implicite |
+| `EMAIL_FROM` | Recommandée | Expéditeur autorisé par le fournisseur SMTP |
+| `FRONTEND_URL` | Requise | Origine frontend autorisée par CORS |
+| `API_URL` | Selon déploiement | Origine API ajoutée à la liste CORS existante |
+| `BCRYPT_ROUNDS` | Optionnelle | Coût bcrypt de `10` à `14`, `12` par défaut |
+| `NODE_ENV`, `PORT` | Optionnelles | Environnement d’exécution et port HTTP |
+| `CLOUDINARY_*` | Requises pour les médias | Configuration serveur Cloudinary ; le secret reste exclusivement côté backend |
+| `ADMIN_EMAIL`, `CONTACT_EMAIL` | Optionnelles | Destinataires des notifications administratives et de contact |
+
+Les trois secrets d’authentification doivent être différents. Ne jamais les copier dans une variable `VITE_*`, car ces variables sont intégrées au JavaScript livré au navigateur.
+
+## Authentification et réinitialisation du mot de passe
+
+Les routes d’authentification n’acceptent que `application/json`, refusent les paramètres de requête et limitent le corps à 8 Kio. Les adresses e-mail sont normalisées en minuscules. Les nouveaux mots de passe doivent contenir au moins 12 caractères, au plus 72 octets UTF-8 et être différents du mot de passe actuel.
+
+### POST `/api/auth/forgot-password`
+
+Endpoint public qui demande l’envoi d’un code numérique à huit chiffres. Le code est conservé sous forme de HMAC, expire après 10 minutes et tout nouveau code invalide le précédent.
+
+```json
+{
+  "email": "admin@example.com"
+}
+```
+
+Une requête acceptée renvoie toujours HTTP `202`, que le compte existe ou non, afin de ne pas permettre l’énumération des comptes :
+
+```json
+{
+  "success": true,
+  "message": "If an account exists for that email, a reset code has been sent."
+}
+```
+
+Les limites sont persistées dans MongoDB : 3 demandes par e-mail et par heure, 5 par adresse réseau et par 15 minutes, avec un délai de 60 secondes entre deux demandes pour un même e-mail. Une limite ou un délai lié à l’e-mail conserve la réponse générique HTTP `202` sans envoyer de nouveau code ; seule la limite réseau renvoie HTTP `429` avec `Retry-After` et `retryAfterSeconds`. Une configuration SMTP ou de sécurité absente renvoie HTTP `503` sans révéler l’existence du compte.
+
+### POST `/api/auth/reset-password`
+
+Endpoint public qui consomme le code en une seule transaction :
+
+```json
+{
+  "email": "admin@example.com",
+  "code": "00123456",
+  "password": "<new-password-of-at-least-12-characters>",
+  "passwordConfirmation": "<same-new-password>"
+}
+```
+
+Une réussite renvoie HTTP `200` :
+
+```json
+{
+  "success": true,
+  "message": "Password reset successfully. Please sign in again."
+}
+```
+
+Le code devient inutilisable, les autres challenges actifs du compte sont invalidés et la modification du mot de passe incrémente `authVersion`. Les JWT HS256 sont liés à l’émetteur `nazra-api`, à l’audience `nazra-admin` et doivent contenir un `authVersion` entier correspondant à celui du compte ; les anciens JWT sont donc refusés après la rotation obligatoire de `JWT_SECRET`. Le code accepte au plus cinq essais incorrects. La route est en outre limitée à 10 requêtes par e-mail et 20 par adresse réseau sur 15 minutes.
+
+Une validation incorrecte renvoie HTTP `400` avec `{ success, message, errors }`. Un code absent, invalide, expiré, déjà utilisé ou ayant épuisé ses essais renvoie le message générique `Invalid or expired reset code.`. Réutiliser le mot de passe actuel renvoie également HTTP `400`. Ne jamais journaliser les codes, mots de passe, JWT ou peppers.
+
+### Administration des comptes
+
+`POST /api/auth/register` et `GET /api/auth/users` exigent `Authorization: Bearer <token>` et le rôle backend `superadmin`. La liste ne projette que `_id`, `name`, `email` et `role` ; les hashes de mots de passe et `authVersion` ne sont jamais exposés. L’interface peut masquer ces actions, mais le contrôle du rôle côté serveur reste la source de vérité.
+
+Le frontend supprime son stockage d’authentification local après un reset réussi. Les copies résiduelles du JWT sur d’autres navigateurs restent physiquement présentes dans `localStorage`, mais sont rejetées grâce à `authVersion`. `localStorage` reste lisible par tout script exécuté dans l’origine : prévenir les XSS et envisager à terme des cookies `HttpOnly`, `Secure` et `SameSite` pour réduire ce risque.
 
 ## GET `/api/products`
 
@@ -168,6 +247,14 @@ node -e "require('dotenv').config(); const mongoose=require('mongoose'); const P
 ```
 
 Cette commande utilise `MONGO_URI` depuis l’environnement et ne supprime pas les index existants. Contrôler son exécution sur un environnement de préproduction avant la production.
+
+Le reset ajoute également un index unique partiel sur le challenge actif par e-mail et des index TTL sur `PasswordResetChallenge.expiresAt` et `AuthRateLimit.expiresAt`. Avant d’ouvrir le parcours en production, créer et contrôler ces index depuis `backend/` :
+
+```bash
+node -e "require('dotenv').config(); const mongoose=require('mongoose'); const User=require('./models/User'); const Challenge=require('./models/PasswordResetChallenge'); const RateLimit=require('./models/AuthRateLimit'); (async()=>{await mongoose.connect(process.env.MONGO_URI); await Promise.all([User.createIndexes(), Challenge.createIndexes(), RateLimit.createIndexes()]); await mongoose.disconnect();})().catch(error=>{console.error(error.message); process.exit(1)})"
+```
+
+La suppression TTL de MongoDB est asynchrone : la présence temporaire d’un document expiré ne rend pas son code valide, car l’expiration est aussi vérifiée dans chaque requête. La consommation du code et la mise à jour du compte utilisent `withTransaction`; le déploiement doit donc fournir un replica set MongoDB et autoriser les transactions. Valider ces deux prérequis sur une base de préproduction avant la mise en ligne.
 
 ## GET `/api/products/:slug` — fiche produit
 
@@ -375,24 +462,52 @@ L’échec SMTP n’annule pas un message enregistré. Son état interne passe �
 
 La route applique un délai minimal de 10 secondes entre deux tentatives et une limite de 5 tentatives par fenêtre de 15 minutes. Les compteurs sont en mémoire et utilisent une empreinte éphémère de l’adresse réseau ; aucune adresse IP ni aucun user-agent n’est enregistré dans MongoDB. Sur une infrastructure multi-instance, utiliser à terme un compteur partagé (par exemple Redis) pour une limite globale.
 
-Les routes de lecture, détail et mise à jour des messages ne sont pas exposées. Le modèle utilisateur actuel autorise encore une inscription publique avec un rôle administrateur par défaut, ce qui ne constitue pas un contrôle d’administration fiable. Il faut corriger cette politique et ajouter un middleware de rôle côté serveur avant d’exposer la boîte de réception de contact.
+Les routes de lecture, détail et mise à jour des messages ne sont pas exposées. La création et la liste des administrateurs sont désormais réservées au rôle `superadmin` côté serveur ; toute future boîte de réception de contact devra appliquer le même principe de permission explicite.
+
+## Déploiement et gestion des secrets
+
+- Configurer les variables backend dans le gestionnaire de secrets de l’hébergeur, jamais dans le projet frontend ni dans un fichier versionné.
+- Utiliser trois valeurs aléatoires indépendantes d’au moins 32 caractères pour `JWT_SECRET`, `PASSWORD_RESET_CODE_PEPPER` et `AUTH_RATE_LIMIT_PEPPER`. Une rotation du JWT déconnecte tous les utilisateurs ; une rotation du pepper des codes invalide les challenges en cours.
+- Vérifier l’accès SMTP sortant, l’expéditeur autorisé et les enregistrements SPF, DKIM et DMARC du domaine. Les mots de passe de compte ordinaires ne doivent pas servir d’identifiants SMTP.
+- Utiliser un replica set MongoDB, créer les index d’authentification ci-dessus et tester une transaction réelle avant de diriger le trafic de production. Les limites d’authentification sont stockées dans MongoDB et restent donc cohérentes entre plusieurs instances applicatives.
+- Définir `TEST_MONGO_URI` vers une base isolée et jetable. Elle ne doit jamais partager un cluster logique, un nom de base ou des identifiants à privilèges élevés avec la production.
+
+Des fichiers d’environnement ont existé dans l’historique Git du projet. Les retirer de l’index ne suffit pas : les responsables de chaque fournisseur doivent révoquer et remplacer les identifiants MongoDB, JWT, Cloudinary, SMTP et SDK concernés, contrôler les journaux d’accès, puis mettre à jour les secrets de déploiement. Le propriétaire du dépôt doit coordonner une réécriture de tout l’historique avec `git filter-repo` ou un outil approuvé, forcer la publication des branches et tags nettoyés, puis demander aux collaborateurs de repartir d’un clone propre. Les forks et clones externes restent hors de ce nettoyage ; toute valeur anciennement versionnée doit être considérée comme compromise.
 
 ## Tests
 
-Le script `npm test` n’est pas configuré dans ce projet. Exécuter les tests unitaires du parseur et des filtres avec :
+Depuis `backend/`, lancer toutes les suites déclarées par le projet :
 
 ```bash
-node --test test/*.test.js
+npm test
 ```
 
-Ces tests vérifient le mode legacy, les alias, la pagination, les booléens et prix, la déduplication, les erreurs `400` attendues et les replis sur les anciens champs. Les agrégations MongoDB et les routes HTTP nécessitent encore des tests d’intégration avec une base de test isolée.
+Pour limiter l’exécution au périmètre auth :
 
-Les suites couvrent également la normalisation de la fiche produit, la validation de la pagination des avis, la résolution couleur/verre, le calcul serveur du prix, le contrôle des quantités et la réservation/compensation du stock. Elles ne remplacent pas un test d’intégration MongoDB pour les écritures atomiques concurrentes.
+```bash
+node --test test/authValidation.test.js test/authSecurity.test.js test/authRouteParsing.test.js
+```
+
+Ces tests couvrent la validation stricte, le format et le HMAC des codes, les champs sensibles des schémas, les index déclarés, l’échappement du modèle d’e-mail, la révocation par `authVersion`, la projection de la liste et le rôle `superadmin`. Ils ne remplacent pas un test d’intégration contre `TEST_MONGO_URI` sur un replica set : vérifier la création des TTL, la transaction de consommation unique, deux resets concurrents et la persistance des limites entre instances.
+
+Avant une mise en production, tester également avec un transport SMTP de test ou injecté, sans vraie boîte client : e-mail inconnu et réponse générique, code à zéro initial, expiration après 10 minutes, cinq erreurs, code réutilisé, délai de renvoi, réponses `429`, mot de passe inchangé refusé, ancien JWT rejeté et connexion réussie uniquement avec le nouveau mot de passe.
+
+Le frontend ne possède pas de script de tests automatisés. Exécuter dans `frontend/` :
+
+```bash
+npm run lint
+npm run build
+```
 
 ### Problèmes courants
 
 - **`DB connection failed`** : vérifier que `MONGO_URI` est défini et que MongoDB est accessible.
+- **Reset HTTP `503`** : contrôler les trois secrets d’authentification, `EMAIL_USER`, `EMAIL_PASS` et l’accès au serveur SMTP.
+- **E-mail absent après HTTP `202`** : la réponse est volontairement identique pour un compte inconnu ; pour un compte existant, contrôler le dossier indésirable, l’expéditeur autorisé et les journaux SMTP sans y inscrire le code.
+- **HTTP `429`** : respecter `Retry-After` ou `retryAfterSeconds`. Les compteurs sont conservés dans MongoDB et ne sont pas réinitialisés par un redémarrage applicatif.
+- **Code invalide ou expiré** : utiliser le dernier code reçu dans les 10 minutes ; un nouveau code, cinq erreurs ou une première utilisation réussie invalident le précédent.
+- **Transaction non prise en charge** : démarrer MongoDB en replica set et vérifier que `MONGO_URI` cible bien ce déploiement.
 - **HTTP `400` après ajout d’un filtre** : vérifier son nom exact ; les paramètres inconnus sont volontairement rejetés.
 - **Facettes absentes** : fournir `page` et `include=filters` (ou `include=facets`/`facets=true`).
-- **HTTP `401` sur une mutation** : fournir un Bearer token valide et vérifier `JWT_SECRET`.
-- **Tri ou filtres lents après déploiement** : créer les index déclarés par le schéma avec la commande ci-dessus.
+- **HTTP `401` sur une mutation** : fournir un Bearer token valide et vérifier `JWT_SECRET`; après un reset, se reconnecter pour obtenir un JWT portant le nouvel `authVersion`.
+- **Tri, filtres ou reset lents après déploiement** : créer les index déclarés par les schémas avec les commandes ci-dessus.

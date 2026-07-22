@@ -1,4 +1,9 @@
 import axios from "axios";
+import { LOGIN } from "../constant/routerConstants";
+import {
+  AUTH_TOKEN_STORAGE_KEY,
+  clearAuthStorage,
+} from "../utils/auth";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -7,15 +12,60 @@ const api = axios.create({
   },
 });
 
+const getAuthorizationHeader = (headers) => {
+  if (!headers) return "";
+  if (typeof headers.get === "function") {
+    return headers.get("Authorization") || "";
+  }
+  return headers.Authorization || headers.authorization || "";
+};
+
+const getBearerConfig = () => {
+  const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+  return token
+    ? { headers: { Authorization: `Bearer ${token}` } }
+    : {};
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const authorization = getAuthorizationHeader(error?.config?.headers);
+    const isAuthenticatedRequest =
+      typeof authorization === "string" && authorization.startsWith("Bearer ");
+
+    if (error?.response?.status === 401 && isAuthenticatedRequest) {
+      clearAuthStorage();
+      if (window.location.pathname !== LOGIN) {
+        window.location.replace(LOGIN);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export const loginAdmin = async (payload) => {
+  return api.post("/auth/login", payload, { withCredentials: true });
+};
+
+export const requestPasswordResetCode = async (email) => {
+  return api.post("/auth/forgot-password", { email });
+};
+
+export const resetPasswordWithCode = async (payload) => {
+  return api.post("/auth/reset-password", payload);
+};
+
 
 //admins
 export const getAdmins = async() => {
-  const response = await api.get('/auth/users')
+  const response = await api.get('/auth/users', getBearerConfig())
   return response;
 }
 
 export const createAdmin = async(payload) => {
-  const response = await api.post('/auth/register', payload)
+  const response = await api.post('/auth/register', payload, getBearerConfig())
   return response;
 }
 

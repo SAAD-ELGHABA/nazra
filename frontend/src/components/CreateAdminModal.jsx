@@ -44,7 +44,6 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
 
   // Check if current user is superadmin
   useEffect(() => {
-    console.log(currentUser)
     if (currentUser) {
       const userIsSuperAdmin = currentUser.role === 'superadmin' || 
                               currentUser.role === 'super-admin' ||

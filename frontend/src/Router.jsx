@@ -11,6 +11,8 @@ import DashboardProducts from "./pages/DashboardProducts";
 import AddProducts from "./pages/AddProducts";
 import OrderManagementPage from "./pages/DashboardOrders";
 import LoginPage from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import CheckoutCard from "./pages/CheckoutCard";
 import ContactUs from "./pages/ContactUs";
 import HelpCenter from "./pages/HelpCenter";
@@ -28,19 +30,15 @@ import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
 import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
-import OrderConfirmationUpsell from "./pages/OrderConfirmationUpsell";
 import AdminsPage from "./pages/AdminsPage";
 import BlogPage from './Dashboard/BlogPage'
-import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DISCOVER, EXPLORE, FAVORITES, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
 
 const ProtectedRoutes = ({ children }) => {
-  const localToken = localStorage.getItem("User_Data_token");
-  const localUserData = localStorage.getItem("User_Data");
-  if (!localToken) {
-    if (localUserData) {
-      localStorage.removeItem("User_Data");
-    }
-    return <Navigate to={"/login"} replace={true} />;
+  if (!hasStoredAuthSession()) {
+    clearAuthStorage();
+    return <Navigate to={LOGIN} replace={true} />;
   }
   return children;
 };
@@ -163,6 +161,14 @@ export const Router = createBrowserRouter([
   {
     path: LOGIN,
     element: <LoginPage />,
+  },
+  {
+    path: FORGOT_PASSWORD,
+    element: <ForgotPassword />,
+  },
+  {
+    path: RESET_PASSWORD,
+    element: <ResetPassword />,
   },
   {
     path: "*",

@@ -1,129 +1,47 @@
-// const jwt = require('jsonwebtoken');
-// const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const User = require("../models/User");
 
-// const auth = async (req, res, next) => {
-//   try {
-//     const token = req.header('Authorization')?.replace('Bearer ', '');
-
-//     if (!token) {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'No token provided, authorization denied'
-//       });
-//     }
-
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-//     // Change from decoded.id to decoded.userId
-//     const user = await User.findById(decoded.userId).select('-password');
-
-//     if (!user) {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'Token is not valid'
-//       });
-//     }
-
-//     req.user = user;
-//     next();
-//   } catch (error) {
-//     console.error('Auth middleware error:', error);
-    
-//     // Provide more specific error messages
-//     if (error.name === 'TokenExpiredError') {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'Token has expired'
-//       });
-//     }
-    
-//     if (error.name === 'JsonWebTokenError') {
-//       return res.status(401).json({
-//         success: false,
-//         message: 'Invalid token'
-//       });
-//     }
-    
-//     res.status(401).json({
-//       success: false,
-//       message: 'Token is not valid'
-//     });
-//   }
-// };
-
-// module.exports = auth;
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const TOKEN_PATTERN = /^Bearer ([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/;
+const JWT_ISSUER = "nazra-api";
+const JWT_AUDIENCE = "nazra-admin";
 
 const auth = async (req, res, next) => {
+  const authHeader = req.header("Authorization");
+  const match = typeof authHeader === "string" && authHeader.length <= 4096
+    ? authHeader.match(TOKEN_PATTERN)
+    : null;
+  if (!match) {
+    return res.status(401).json({ success: false, message: "Authentication required" });
+  }
+
+  if (typeof process.env.JWT_SECRET !== "string" || process.env.JWT_SECRET.length < 32) {
+    return res.status(500).json({ success: false, message: "Server configuration error" });
+  }
+
   try {
-    const authHeader = req.header('Authorization');
-    console.log('Authorization header:', authHeader);
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'No token provided or invalid format'
-      });
+    const decoded = jwt.verify(match[1], process.env.JWT_SECRET, {
+      algorithms: ["HS256"],
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE
+    });
+    if (!decoded.userId || !mongoose.isValidObjectId(decoded.userId)) {
+      return res.status(401).json({ success: false, message: "Authentication failed" });
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    console.log('Extracted token:', token);
-    console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
-
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({
-        success: false,
-        message: 'Server configuration error'
-      });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded token payload:', decoded);
-
-    // Check if we have userId in the decoded payload
-    if (!decoded.userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token payload invalid - missing userId'
-      });
-    }
-
-    const user = await User.findById(decoded.userId).select('-password');
-    console.log('User found:', user ? user.email : 'None');
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not found'
-      });
+    const user = await User.findById(decoded.userId)
+      .select("_id name email role +authVersion");
+    const tokenVersion = decoded.authVersion;
+    if (!user || !Number.isSafeInteger(tokenVersion) || tokenVersion < 0 || tokenVersion !== Number(user.authVersion || 0)) {
+      return res.status(401).json({ success: false, message: "Authentication failed" });
     }
 
     req.user = user;
-    next();
-  } catch (error) {
-    console.error('Auth middleware error details:', error.message);
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token expired'
-      });
-    }
-    
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token signature'
-      });
-    }
-    
-    res.status(401).json({
-      success: false,
-      message: 'Authentication failed',
-      error: error.message
-    });
+    return next();
+  } catch (_error) {
+    return res.status(401).json({ success: false, message: "Authentication failed" });
   }
 };
 
 module.exports = auth;
+module.exports._test = { TOKEN_PATTERN, JWT_ISSUER, JWT_AUDIENCE };

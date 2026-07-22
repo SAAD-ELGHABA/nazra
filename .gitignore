@@ -1,0 +1,13 @@
+# Dependencies and generated output
+**/node_modules/
+**/dist/
+
+# Runtime environment files are local-only. Keep sanitized templates tracked.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db

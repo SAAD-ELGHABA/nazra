@@ -2,8 +2,10 @@ const nodemailer = require("nodemailer");
 
 let transporter;
 
+const isEmailConfigured = () => Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+
 const getTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!isEmailConfigured()) {
     throw new Error("Email transport is not configured");
   }
   if (!transporter) {
@@ -17,7 +19,10 @@ const getTransporter = () => {
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-      }
+      },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 15000
     });
   }
   return transporter;
@@ -35,4 +40,8 @@ exports.sendEmail = async ({ to, subject, html, text, replyTo }) => {
   });
 };
 
-exports._test = { getTransporter };
+exports.isEmailConfigured = isEmailConfigured;
+exports._test = {
+  getTransporter,
+  resetTransporter: () => { transporter = undefined; }
+};
