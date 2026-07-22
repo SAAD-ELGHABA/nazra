@@ -11,8 +11,8 @@ export default function HeroSection() {
       <img
         src="/assets/images/home/hero-nazra.webp"
         alt="Deux modèles portant des lunettes de soleil NAZRA à Marrakech"
-        width="1536"
-        height="1024"
+        width="1672"
+        height="941"
         fetchPriority="high"
         className="absolute inset-0 h-full w-full object-cover object-[62%_center] sm:object-center"
       />

@@ -7,6 +7,10 @@ import enTranslation from './locales/en/translation.json';
 import frTranslation from './locales/fr/translation.json';
 import arTranslation from './locales/ar/translation.json';
 import { homeTranslations } from "./locales/homeTranslations";
+import { storeTranslations } from "./locales/storeTranslations";
+import { aboutTranslations } from "./locales/aboutTranslations";
+import { productTranslations } from "./locales/productTranslations";
+import { contactTranslations } from "./locales/contactTranslations";
 
 // Configure i18next
 i18n
@@ -14,10 +18,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: { ...enTranslation, home: homeTranslations.en } },
-      fr: { translation: { ...frTranslation, home: homeTranslations.fr } },
+      en: { translation: { ...enTranslation, home: homeTranslations.en, store: storeTranslations.en, about: aboutTranslations.en, productDetails: productTranslations.en, contactPage: contactTranslations.en } },
+      fr: { translation: { ...frTranslation, home: homeTranslations.fr, store: storeTranslations.fr, about: aboutTranslations.fr, productDetails: productTranslations.fr, contactPage: contactTranslations.fr } },
       ar: { 
-        translation: { ...arTranslation, home: homeTranslations.ar },
+        translation: { ...arTranslation, home: homeTranslations.ar, store: storeTranslations.ar, about: aboutTranslations.ar, productDetails: productTranslations.ar, contactPage: contactTranslations.ar },
       }
     },
     lng: localStorage.getItem('i18nextLng') || 'fr',

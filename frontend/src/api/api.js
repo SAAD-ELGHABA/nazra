@@ -25,6 +25,28 @@ export const getProducts = async(params = {})=>{
     return response;
 }
 
+const toStoreApiParams = (params = {}) => {
+  const apiParams = { ...params };
+  const { colors, min, max } = apiParams;
+
+  delete apiParams.colors;
+  delete apiParams.min;
+  delete apiParams.max;
+  delete apiParams.view;
+
+  if (colors) apiParams.color = colors;
+  if (min !== undefined && min !== "") apiParams.minPrice = min;
+  if (max !== undefined && max !== "") apiParams.maxPrice = max;
+  return apiParams;
+};
+
+export const getStoreProducts = async (params = {}, signal) => {
+  return api.get('/products', {
+    params: { ...toStoreApiParams(params), include: 'filters' },
+    signal,
+  });
+};
+
 export const getProductsShortCut = async()=>{
     const response = await api.get('/products/products-shortcut')
     return response;
@@ -35,10 +57,18 @@ export const getHomepageProducts = async (limit = 4) => {
     return await api.get('/products/homepage-selection', { params: { limit } });
   } catch (homepageError) {
     try {
-      return await getProductsShortCut();
+      const response = await getProductsShortCut();
+      return {
+        ...response,
+        data: { ...response.data, meta: { source: "recent" } },
+      };
     } catch {
       try {
-        return await api.get('/products', { params: { limit } });
+        const response = await api.get('/products', { params: { limit } });
+        return {
+          ...response,
+          data: { ...response.data, meta: { source: "recent" } },
+        };
       } catch {
         throw homepageError;
       }
@@ -46,10 +76,15 @@ export const getHomepageProducts = async (limit = 4) => {
   }
 }
 
-export const getSingleProduct = async (slug)=>{
-    const response = await api.get(`/products/${slug}`)
+export const getSingleProduct = async (slug, signal)=>{
+    const response = await api.get(`/products/${slug}`, { signal })
     return response;
 }
+
+export const getProductReviews = async (slug, params = {}, signal) => {
+  const response = await api.get(`/products/${slug}/reviews`, { params, signal });
+  return response;
+};
 
 export const deleteProduct = async (id)=>{
   const token = localStorage.getItem('User_Data_token')
@@ -72,8 +107,10 @@ export const getProductsAsAdmin = async ()=>{
 }
 
 
-export const createMyOrder = async (formData)=>{
-  const response = await api.post(`/orders/create/`,formData)
+export const createMyOrder = async (formData, idempotencyKey)=>{
+  const response = await api.post(`/orders/create/`, formData, {
+    headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
+  })
   return response;
 }
 
@@ -127,6 +164,10 @@ export const storeEmail = async (email)=>{
   const response = await api.post(`/emails/create`,{email})
   return response;
 }
+
+export const submitContactMessage = async (payload) => {
+  return api.post('/contact', payload);
+};
 
 export const getSubEmails = async ()=>{
   const response = await api.get(`/emails/get-emails`,{

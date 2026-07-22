@@ -6,7 +6,7 @@ import { storeEmail } from "../api/api";
 import { createWhatsAppLink, SITE_CONFIG } from "../config/site";
 
 const FOOTER_GROUPS = [
-  { title: "shop", links: [["men", "/store/products?category=Men"], ["women", "/store/products?category=Women"], ["collections", "/store/products"], ["bestSellers", "/store/products?sort=best-sellers"], ["all", "/store/products"]] },
+  { title: "shop", links: [["men", "/store/products?category=Men"], ["women", "/store/products?category=Women"], ["collections", "/store/products"], ["bestSellers", "/#best-sellers"], ["all", "/store/products"]] },
   { title: "help", links: [["shipping", "/shipping-info"], ["payment", "/help-center"], ["returns", "/returns-policy"], ["faq", "/help-center"]] },
   { title: "about", links: [["story", "/about"], ["commitments", "/discover"], ["contact", "/contact-us"]] },
 ];

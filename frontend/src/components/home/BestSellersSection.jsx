@@ -11,10 +11,11 @@ function ProductSkeleton() {
   return <div className="min-w-[76vw] animate-pulse snap-start sm:min-w-[310px] lg:min-w-0" aria-hidden="true"><div className="aspect-[4/3] bg-stone-200" /><div className="mt-3 h-5 w-2/3 bg-stone-200" /><div className="mt-3 h-4 w-1/3 bg-stone-200" /><div className="mt-4 h-11 bg-stone-200" /></div>;
 }
 
-export default function BestSellersSection({ products, loading, error, onRetry }) {
+export default function BestSellersSection({ products, source, loading, error, onRetry }) {
   const { t } = useTranslation();
   const { addToCard } = useCard();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const hasSalesRanking = source === "sales";
 
   const addToCart = (product) => {
     if (!product?.colors?.length) return;
@@ -37,10 +38,10 @@ export default function BestSellersSection({ products, loading, error, onRetry }
         <div className="flex items-end justify-between gap-5">
           <div>
             <p className="nazra-eyebrow">{t("home.bestSellers.eyebrow")}</p>
-            <h2 id="best-sellers-title" className="nazra-heading">{t("home.bestSellers.title")}</h2>
-            <p className="mt-2 text-sm text-stone-600">{t("home.bestSellers.copy")}</p>
+            <h2 id="best-sellers-title" className="nazra-heading">{t(hasSalesRanking ? "home.bestSellers.title" : "home.bestSellers.selectionTitle")}</h2>
+            <p className="mt-2 text-sm text-stone-600">{t(hasSalesRanking ? "home.bestSellers.copy" : "home.bestSellers.selectionCopy")}</p>
           </div>
-          <Link to="/store/products?sort=best-sellers" className="hidden items-center gap-2 text-xs font-semibold hover:underline sm:flex">{t("home.bestSellers.viewAll")} <ArrowRight size={15} className="rtl:rotate-180" /></Link>
+          <Link to="/store/products" className="hidden items-center gap-2 text-xs font-semibold hover:underline sm:flex">{t("home.bestSellers.viewAll")} <ArrowRight size={15} className="rtl:rotate-180" /></Link>
         </div>
 
         {error ? (
@@ -56,7 +57,7 @@ export default function BestSellersSection({ products, loading, error, onRetry }
             {loading ? Array.from({ length: 4 }, (_, index) => <ProductSkeleton key={index} />) : products.map((product) => <HomeProductCard key={product._id} product={product} inFavorites={isFavorite(product._id)} onFavorite={toggleFavorite} onAdd={addToCart} />)}
           </div>
         )}
-        <Link to="/store/products?sort=best-sellers" className="mt-7 flex items-center justify-center gap-2 text-xs font-semibold hover:underline sm:hidden">{t("home.bestSellers.viewAll")} <ArrowRight size={15} className="rtl:rotate-180" /></Link>
+        <Link to="/store/products" className="mt-7 flex items-center justify-center gap-2 text-xs font-semibold hover:underline sm:hidden">{t("home.bestSellers.viewAll")} <ArrowRight size={15} className="rtl:rotate-180" /></Link>
       </div>
     </section>
   );

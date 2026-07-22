@@ -14,7 +14,7 @@ export default function PromotionBanner() {
   return (
     <section className="nazra-container pb-7">
       <div className="relative isolate min-h-56 overflow-hidden rounded-sm bg-stone-900 sm:min-h-64">
-        <img src="/assets/images/home/promotion-sandstone.webp" alt="Lunettes de soleil NAZRA sur un décor minéral" width="1536" height="768" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+        <img src="/assets/images/home/promotion-sandstone.webp" alt="Lunettes de soleil NAZRA sur un décor minéral" width="1774" height="554" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
         <div className="relative flex min-h-56 max-w-xl flex-col items-start justify-center p-7 text-white sm:min-h-64 sm:p-12">
           <h2 className="font-display text-3xl font-bold uppercase leading-tight sm:text-4xl">{title}</h2>

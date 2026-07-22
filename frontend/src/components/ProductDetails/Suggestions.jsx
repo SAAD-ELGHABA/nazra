@@ -1,6 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Heart, ShoppingCart, Star } from "lucide-react";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCard } from "../../context/CardContext";
 import { useTranslation } from "react-i18next";
@@ -10,7 +8,7 @@ import ProductComponent from "../store/ProductComponent";
 function Suggestions({ products }) {
   const { t } = useTranslation();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
-  const { addToCard, isInCard } = useCard();
+  const { addToCard } = useCard();
 
   const AddItemToCard = (product) => {
     const choosedItem = { ...product, colors: [product.colors[0]], quantiy: 1 };

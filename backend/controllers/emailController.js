@@ -1,32 +1,50 @@
 const Email = require('../models/Email');
 const Order = require('../models/Order');
+const validator = require('validator');
+
+const MAX_EMAIL_LENGTH = 254;
+const SUBSCRIPTION_RESPONSE = {
+  success: true,
+  message: 'Subscription request received'
+};
 
 const storeEmail = async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = typeof req.body?.email === 'string'
+      ? req.body.email.trim().toLowerCase()
+      : '';
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
+    if (
+      !email ||
+      email.length > MAX_EMAIL_LENGTH ||
+      !validator.isEmail(email, {
+        allow_utf8_local_part: false,
+        require_tld: true,
+        ignore_max_length: false
+      })
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
     }
 
-    const existing = await Email.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ success: false, message: "Email already subscribed" });
-    }
+    await Email.updateOne(
+      { email },
+      { $setOnInsert: { email } },
+      { upsert: true }
+    );
 
-    const newEmail = await Email.create({ email });
-
-    res.status(201).json({
-      success: true,
-      message: "Email stored successfully",
-      email: newEmail
-    });
+    return res.status(200).json(SUBSCRIPTION_RESPONSE);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
+    if (err?.code === 11000) {
+      return res.status(200).json(SUBSCRIPTION_RESPONSE);
+    }
+
+    console.error('Newsletter subscription persistence failed');
+    return res.status(500).json({
       success: false,
-      message: "Server error while storing email",
-      error: err.message
+      message: 'Unable to process subscription request'
     });
   }
 };

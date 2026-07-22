@@ -13,6 +13,7 @@ import { getHomepageProducts } from "../api/api";
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
+  const [selectionSource, setSelectionSource] = useState("recent");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -24,6 +25,7 @@ const HomePage = () => {
       const payload = response?.data;
       const list = Array.isArray(payload) ? payload : payload?.products;
       setProducts(Array.isArray(list) ? list.slice(0, 4) : []);
+      setSelectionSource(payload?.meta?.source === "sales" ? "sales" : "recent");
     } catch {
       setError(true);
       setProducts([]);
@@ -42,7 +44,7 @@ const HomePage = () => {
     <>
       <HeroSection />
       <TrustBenefits />
-      <BestSellersSection products={products} loading={loading} error={error} onRetry={loadProducts} />
+      <BestSellersSection products={products} source={selectionSource} loading={loading} error={error} onRetry={loadProducts} />
       <SocialProofStrip />
       <PromotionBanner />
       <UserGeneratedContent />

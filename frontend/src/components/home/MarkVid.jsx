@@ -1,9 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ShieldCheck, Truck, CreditCard, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 function MarkVid() {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (
+      customElements.get("model-viewer") ||
+      document.querySelector("script[data-nazra-model-viewer]")
+    ) {
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.type = "module";
+    script.src = "https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js";
+    script.dataset.nazraModelViewer = "true";
+    document.head.appendChild(script);
+  }, []);
 
   const features = [
     {

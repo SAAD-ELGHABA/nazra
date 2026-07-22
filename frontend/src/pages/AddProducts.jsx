@@ -1,8 +1,38 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { toast } from 'sonner'
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { DASHBOARDPRODUCTS } from "../constant/routerConstants";
 
+const EMPTY_DESCRIPTION = { en: "", fr: "", ar: "" };
+const MAX_COLOR_VARIANTS = 50;
+const MAX_IMAGES_PER_VARIANT = 20;
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+
+const createEmptyProductData = () => ({
+  name: "",
+  original_price: "",
+  sale_price: "",
+  type: "",
+  category: "",
+  gender: "",
+  collection: "",
+  frameShape: "",
+  compareAtPrice: "",
+  uv400: false,
+  polarized: false,
+  badges: "",
+  stockStatus: "in_stock",
+  inStock: true,
+  sortPriority: "0",
+  references: "",
+  description: { ...EMPTY_DESCRIPTION },
+  colors: [],
+});
+
+const inputClassName =
+  "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border";
 
 
 const AddProducts = () => {
@@ -10,23 +40,13 @@ const AddProducts = () => {
   const cloud_name = "dpzzuubck";
   const token = localStorage.getItem("User_Data_token");
   const location = useLocation();
+  const navigate = useNavigate();
   const product = location.state?.product;
 
   const [isUploading, setIsUploading] = useState(false);
-  const [productData, setProductData] = useState({
-    name: "",
-    original_price: "",
-    sale_price: "",
-    type: "",
-    category: "",
-    references: "",
-    description: {
-      en: "",
-      fr: "",
-      ar: "",
-    },
-    colors: [],
-  });
+  const [formError, setFormError] = useState("");
+  const errorSummaryRef = useRef(null);
+  const [productData, setProductData] = useState(createEmptyProductData);
 
   const [newColor, setNewColor] = useState({
     name: "",
@@ -39,18 +59,40 @@ const AddProducts = () => {
     if (product) {
       setProductData({
         name: product.name || "",
-        original_price: product.original_price || "",
-        sale_price: product.sale_price || "",
+        original_price: product.original_price ?? "",
+        sale_price: product.sale_price ?? "",
         type: product.type || "",
         category: product.category || "",
+        gender: product.gender || "",
+        collection: product.collection || "",
+        frameShape: product.frameShape || "",
+        compareAtPrice: product.compareAtPrice ?? "",
+        uv400: product.uv400 === true,
+        polarized: product.polarized === true,
+        badges: Array.isArray(product.badges) ? product.badges.join(", ") : "",
+        stockStatus:
+          product.stockStatus ||
+          (product.inStock === false ? "out_of_stock" : "in_stock"),
+        inStock:
+          product.inStock === undefined
+            ? product.stockStatus !== "out_of_stock"
+            : product.inStock !== false,
+        sortPriority: product.sortPriority ?? "0",
         references: product.references || "",
-        description: product.description || "",
+        description: {
+          ...EMPTY_DESCRIPTION,
+          ...(product.description && typeof product.description === "object"
+            ? product.description
+            : {}),
+        },
         colors:
           product.colors?.map((c) => ({
+            ...(c._id ? { _id: c._id } : {}),
             name: c.name,
             value: c.value,
             images:
               c.images?.map((img) => ({
+                ...(img._id ? { _id: img._id } : {}),
                 url: img.url,
                 public_id: img.public_id,
               })) || [],
@@ -60,8 +102,27 @@ const AddProducts = () => {
   }, [product]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProductData((prev) => ({ ...prev, [name]: value }));
+    const { checked, name, type, value } = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+      ...(name === "stockStatus" ? { inStock: value !== "out_of_stock" } : {}),
+      ...(name === "inStock"
+        ? {
+            stockStatus: checked
+              ? prev.stockStatus === "out_of_stock"
+                ? "in_stock"
+                : prev.stockStatus
+              : "out_of_stock",
+          }
+        : {}),
+    }));
+    if (formError) setFormError("");
+  };
+
+  const showFormError = (message) => {
+    setFormError(message);
+    window.requestAnimationFrame(() => errorSummaryRef.current?.focus());
   };
 
   const handleColorInputChange = (e) => {
@@ -70,12 +131,26 @@ const AddProducts = () => {
   };
 
   const addColorVariant = () => {
-    if (newColor.name.trim() === "") return;
+    const name = newColor.name.trim();
+    const value = newColor.value.trim();
+    if (!name) {
+      showFormError("Please enter a color name.");
+      return;
+    }
+    if (name.length > 100 || !value || value.length > 100) {
+      showFormError("Color names and values must contain between 1 and 100 characters.");
+      return;
+    }
+    if (productData.colors.length >= MAX_COLOR_VARIANTS) {
+      showFormError(`A product can have at most ${MAX_COLOR_VARIANTS} color variants.`);
+      return;
+    }
     setProductData((prev) => ({
       ...prev,
-      colors: [...prev.colors, { ...newColor }],
+      colors: [...prev.colors, { ...newColor, name, value }],
     }));
     setNewColor({ name: "", value: "#000000", images: [] });
+    if (formError) setFormError("");
   };
 
   const removeColorVariant = (index) => {
@@ -86,13 +161,36 @@ const AddProducts = () => {
   };
 
   const handleImageUpload = (colorIndex, files) => {
-    const updatedColors = [...productData.colors];
     const newImages = Array.from(files);
-    updatedColors[colorIndex].images = [
-      ...updatedColors[colorIndex].images,
-      ...newImages,
-    ];
-    setProductData((prev) => ({ ...prev, colors: updatedColors }));
+    if (!newImages.length) return;
+
+    const currentImages = productData.colors[colorIndex]?.images || [];
+    if (currentImages.length + newImages.length > MAX_IMAGES_PER_VARIANT) {
+      showFormError(`Each color variant can contain at most ${MAX_IMAGES_PER_VARIANT} images.`);
+      return;
+    }
+
+    const invalidType = newImages.find((file) => !ALLOWED_IMAGE_TYPES.includes(file.type));
+    if (invalidType) {
+      showFormError(`${invalidType.name} is not a supported image. Use JPEG, PNG, WebP, GIF, or AVIF.`);
+      return;
+    }
+
+    const invalidSize = newImages.find((file) => file.size <= 0 || file.size > MAX_IMAGE_SIZE_BYTES);
+    if (invalidSize) {
+      showFormError(`${invalidSize.name} must be larger than 0 bytes and no more than 10 MB.`);
+      return;
+    }
+
+    setProductData((prev) => ({
+      ...prev,
+      colors: prev.colors.map((color, index) =>
+        index === colorIndex
+          ? { ...color, images: [...color.images, ...newImages] }
+          : color
+      ),
+    }));
+    if (formError) setFormError("");
   };
 
   const removeImage = (colorIndex, imageIndex) => {
@@ -105,6 +203,7 @@ const AddProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
 
     // Basic validation
     if (
@@ -114,20 +213,96 @@ const AddProducts = () => {
       !productData.type ||
       !productData.category
     ) {
-      alert("Please fill in all required fields");
+      showFormError("Please fill in all required fields.");
+      return;
+    }
+
+    const originalPrice = Number(productData.original_price);
+    const salePrice = Number(productData.sale_price);
+    const compareAtPrice =
+      productData.compareAtPrice === ""
+        ? null
+        : Number(productData.compareAtPrice);
+    const sortPriority = Number(productData.sortPriority);
+
+    if (!Number.isFinite(originalPrice) || !Number.isFinite(salePrice) || originalPrice < 0 || salePrice < 0) {
+      showFormError("Prices must be valid positive numbers or zero.");
+      return;
+    }
+
+    if (
+      compareAtPrice !== null &&
+      (!Number.isFinite(compareAtPrice) || compareAtPrice < 0)
+    ) {
+      showFormError("Compare-at price must be a positive number or zero.");
+      return;
+    }
+
+    if (
+      !Number.isSafeInteger(sortPriority) ||
+      sortPriority < -100000 ||
+      sortPriority > 100000
+    ) {
+      showFormError(
+        "Sort priority must be a whole number between -100000 and 100000."
+      );
+      return;
+    }
+
+    const badges = productData.badges
+      .split(",")
+      .map((badge) => badge.trim())
+      .filter(Boolean);
+
+    if (badges.length > 20 || badges.some((badge) => badge.length > 50)) {
+      showFormError(
+        "Use no more than 20 badges, with a maximum of 50 characters each."
+      );
       return;
     }
 
     if (productData.colors.length === 0) {
-      alert("Please add at least one color variant");
+      showFormError("Please add at least one color variant.");
       return;
     }
 
-    const colorsWithoutImages = productData.colors.filter(
-      (color) => color.images.length === 0
+    if (productData.colors.length > MAX_COLOR_VARIANTS) {
+      showFormError(`A product can have at most ${MAX_COLOR_VARIANTS} color variants.`);
+      return;
+    }
+
+    const invalidVariant = productData.colors.find(
+      (color) => !color.name?.trim() || !color.value?.trim() || color.name.trim().length > 100 || color.value.trim().length > 100
     );
+    if (invalidVariant) {
+      showFormError("Every color variant needs a name and value of at most 100 characters.");
+      return;
+    }
+
+    const colorsWithoutImages = productData.colors.filter((color) => color.images.length === 0);
     if (colorsWithoutImages.length > 0) {
-      alert("Please add at least one image for each color variant");
+      showFormError("Please add at least one image for each color variant.");
+      return;
+    }
+
+    if (productData.colors.some((color) => color.images.length > MAX_IMAGES_PER_VARIANT)) {
+      showFormError(`Each color variant can contain at most ${MAX_IMAGES_PER_VARIANT} images.`);
+      return;
+    }
+
+    const pendingImages = productData.colors.flatMap((color) =>
+      color.images.filter((image) => typeof File !== "undefined" && image instanceof File)
+    );
+    const invalidStoredImage = productData.colors
+      .flatMap((color) => color.images)
+      .find((image) =>
+        !(typeof File !== "undefined" && image instanceof File) &&
+        (!image?.url || !image?.public_id)
+      );
+    const invalidPendingType = pendingImages.find((file) => !ALLOWED_IMAGE_TYPES.includes(file.type));
+    const invalidPendingSize = pendingImages.find((file) => file.size <= 0 || file.size > MAX_IMAGE_SIZE_BYTES);
+    if (invalidStoredImage || invalidPendingType || invalidPendingSize) {
+      showFormError("One or more images are invalid. Use a supported image format up to 10 MB.");
       return;
     }
 
@@ -159,14 +334,23 @@ const AddProducts = () => {
           );
 
           return {
-            name: color.name,
-            value: color.value,
+            ...(color._id ? { _id: color._id } : {}),
+            name: color.name.trim(),
+            value: color.value.trim(),
             images: uploadedImages,
           };
         })
       );
 
-      const productDataToSend = { ...productData, colors: updatedColors };
+      const productDataToSend = {
+        ...productData,
+        original_price: originalPrice,
+        sale_price: salePrice,
+        compareAtPrice,
+        sortPriority,
+        badges,
+        colors: updatedColors,
+      };
 
       let response;
       if (product?._id) {
@@ -194,23 +378,17 @@ const AddProducts = () => {
         
         // Reset form only if adding new product
         if (!product) {
-          setProductData({
-            name: "",
-            original_price: "",
-            sale_price: "",
-            type: "",
-            category: "",
-            references: "",
-            description: "",
-            colors: [],
-          });
+          setProductData(createEmptyProductData());
         }
       } else {
         toast.error("Error while saving product");
       }
     } catch (err) {
       console.error("Error submitting product:", err);
-      toast.error(err.response?.data?.message || "Error submitting product");
+      const message =
+        err.response?.data?.message || "Error submitting product";
+      showFormError(message);
+      toast.error(message);
     } finally {
       setIsUploading(false);
     }
@@ -221,7 +399,11 @@ const AddProducts = () => {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white shadow rounded-lg overflow-hidden relative">
           {isUploading && (
-            <div className="absolute inset-0 bg-white bg-opacity-70 z-10 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-white bg-opacity-70 z-10 flex items-center justify-center"
+              role="status"
+              aria-live="polite"
+            >
               <div className="loader border-4 border-blue-400 border-dashed w-12 h-12 rounded-full animate-spin"></div>
               <span className="ml-4 text-blue-600 font-medium">
                 Uploading...
@@ -239,58 +421,99 @@ const AddProducts = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6">
+          <form
+            onSubmit={handleSubmit}
+            className="px-4 py-5 sm:p-6"
+            aria-busy={isUploading}
+          >
+            {formError && (
+              <div
+                ref={errorSummaryRef}
+                id="product-form-error"
+                role="alert"
+                tabIndex={-1}
+                className="mb-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                {formError}
+              </div>
+            )}
+
             {/* Basic Info */}
             <div className="grid grid-cols-1 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name
+                <label
+                  htmlFor="product-name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Product Name <span aria-hidden="true">*</span>
                 </label>
                 <input
+                  id="product-name"
                   type="text"
                   name="name"
                   value={productData.name}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                  maxLength={100}
+                  required
+                  className={inputClassName}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Original Price ($)
+                  <label
+                    htmlFor="original-price"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Original Price (DH) <span aria-hidden="true">*</span>
                   </label>
                   <input
+                    id="original-price"
                     type="number"
                     name="original_price"
                     value={productData.original_price}
                     onChange={handleInputChange}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                    min="0"
+                    step="0.01"
+                    required
+                    className={inputClassName}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Sale Price ($)
+                  <label
+                    htmlFor="sale-price"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Sale Price (DH) <span aria-hidden="true">*</span>
                   </label>
                   <input
+                    id="sale-price"
                     type="number"
                     name="sale_price"
                     value={productData.sale_price}
                     onChange={handleInputChange}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                    min="0"
+                    step="0.01"
+                    required
+                    className={inputClassName}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type
+                <label
+                  htmlFor="product-type"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Type <span aria-hidden="true">*</span>
                 </label>
                 <select
+                  id="product-type"
                   name="type"
                   value={productData.type}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                  required
+                  className={inputClassName}
                 >
                   <option value="">Select a type</option>
                   <option value="Aviator">Aviator</option>
@@ -312,22 +535,224 @@ const AddProducts = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                <label
+                  htmlFor="product-category"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Category <span aria-hidden="true">*</span>
                 </label>
                 <select
+                  id="product-category"
                   name="category"
                   value={productData.category}
                   onChange={handleInputChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                  required
+                  className={inputClassName}
                 >
                   <option value="">Select a category</option>
                   <option value="Men">Men</option>
                   <option value="Women">Women</option>
-                  <option value="Women">Mix</option>
+                  <option value="Mix">Mix</option>
                   <option value="Optical">Optical</option>
                 </select>
               </div>
+
+              <fieldset className="rounded-lg border border-gray-200 p-4">
+                <legend className="px-1 text-sm font-semibold text-gray-900">
+                  Store information
+                </legend>
+                <p className="mb-4 text-sm text-gray-500">
+                  These attributes power Store filters, merchandising, and
+                  availability.
+                </p>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="product-gender"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Gender
+                    </label>
+                    <select
+                      id="product-gender"
+                      name="gender"
+                      value={productData.gender}
+                      onChange={handleInputChange}
+                      className={inputClassName}
+                    >
+                      <option value="">Use category fallback</option>
+                      {productData.gender &&
+                        !["Men", "Women", "Mix"].includes(productData.gender) && (
+                          <option value={productData.gender}>
+                            {productData.gender}
+                          </option>
+                        )}
+                      <option value="Men">Men</option>
+                      <option value="Women">Women</option>
+                      <option value="Mix">Mix</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="product-collection"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Collection
+                    </label>
+                    <input
+                      id="product-collection"
+                      type="text"
+                      name="collection"
+                      value={productData.collection}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="e.g. Atlas"
+                      className={inputClassName}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="frame-shape"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Frame shape
+                    </label>
+                    <input
+                      id="frame-shape"
+                      type="text"
+                      name="frameShape"
+                      value={productData.frameShape}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="e.g. Round"
+                      className={inputClassName}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="compare-at-price"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Compare-at price (DH)
+                    </label>
+                    <input
+                      id="compare-at-price"
+                      type="number"
+                      name="compareAtPrice"
+                      value={productData.compareAtPrice}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="0.01"
+                      placeholder="Optional"
+                      className={inputClassName}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="stock-status"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Stock status
+                    </label>
+                    <select
+                      id="stock-status"
+                      name="stockStatus"
+                      value={productData.stockStatus}
+                      onChange={handleInputChange}
+                      className={inputClassName}
+                    >
+                      <option value="in_stock">In stock</option>
+                      <option value="low_stock">Low stock</option>
+                      <option value="out_of_stock">Out of stock</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="sort-priority"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Sort priority
+                    </label>
+                    <input
+                      id="sort-priority"
+                      type="number"
+                      name="sortPriority"
+                      value={productData.sortPriority}
+                      onChange={handleInputChange}
+                      min="-100000"
+                      max="100000"
+                      step="1"
+                      aria-describedby="sort-priority-help"
+                      className={inputClassName}
+                    />
+                    <p id="sort-priority-help" className="mt-1 text-xs text-gray-500">
+                      Higher values are promoted first when the Store uses priority.
+                    </p>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="product-badges"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Badges
+                    </label>
+                    <input
+                      id="product-badges"
+                      type="text"
+                      name="badges"
+                      value={productData.badges}
+                      onChange={handleInputChange}
+                      aria-describedby="product-badges-help"
+                      placeholder="New, Best Seller"
+                      className={inputClassName}
+                    />
+                    <p id="product-badges-help" className="mt-1 text-xs text-gray-500">
+                      Separate up to 20 badges with commas; each badge may contain
+                      up to 50 characters.
+                    </p>
+                  </div>
+
+                  <div className="sm:col-span-2 flex flex-wrap gap-x-6 gap-y-3">
+                    <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        name="uv400"
+                        checked={productData.uv400}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 rounded border-gray-300 text-black focus:ring-blue-500"
+                      />
+                      UV400 protection
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        name="polarized"
+                        checked={productData.polarized}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 rounded border-gray-300 text-black focus:ring-blue-500"
+                      />
+                      Polarized lenses
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        name="inStock"
+                        checked={productData.inStock}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 rounded border-gray-300 text-black focus:ring-blue-500"
+                      />
+                      Available for purchase
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -434,7 +859,7 @@ const AddProducts = () => {
                 <div className="space-y-4">
                   {productData.colors.map((color, colorIndex) => (
                     <div
-                      key={colorIndex}
+                      key={color._id || `${color.name}-${colorIndex}`}
                       className="border rounded-lg p-4 bg-white"
                     >
                       <div className="flex justify-between items-center mb-3">
@@ -456,6 +881,7 @@ const AddProducts = () => {
 
                       <input
                         type="file"
+                        accept={ALLOWED_IMAGE_TYPES.join(",")}
                         multiple
                         onChange={(e) =>
                           handleImageUpload(colorIndex, e.target.files)
@@ -493,7 +919,9 @@ const AddProducts = () => {
             <div className="flex justify-end space-x-3 mt-8">
               <button
                 type="button"
+                onClick={() => navigate(DASHBOARDPRODUCTS)}
                 className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-normal text-gray-700 hover:bg-gray-50"
+                disabled={isUploading}
               >
                 Cancel
               </button>

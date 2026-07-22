@@ -8,6 +8,7 @@ const app = express();
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.API_URL,
+  "https://nazra.store",
   "https://www.nazra.store",
   "https://nazra-eta.vercel.app",
   "http://localhost:3000",
@@ -21,6 +22,9 @@ app.use(cors({
 }));
 
 app.set("trust proxy", true);
+
+// Mounted before the broad legacy parsers so contact requests keep a strict body limit.
+app.use('/api/contact', require('../routes/contactRoutes'));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
