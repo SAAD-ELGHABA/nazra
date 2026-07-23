@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DASHBOARDPRODUCTSNEW } from "../constant/routerConstants";
+import { formatMAD } from "../utils/adminFormatting";
 
 const DashboardProducts = () => {
   const [products, setProducts] = useState([]);
@@ -49,16 +50,19 @@ const DashboardProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
+  const [error, setError] = useState("");
+  const [archiving, setArchiving] = useState(false);
   const navigate = useNavigate();
 
   const getAllProducts = async () => {
     try {
       setLoading(true);
+      setError("");
       const res = await getProductsAsAdmin();
       setProducts(res?.data?.products || []);
       setFilteredProducts(res?.data?.products || []);
     } catch (error) {
-      console.error(error);
+      setError(error?.response?.data?.message || "Products could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -96,24 +100,20 @@ const DashboardProducts = () => {
 
   const confirmDelete = async () => {
     try {
+      setArchiving(true);
       await deleteProduct(deleteDialog.product?._id);
       await getAllProducts();
       setDeleteDialog({ open: false, product: null });
     } catch (error) {
-      alert(error.message || "Failed to delete product");
+      setError(error?.response?.data?.message || error.message || "Failed to archive product");
       setDeleteDialog({ open: false, product: null });
+    } finally {
+      setArchiving(false);
     }
   };
 
   const getProductImage = (product) => {
     return product?.colors?.[0]?.images?.[0]?.url || "/api/placeholder/40/40";
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount || 0);
   };
 
   // Function to truncate product name
@@ -176,6 +176,15 @@ const DashboardProducts = () => {
           </Link>
         </Button>
       </div>
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p className="font-medium">Unable to load products</p>
+          <p className="mt-1">{error}</p>
+          <button type="button" onClick={getAllProducts} className="mt-3 rounded bg-red-700 px-3 py-2 text-white">
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <Card>
@@ -229,7 +238,7 @@ const DashboardProducts = () => {
         </CardHeader>
         <CardContent className="p-0">
           {filteredProducts.length > 0 ? (
-            <div className="rounded-md border">
+            <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -271,11 +280,11 @@ const DashboardProducts = () => {
                       <TableCell className="text-right">
                         <div className="flex flex-col items-end">
                           <span className="text-sm font-medium">
-                            {formatCurrency(product?.sale_price)}
+                            {formatMAD(product?.sale_price)}
                           </span>
                           {product?.original_price > product?.sale_price && (
                             <span className="text-xs text-muted-foreground line-through">
-                              {formatCurrency(product?.original_price)}
+                              {formatMAD(product?.original_price)}
                             </span>
                           )}
                         </div>
@@ -331,26 +340,30 @@ const DashboardProducts = () => {
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() =>
-                              navigate(DASHBOARDPRODUCTSNEW, {
-                                state: { product },
-                              })
-                            }
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            onClick={() => handleDelete(product)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
+                          {product?.canEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() =>
+                                navigate(`/admins/dashboard/products/${product?._id}/edit`)
+                              }
+                              aria-label={`Edit ${product?.name}`}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {product?.canArchive && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              onClick={() => handleDelete(product)}
+                              aria-label={`Archive ${product?.name}`}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -382,20 +395,20 @@ const DashboardProducts = () => {
       <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ open, product: null })}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Archive product?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the product "{deleteDialog.product?.name}" 
-              with reference ID <strong>{deleteDialog.product?.references}</strong>. 
-              This action cannot be undone.
+              This will deactivate "{deleteDialog.product?.name}" and remove it from the storefront.
+              Historical orders will keep their saved product snapshots and totals.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
+              disabled={archiving}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete Product
+              {archiving ? "Archiving..." : "Archive Product"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

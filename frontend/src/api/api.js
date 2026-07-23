@@ -57,6 +57,9 @@ export const resetPasswordWithCode = async (payload) => {
   return api.post("/auth/reset-password", payload);
 };
 
+export const getCurrentAdmin = async () => {
+  return api.get("/auth/me", getBearerConfig());
+};
 
 //admins
 export const getAdmins = async() => {
@@ -137,25 +140,27 @@ export const getProductReviews = async (slug, params = {}, signal) => {
 };
 
 export const deleteProduct = async (id)=>{
-  const token = localStorage.getItem('User_Data_token')
-    const response = await api.delete(`/products/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.delete(`/products/${id}`, getBearerConfig());
     return response;
 }
 
 export const getProductsAsAdmin = async ()=>{
-    const token = localStorage.getItem('User_Data_token')
-    const response = await api.get('/products/admin/all', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await api.get('/products/admin/all', getBearerConfig())
     return response;
 }
 
+export const getAdminProduct = async (id) => {
+  const response = await api.get(`/products/admin/${id}`, getBearerConfig());
+  return response;
+};
+
+export const createAdminProduct = async (payload) => {
+  return api.post('/products/create', payload, getBearerConfig());
+};
+
+export const updateAdminProduct = async (id, payload) => {
+  return api.put(`/products/${id}`, payload, getBearerConfig());
+};
 
 export const createMyOrder = async (formData, idempotencyKey)=>{
   const response = await api.post(`/orders/create/`, formData, {
@@ -166,33 +171,18 @@ export const createMyOrder = async (formData, idempotencyKey)=>{
 
 
 export const getOrders = async()=>{
-   const token = localStorage.getItem('User_Data_token')
-    const response = await api.get('/orders', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await api.get('/orders', getBearerConfig())
     return response;
 }
 
 
 export const updateOrderStatus = async (orderId,status)=>{
-     const token = localStorage.getItem('User_Data_token')
-    const response = await api.post(`/orders/update-order-status/${orderId}`,{status}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await api.post(`/orders/update-order-status/${orderId}`,{status}, getBearerConfig())
     return response;
 }
 
 export const getVisitors = async ()=>{
-     const token = localStorage.getItem('User_Data_token')
-    const response = await api.get(`/visitors/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const response = await api.get(`/visitors/`, getBearerConfig())
     return response;
 }
 
@@ -220,38 +210,22 @@ export const submitContactMessage = async (payload) => {
 };
 
 export const getSubEmails = async ()=>{
-  const response = await api.get(`/emails/get-emails`,{
-    headers:{
-      Authorization:`Bearer ${localStorage.getItem('User_Data_token')}`
-    }
-  })
+  const response = await api.get(`/emails/get-emails`, getBearerConfig())
   return response;
 }
 
 export const createBlogArticle = async (formData)=>{
-  const response = await api.post("/blog/create",formData,{
-    headers:{
-      Authorization:`Bearer ${localStorage.getItem("User_Data_token")}`
-    }
-  })
+  const response = await api.post("/blog/create", formData, getBearerConfig())
   return response;
 }
 
 export const deleteBlog = async (id)=>{
-  const response = await api.post(`/blog/delete/${id}`,{},{
-    headers:{
-      Authorization:`Bearer ${localStorage.getItem("User_Data_token")}`
-    }
-  })
+  const response = await api.delete(`/blog/delete/${id}`, getBearerConfig())
   return response;
 }
 
 export const updateBlogArticle = async (id,formData)=>{
-  const response = await api.post(`/blog/update/${id}`,formData,{
-    headers:{
-      Authorization:`Bearer ${localStorage.getItem("User_Data_token")}`
-    }
-  })
+  const response = await api.post(`/blog/update/${id}`, formData, getBearerConfig())
   return response;
 }
 

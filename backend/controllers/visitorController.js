@@ -27,12 +27,11 @@ const ToggleVisitor = async (req, res) => {
       message: "Visit recorded successfully",
       visitor,
     });
-  } catch (err) {
-    console.error("Error recording visit:", err);
+  } catch (_err) {
+    console.error("Visitor tracking failed");
     res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: err.message,
     });
   }
 };
@@ -45,12 +44,12 @@ const getVisitors = async (req, res) => {
       status: "success",
       views: views
     });
-  } catch (err) {
-    console.error(err);
+  } catch (_err) {
+    console.error("Visitor list request failed");
     return res.status(500).json({
+      success: false,
       status: "error",
-      message: "Failed to fetch visitors",
-      error: err.message
+      message: "Failed to fetch visitors"
     });
   }
 };

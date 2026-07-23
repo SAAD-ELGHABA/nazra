@@ -1,33 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { getBlogs } from '../api/api';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { Edit, Trash2 } from "lucide-react";
-function Blog({isAdmin=false , setBlog,onDelete}) {
+function Blog({isAdmin=false , setBlog,onDelete, refreshKey = 0}) {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const getBlogArticles = async (pageNumber = 1) => {
+  const getBlogArticles = useCallback(async (pageNumber = 1) => {
     try {
       setLoading(true);
+      setError("");
       const response = await getBlogs(pageNumber); 
-      if (response?.data?.blogs?.length) {
-        setBlogs(response?.data?.blogs);
-        setHasMore(response.page < response.totalPages);
+      const nextBlogs = response?.data?.data || response?.data?.blogs || [];
+      const meta = response?.data?.meta || response?.data || {};
+      if (nextBlogs.length) {
+        setBlogs((previous) => pageNumber === 1 ? nextBlogs : [...previous, ...nextBlogs]);
+        setHasMore(Number(meta.page) < Number(meta.totalPages));
       } else {
+        if (pageNumber === 1) setBlogs([]);
         setHasMore(false);
       }
     } catch (error) {
-      console.log(error);
+      setError(error?.response?.data?.message || "Blog articles could not be loaded.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    setBlogs([]);
+    setHasMore(true);
+    setPage((currentPage) => {
+      if (currentPage === 1) getBlogArticles(1);
+      return 1;
+    });
+  }, [refreshKey, getBlogArticles]);
 
   useEffect(() => {
     getBlogArticles(page);
-  }, []);
+  }, [page, getBlogArticles]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,15 +63,23 @@ function Blog({isAdmin=false , setBlog,onDelete}) {
         <div className='md:text-3xl font-semibold'>
             Blog
         </div>
+      {error && (
+        <div className="my-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p>{error}</p>
+          <button type="button" onClick={() => getBlogArticles(1)} className="mt-2 rounded bg-red-700 px-3 py-2 text-white">
+            Retry
+          </button>
+        </div>
+      )}
       {blogs.map((blog) => (
-        <motion.div
+        <Motion.div
           key={blog._id}
           className="bg-white shadow-md rounded-lg mb-6 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {blog.images[0] && (
+          {blog.images?.[0] && (
             <img
               src={blog.images[0].url}
               alt={blog.title}
@@ -74,7 +96,7 @@ function Blog({isAdmin=false , setBlog,onDelete}) {
 
           </div>
           {
-            isAdmin && localStorage.getItem("User_Data_token") &&
+            isAdmin &&
             <div className="flex gap-3 my-4">
                 <button
                     onClick={()=>setBlog(blog)}
@@ -93,13 +115,13 @@ function Blog({isAdmin=false , setBlog,onDelete}) {
                 </button>
             </div>
           }
-        </motion.div>
+        </Motion.div>
       ))}
 
       {loading && (
         <div className="flex justify-center space-x-2 mt-6">
           {[...Array(5)].map((_, i) => (
-            <motion.div
+            <Motion.div
               key={i}
               className="w-4 h-4 bg-gray-500 rounded-full"
               animate={{ y: [0, -10, 0] }}

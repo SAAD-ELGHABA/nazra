@@ -24,15 +24,18 @@ function BlogPage() {
   const fileInputRef = useRef(null);
   const [blog, setBlog] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     window.scrollTo({top:0,behavior:"smooth"})
+    setTitle("");
+    setContent("");
+    setImages([]);
+    setSelectedImages([]);
     if (blog) {
       setTitle(blog.title || "");
       setContent(blog.content || "");
-      if (blog.images && blog.images.length > 0) {
-        setImages(blog.images.map((img) => ({ ...img, isExisting: true })));
-      }
+      setImages((blog.images || []).map((img) => ({ ...img, isExisting: true })));
     }
   }, [blog]);
 
@@ -64,6 +67,7 @@ function BlogPage() {
   };
 
 const handleSubmit = async () => {
+  if (isLoading) return;
   if(!title || !content || images?.length === 0){
     toast.info("You Must Fill up some data !!")
     return ;
@@ -100,17 +104,17 @@ const handleSubmit = async () => {
 
     if (response.status >= 200 && response.status < 302) {
       toast.success(response?.data?.message || "Blog saved successfully!");
-      console.log(response);
+      setBlog(response?.data?.blog || null);
+      setRefreshKey((value) => value + 1);
     }
   } catch (error) {
-    console.log(error);
-    toast.error("An error occurred while saving the blog.");
+    toast.error(error?.response?.data?.message || "An error occurred while saving the blog.");
   } finally {
     setIsLoading(false);
   }
 };
 
-const onDelete = async (id, blogs, setBlogs) => {
+const onDelete = async (id) => {
   // Show confirmation toast
   toast(
     (t) => (
@@ -129,10 +133,11 @@ const onDelete = async (id, blogs, setBlogs) => {
               toast.dismiss(t.id); // close toast
               try {
                 const response = await deleteBlog(id);
-                toast.success(response?.data?.message)
+                toast.success(response?.data?.message);
+                if (blog?._id === id) setBlog(null);
+                setRefreshKey((value) => value + 1);
               } catch (error) {
-                console.error("Delete Blog Error:", error);
-                toast.error("Failed to delete the blog.");
+                toast.error(error?.response?.data?.message || "Failed to delete the blog.");
               }
             }}
           >
@@ -156,6 +161,7 @@ const onDelete = async (id, blogs, setBlogs) => {
 
           <button
             onClick={handleSubmit}
+            disabled={isLoading}
             className="flex items-center gap-2 px-5 py-2.5 bg-black text-white font-medium rounded-lg shadow hover:bg-neutral-800 active:scale-95 transition-all duration-150"
           >
             {isLoading ? (
@@ -163,7 +169,7 @@ const onDelete = async (id, blogs, setBlogs) => {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            Publish
+            {blog?._id ? "Update" : "Publish"}
           </button>
         </div>
 
@@ -264,7 +270,7 @@ const onDelete = async (id, blogs, setBlogs) => {
       </div>
 
       <div className="w-full">
-        <Blog isAdmin={true} setBlog={setBlog} onDelete={onDelete}/>
+        <Blog isAdmin={true} setBlog={setBlog} onDelete={onDelete} refreshKey={refreshKey}/>
       </div>
     </div>
   );

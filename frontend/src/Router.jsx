@@ -32,15 +32,79 @@ import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
 import AdminsPage from "./pages/AdminsPage";
 import BlogPage from './Dashboard/BlogPage'
+import Forbidden from "./pages/Forbidden";
 import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
+import { getCurrentAdmin } from "./api/api";
+import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
 
 const ProtectedRoutes = ({ children }) => {
+  const [state, setState] = React.useState({
+    loading: true,
+    currentUser: null,
+    capabilities: [],
+  });
+
+  const refreshCurrentUser = React.useCallback(async () => {
+    const response = await getCurrentAdmin();
+    const user = response?.data?.user;
+    const capabilities = Array.isArray(user?.capabilities) ? user.capabilities : [];
+    setState({ loading: false, currentUser: user, capabilities });
+    return user;
+  }, []);
+
+  React.useEffect(() => {
+    let active = true;
+    if (!hasStoredAuthSession()) {
+      clearAuthStorage();
+      setState((previous) => ({ ...previous, loading: false }));
+      return;
+    }
+
+    getCurrentAdmin()
+      .then((response) => {
+        if (!active) return;
+        const user = response?.data?.user;
+        const capabilities = Array.isArray(user?.capabilities) ? user.capabilities : [];
+        setState({ loading: false, currentUser: user, capabilities });
+      })
+      .catch(() => {
+        if (!active) return;
+        clearAuthStorage();
+        setState({ loading: false, currentUser: null, capabilities: [] });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   if (!hasStoredAuthSession()) {
     clearAuthStorage();
     return <Navigate to={LOGIN} replace={true} />;
   }
-  return children;
+  if (state.loading) {
+    return (
+      <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">
+        Loading admin session...
+      </div>
+    );
+  }
+  if (!state.currentUser) return <Navigate to={LOGIN} replace={true} />;
+
+  const authValue = {
+    currentUser: state.currentUser,
+    capabilities: state.capabilities,
+    hasCapability: (capability) => state.capabilities.includes(capability),
+    refreshCurrentUser,
+  };
+
+  return <AdminAuthProvider value={authValue}>{children}</AdminAuthProvider>;
+};
+
+const CapabilityRoute = ({ capability, children }) => {
+  const { hasCapability } = useAdminAuth();
+  return hasCapability(capability) ? children : <Forbidden />;
 };
 
 export const Router = createBrowserRouter([
@@ -128,7 +192,7 @@ export const Router = createBrowserRouter([
   {
     element: (
       <ProtectedRoutes>
-        <DashboardLayout />,
+        <DashboardLayout />
       </ProtectedRoutes>
     ),
     children: [
@@ -145,12 +209,20 @@ export const Router = createBrowserRouter([
         element: <AddProducts />,
       },
       {
+        path: "/admins/dashboard/products/:id/edit",
+        element: <AddProducts />,
+      },
+      {
         path: DASHBOARDORDERS,
         element: <OrderManagementPage />,
       },
       {
         path: DASHBOARDADMINS,
-        element: <AdminsPage />,
+        element: (
+          <CapabilityRoute capability="admins.manage">
+            <AdminsPage />
+          </CapabilityRoute>
+        ),
       },
       {
         path: DASHBOARDBLOG,

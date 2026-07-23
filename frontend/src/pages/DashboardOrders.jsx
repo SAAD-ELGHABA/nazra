@@ -47,7 +47,10 @@ import {
   Phone,
   Calendar,
   DollarSign,
+  AlertCircle,
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { formatMAD, getOrderTotal, getProductSnapshotName, neutralizeSpreadsheetCell } from "../utils/adminFormatting";
 
 function OrderManagementPage() {
   const [orders, setOrders] = useState([]);
@@ -58,14 +61,17 @@ function OrderManagementPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [cancelConfirmation, setCancelConfirmation] = useState(null);
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      setError("");
       const response = await getOrders();
       setOrders(response?.data?.orders || []);
     } catch (err) {
-      console.error(err);
+      setError(err?.response?.data?.message || "Orders could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -98,29 +104,44 @@ function OrderManagementPage() {
   };
 
   const startEditing = (orderId, currentStatus) => {
-    setEditingStatus({ orderId, status: currentStatus });
+    const order = orders.find((item) => item._id === orderId);
+    const nextStatus = order?.allowedTransitions?.[0] || currentStatus;
+    setEditingStatus({ orderId, previousStatus: currentStatus, status: nextStatus });
+    setCancelConfirmation(null);
   };
 
   const updateStatus = async (orderId, newStatus) => {
+    if (newStatus === "cancelled" && cancelConfirmation !== orderId) {
+      setCancelConfirmation(orderId);
+      return;
+    }
     setIsUpdating(true);
     try {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
-
-      await updateOrderStatus(orderId, newStatus);
+      const response = await updateOrderStatus(orderId, newStatus);
+      if (response?.data?.order) {
+        setOrders((prev) => prev.map((o) => (o._id === orderId ? response.data.order : o)));
+      }
       await fetchOrders();
     } catch (err) {
-      console.error(err);
       setOrders((prev) =>
         prev.map((o) =>
-          o._id === orderId ? { ...o, status: editingStatus.status } : o
+          o._id === orderId ? { ...o, status: editingStatus.previousStatus } : o
         )
       );
-      alert("Error updating status");
+      const status = err?.response?.status;
+      setError(
+        status === 409
+          ? "Order status changed in another session. The latest order data has been loaded."
+          : err?.response?.data?.message || "Order status could not be updated."
+      );
+      await fetchOrders();
     } finally {
       setIsUpdating(false);
       setEditingStatus(null);
+      setCancelConfirmation(null);
     }
   };
 
@@ -129,10 +150,11 @@ function OrderManagementPage() {
       filterStatus === "all" || order.status === filterStatus;
 
     const matchesSearch =
-      order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.products.some((p) =>
-        p.product?.name.toLowerCase().includes(searchQuery.toLowerCase())
+      order._id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.products?.some((p) =>
+        getProductSnapshotName(p).toLowerCase().includes(searchQuery.toLowerCase())
       );
 
     return matchesStatus && matchesSearch;
@@ -140,22 +162,16 @@ function OrderManagementPage() {
 
   const exportToExcel = () => {
     const dataForExport = filteredOrders.map((order) => ({
-      "Order ID": order._id,
-      Customer: order.fullName,
-      Email: order.email,
-      Phone: order.phone,
-      Address: order.adresse,
+      "Order ID": neutralizeSpreadsheetCell(order._id),
+      Customer: neutralizeSpreadsheetCell(order.fullName),
+      Email: neutralizeSpreadsheetCell(order.email),
+      Phone: neutralizeSpreadsheetCell(order.phone),
+      Address: neutralizeSpreadsheetCell(order.adresse),
       Date: new Date(order.createdAt).toLocaleDateString(),
       Products: order.products
-        .map((p) => `${p.product?.name} (x${p.quantity}, ${p.color || "N/A"})`)
+        .map((p) => neutralizeSpreadsheetCell(`${getProductSnapshotName(p)} (x${p.quantity}, ${p.color || "N/A"})`))
         .join(", "),
-      Amount: order.products
-        ?.reduce(
-          (total, p) =>
-            total + (p.product?.sale_price || 0) * (p.quantity || 1),
-          0
-        )
-        .toFixed(2),
+      Amount: getOrderTotal(order).toFixed(2),
       Status: order.status,
     }));
 
@@ -184,10 +200,7 @@ function OrderManagementPage() {
   };
 
   const getTotalAmount = (order) => {
-    return order.products?.reduce(
-      (total, p) => total + (p.product?.sale_price || 0) * (p.quantity || 1),
-      0
-    );
+    return getOrderTotal(order);
   };
 
   const formatOrderId = (id) => {
@@ -249,6 +262,12 @@ function OrderManagementPage() {
           Export Excel
         </Button>
       </div>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Filters */}
       <Card>
@@ -293,7 +312,13 @@ function OrderManagementPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {filteredOrders.length > 0 ? (
+          {error && orders.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-12 text-muted-foreground">
+              <AlertCircle className="h-12 w-12 opacity-50" />
+              <p className="text-sm font-medium">Unable to load orders</p>
+              <Button type="button" variant="outline" onClick={fetchOrders}>Retry</Button>
+            </div>
+          ) : filteredOrders.length > 0 ? (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
@@ -360,7 +385,7 @@ function OrderManagementPage() {
                             <div className="text-sm text-blue-600 hover:underline line-clamp-2 max-w-[200px]">
                               {order.products.map((p, idx) => (
                                 <span key={idx}>
-                                  {p.product?.name} (x{p.quantity})
+                                  {getProductSnapshotName(p)} (x{p.quantity})
                                   {idx < order.products.length - 1 && ", "}
                                 </span>
                               ))}
@@ -370,7 +395,7 @@ function OrderManagementPage() {
                         <TableCell className="text-right">
                           <div className="flex flex-col items-end">
                             <span className="font-medium">
-                              MAD {getTotalAmount(order).toFixed(2)}
+                              {formatMAD(getTotalAmount(order))}
                             </span>
                             <span className="text-xs text-muted-foreground">
                               {order.products.length} items
@@ -394,13 +419,18 @@ function OrderManagementPage() {
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="pending">Pending</SelectItem>
-                                  <SelectItem value="processing">Processing</SelectItem>
-                                  <SelectItem value="shipped">Shipped</SelectItem>
-                                  <SelectItem value="delivered">Delivered</SelectItem>
-                                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                                  {(order.allowedTransitions || []).map((status) => (
+                                    <SelectItem key={status} value={status}>
+                                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                                    </SelectItem>
+                                  ))}
                                 </SelectContent>
                               </Select>
+                              {cancelConfirmation === order._id && editingStatus.status === "cancelled" && (
+                                <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+                                  Cancelling restores reserved inventory. Press Save again to confirm.
+                                </div>
+                              )}
                               <div className="flex gap-1">
                                 <Button
                                   size="sm"
@@ -432,16 +462,19 @@ function OrderManagementPage() {
                               >
                                 {order.status}
                               </Badge>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() =>
-                                  startEditing(order._id, order.status)
-                                }
-                              >
-                                <Edit className="h-3 w-3" />
-                              </Button>
+                              {(order.allowedTransitions || []).length > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+                                  onClick={() =>
+                                    startEditing(order._id, order.status)
+                                  }
+                                  aria-label="Edit order status"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                              )}
                             </div>
                           )}
                         </TableCell>
@@ -458,11 +491,13 @@ function OrderManagementPage() {
                               >
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => startEditing(order._id, order.status)}
-                              >
-                                Edit Status
-                              </DropdownMenuItem>
+                              {(order.allowedTransitions || []).length > 0 && (
+                                <DropdownMenuItem
+                                  onClick={() => startEditing(order._id, order.status)}
+                                >
+                                  Edit Status
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

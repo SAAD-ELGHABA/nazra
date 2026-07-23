@@ -1,6 +1,9 @@
 const Email = require('../models/Email');
-const Order = require('../models/Order');
 const validator = require('validator');
+const {
+  AuthConfigurationError,
+  consumeFixedWindow,
+} = require("../services/passwordResetService");
 
 const MAX_EMAIL_LENGTH = 254;
 const SUBSCRIPTION_RESPONSE = {
@@ -29,9 +32,34 @@ const storeEmail = async (req, res) => {
       });
     }
 
+    const ip = String(req.ip || req.socket?.remoteAddress || "unknown");
+    const limits = [
+      { scope: "newsletter-ip", identifier: ip, limit: 10, windowMs: 15 * 60 * 1000 },
+      { scope: "newsletter-email", identifier: email, limit: 3, windowMs: 60 * 60 * 1000 },
+    ];
+    for (const limit of limits) {
+      const result = await consumeFixedWindow(limit);
+      if (!result.allowed) {
+        res.set("Retry-After", String(result.retryAfter));
+        return res.status(429).json({
+          success: false,
+          code: "RATE_LIMITED",
+          message: "Too many subscription attempts. Please try again later.",
+          retryAfterSeconds: result.retryAfter,
+        });
+      }
+    }
+
     await Email.updateOne(
       { email },
-      { $setOnInsert: { email } },
+      {
+        $setOnInsert: {
+          email,
+          status: 'active',
+          source: 'newsletter',
+          consentAt: new Date()
+        }
+      },
       { upsert: true }
     );
 
@@ -39,6 +67,12 @@ const storeEmail = async (req, res) => {
   } catch (err) {
     if (err?.code === 11000) {
       return res.status(200).json(SUBSCRIPTION_RESPONSE);
+    }
+    if (err instanceof AuthConfigurationError) {
+      return res.status(503).json({
+        success: false,
+        message: "Subscription service is temporarily unavailable"
+      });
     }
 
     console.error('Newsletter subscription persistence failed');
@@ -52,36 +86,21 @@ const storeEmail = async (req, res) => {
 
 const getSubEmails = async (req,res)=>{
   try {
-    const subscribedEmails = await Email.find({},"email createdAt updatedAt");
-    const orderEmails = await Order.find({}, "email createdAt updatedAt phone");
-    const formattedOrderEmails = orderEmails.map((o) => ({
-      email: o.email,
-      createdAt: o.createdAt,
-      updatedAt: o.updatedAt,
-      phone:o.phone
-    }));
-
-    const allEmails = [...subscribedEmails, ...formattedOrderEmails];
-
-    const uniqueEmailMap = new Map();
-    allEmails.forEach((item) => {
-      if (!uniqueEmailMap.has(item.email)) {
-        uniqueEmailMap.set(item.email, item);
-      }
-    });
-
-    const uniqueEmails = Array.from(uniqueEmailMap.values());
+    const subscribedEmails = await Email.find(
+      {},
+      "_id email status source consentAt unsubscribedAt createdAt updatedAt"
+    ).sort({ createdAt: -1 }).lean();
 
     return res.status(200).json({
-      emails: uniqueEmails,
+      success: true,
+      emails: subscribedEmails,
       message: "success",
     });
   } catch (error) {
-    console.error(error);
+    console.error("Subscriber list request failed");
     res.status(500).json({
       success: false,
-      message: "Server error while storing email",
-      error: error.message
+      message: "Server error while fetching subscribers"
     });
   }
 }

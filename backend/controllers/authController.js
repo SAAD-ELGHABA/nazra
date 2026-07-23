@@ -12,6 +12,7 @@ const {
   ReusedPasswordError
 } = require("../services/passwordResetService");
 const { isEmailConfigured } = require("../utils/sendEmail");
+const { getCapabilitiesForRole } = require("../middleware/requirePermission");
 
 const FORGOT_RESPONSE = "If an account exists for that email, a reset code has been sent.";
 const RATE_LIMIT_RESPONSE = "Too many requests. Please try again later.";
@@ -329,12 +330,27 @@ const listUsers = async (_req, res) => {
   }
 };
 
+const getCurrentUser = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    user: {
+      id: req.user._id.toString(),
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      capabilities: getCapabilitiesForRole(req.user.role)
+    }
+  });
+};
+
 module.exports = {
   loginUser,
   registerUser,
   forgotPassword,
   resetPassword: resetPasswordHandler,
   listUsers,
+  getCurrentUser,
   _test: {
     AuthValidationError,
     parseEmail,
@@ -345,6 +361,7 @@ module.exports = {
     parseResetBody,
     getClientIdentifier,
     generateToken,
+    getCurrentUser,
     waitForForgotResponseFloor,
     JWT_ISSUER,
     JWT_AUDIENCE,

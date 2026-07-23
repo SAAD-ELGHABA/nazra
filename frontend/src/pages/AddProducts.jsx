@@ -1,8 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DASHBOARDPRODUCTS } from "../constant/routerConstants";
+import { createAdminProduct, getAdminProduct, updateAdminProduct } from "../api/api";
 
 const EMPTY_DESCRIPTION = { en: "", fr: "", ar: "" };
 const MAX_COLOR_VARIANTS = 50;
@@ -38,12 +39,16 @@ const inputClassName =
 const AddProducts = () => {
   const parset = "nazra-preset";
   const cloud_name = "dpzzuubck";
-  const token = localStorage.getItem("User_Data_token");
   const location = useLocation();
   const navigate = useNavigate();
-  const product = location.state?.product;
+  const { id: productId } = useParams();
+  const [product, setProduct] = useState(location.state?.product || null);
+  const isEditing = Boolean(productId || product?._id);
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(Boolean(productId));
+  const [loadError, setLoadError] = useState("");
+  const [notFound, setNotFound] = useState(false);
   const [formError, setFormError] = useState("");
   const errorSummaryRef = useRef(null);
   const [productData, setProductData] = useState(createEmptyProductData);
@@ -53,6 +58,32 @@ const AddProducts = () => {
     value: "#000000",
     images: [],
   });
+
+  useEffect(() => {
+    let active = true;
+    if (!productId) return;
+
+    const fetchProduct = async () => {
+      try {
+        setIsLoadingProduct(true);
+        setLoadError("");
+        setNotFound(false);
+        const response = await getAdminProduct(productId);
+        if (active) setProduct(response?.data?.product || null);
+      } catch (error) {
+        if (!active) return;
+        if (error?.response?.status === 404) setNotFound(true);
+        else setLoadError(error?.response?.data?.message || "Product could not be loaded.");
+      } finally {
+        if (active) setIsLoadingProduct(false);
+      }
+    };
+
+    fetchProduct();
+    return () => {
+      active = false;
+    };
+  }, [productId]);
 
   // Prefill form if editing
   useEffect(() => {
@@ -90,16 +121,41 @@ const AddProducts = () => {
             ...(c._id ? { _id: c._id } : {}),
             name: c.name,
             value: c.value,
+            sku: c.sku ?? null,
+            price: c.price ?? null,
+            compareAtPrice: c.compareAtPrice ?? null,
+            stock: c.stock ?? null,
+            active: c.active !== false,
             images:
               c.images?.map((img) => ({
                 ...(img._id ? { _id: img._id } : {}),
                 url: img.url,
                 public_id: img.public_id,
               })) || [],
+            lensOptions:
+              c.lensOptions?.map((lens) => ({
+                ...(lens._id ? { _id: lens._id } : {}),
+                name: lens.name,
+                type: lens.type,
+                category: lens.category ?? null,
+                sku: lens.sku ?? null,
+                price: lens.price ?? null,
+                compareAtPrice: lens.compareAtPrice ?? null,
+                stock: lens.stock ?? null,
+                active: lens.active !== false,
+                images:
+                  lens.images?.map((img) => ({
+                    ...(img._id ? { _id: img._id } : {}),
+                    url: img.url,
+                    public_id: img.public_id,
+                  })) || [],
+              })) || [],
           })) || [],
       });
+    } else if (!productId) {
+      setProductData(createEmptyProductData());
     }
-  }, [product]);
+  }, [product, productId]);
 
   const handleInputChange = (e) => {
     const { checked, name, type, value } = e.target;
@@ -337,7 +393,24 @@ const AddProducts = () => {
             ...(color._id ? { _id: color._id } : {}),
             name: color.name.trim(),
             value: color.value.trim(),
+            sku: color.sku ?? null,
+            price: color.price ?? null,
+            compareAtPrice: color.compareAtPrice ?? null,
+            stock: color.stock ?? null,
+            active: color.active !== false,
             images: uploadedImages,
+            lensOptions: (color.lensOptions || []).map((lens) => ({
+              ...(lens._id ? { _id: lens._id } : {}),
+              name: lens.name,
+              type: lens.type,
+              category: lens.category ?? null,
+              sku: lens.sku ?? null,
+              price: lens.price ?? null,
+              compareAtPrice: lens.compareAtPrice ?? null,
+              stock: lens.stock ?? null,
+              active: lens.active !== false,
+              images: lens.images || [],
+            })),
           };
         })
       );
@@ -355,18 +428,10 @@ const AddProducts = () => {
       let response;
       if (product?._id) {
         // Update existing product
-        response = await axios.put(
-          `${import.meta.env.VITE_API_URL}/products/${product._id}`,
-          productDataToSend,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        response = await updateAdminProduct(product._id, productDataToSend);
       } else {
         // Create new product
-        response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/products/create`,
-          productDataToSend,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        response = await createAdminProduct(productDataToSend);
       }
 
       if (response.data.success) {
@@ -377,14 +442,13 @@ const AddProducts = () => {
         )
         
         // Reset form only if adding new product
-        if (!product) {
+        if (!isEditing) {
           setProductData(createEmptyProductData());
         }
       } else {
         toast.error("Error while saving product");
       }
     } catch (err) {
-      console.error("Error submitting product:", err);
       const message =
         err.response?.data?.message || "Error submitting product";
       showFormError(message);
@@ -393,6 +457,50 @@ const AddProducts = () => {
       setIsUploading(false);
     }
   };
+
+  if (isLoadingProduct) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center text-sm text-gray-500">
+        Loading product...
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center p-6 text-center">
+        <div>
+          <h1 className="text-2xl font-semibold">Product not found</h1>
+          <p className="mt-2 text-sm text-gray-500">This product may have been removed or archived.</p>
+          <button
+            type="button"
+            onClick={() => navigate(DASHBOARDPRODUCTS)}
+            className="mt-4 rounded-md bg-black px-4 py-2 text-white"
+          >
+            Back to products
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center p-6 text-center">
+        <div>
+          <h1 className="text-2xl font-semibold">Unable to load product</h1>
+          <p className="mt-2 text-sm text-gray-500">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-md bg-black px-4 py-2 text-white"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 px-4 sm:px-6 lg:px-8">
@@ -412,10 +520,10 @@ const AddProducts = () => {
           )}
           <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">
-              {product ? "Update Product" : "Add New Sunglass Product"}
+              {isEditing ? "Update Product" : "Add New Sunglass Product"}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {product
+              {isEditing
                 ? "Edit product information."
                 : "Add a new product to your inventory. Each color variant can have its own images."}
             </p>
@@ -930,7 +1038,7 @@ const AddProducts = () => {
                 className="inline-flex justify-center py-2 px-4 border border-transparent hover:border-black shadow-sm text-sm font-normal rounded-md text-white hover:text-black bg-black hover:bg-transparent"
                 disabled={isUploading}
               >
-                {product ? "Update Product" : "Save Product"}
+                {isEditing ? "Update Product" : "Save Product"}
               </button>
             </div>
           </form>

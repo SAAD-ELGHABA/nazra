@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
+const requirePermission = require("../middleware/requirePermission");
 const orderController = require("../controllers/orderController");
 
 const ORDER_RATE_WINDOW_MS = 60 * 1000;
@@ -37,13 +38,13 @@ const orderCreationRateLimit = (req, res, next) => {
 router.post("/create/", orderCreationRateLimit, orderController.createOrder);
 
 // Get all orders
-router.get("/", auth, orderController.getOrders);
+router.get("/", auth, requirePermission("orders.read"), orderController.getOrders);
 
 // Get single order
-router.get("/:id", auth, orderController.getOrderById);
+router.get("/:id", auth, requirePermission("orders.read"), orderController.getOrderById);
 
 // update order's status
-router.post("/update-order-status/:orderId", auth, orderController.updateOrderStatus);
+router.post("/update-order-status/:orderId", auth, requirePermission("orders.manage"), orderController.updateOrderStatus);
 
 router._test = {
   ORDER_RATE_MAX,

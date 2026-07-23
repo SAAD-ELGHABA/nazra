@@ -28,6 +28,7 @@ import {
   User,
   DollarSign,
 } from "lucide-react";
+import { formatMAD, getOrderTotal } from "../utils/adminFormatting";
 
 const RecentOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -46,7 +47,6 @@ const RecentOrders = () => {
         }
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch orders");
-        console.error("Error fetching orders:", err);
       } finally {
         setLoading(false);
       }
@@ -80,23 +80,6 @@ const RecentOrders = () => {
     });
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
-
-  const calculateOrderTotal = (order) => {
-    return order.products?.reduce(
-      (sum, pro) =>
-        sum +
-        pro.quantity *
-          (pro.product?.sale_price || pro.product?.original_price || 0),
-      0
-    ) || 0;
-  };
-
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -115,8 +98,8 @@ const RecentOrders = () => {
         bValue = new Date(b.createdAt || b.date);
         break;
       case "amount":
-        aValue = calculateOrderTotal(a);
-        bValue = calculateOrderTotal(b);
+        aValue = getOrderTotal(a);
+        bValue = getOrderTotal(b);
         break;
       case "customer":
         aValue = a.fullName?.toLowerCase() || "";
@@ -193,7 +176,7 @@ const RecentOrders = () => {
         )}
 
         {/* Orders Table */}
-        {orders.length > 0 ? (
+        {error ? null : orders.length > 0 ? (
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -231,7 +214,7 @@ const RecentOrders = () => {
               </TableHeader>
               <TableBody>
                 {displayedOrders.map((order) => {
-                  const totalAmount = calculateOrderTotal(order);
+                  const totalAmount = getOrderTotal(order);
                   return (
                     <TableRow key={order._id || order.id} className="group">
                       <TableCell className="font-medium">
@@ -253,7 +236,7 @@ const RecentOrders = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        {formatCurrency(totalAmount)}
+                        {formatMAD(totalAmount)}
                       </TableCell>
                       <TableCell>
                         <Badge

@@ -3,6 +3,7 @@ const router = express.Router();
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 const auth = require('../middleware/auth');
+const requirePermission = require('../middleware/requirePermission');
 const ProductView = require("../models/ProductView");
 const {
   CatalogValidationError,
@@ -53,6 +54,11 @@ const parseHomepageLimit = (value) => {
 };
 
 class ProductPayloadValidationError extends Error {}
+
+const canManageProductRecord = (user, product) => {
+  const role = user?.role === 'super-admin' ? 'superadmin' : user?.role;
+  return role === 'superadmin' || String(product.createdBy?._id || product.createdBy) === String(user?.id || user?._id);
+};
 
 const PRODUCT_MUTABLE_FIELDS = new Set([
   'name', 'original_price', 'sale_price', 'type', 'category', 'gender',
@@ -280,7 +286,7 @@ const normalizeProductPayload = (body, { partial = false } = {}) => {
 };
 
 // Create a new product
-router.post('/create', auth, async (req, res) => {
+router.post('/create', auth, requirePermission("products.manage"), async (req, res) => {
   try {
     const payload = normalizeProductPayload(req.body);
     const product = new Product({
@@ -464,18 +470,25 @@ router.get("/products-shortcut", async (req, res) => {
 
 
 // Admin route to get all products
-router.get("/admin/all", auth, async (req, res) => {
+router.get("/admin/all", auth, requirePermission("products.read"), async (req, res) => {
   try {
     const products = await Product.find()
       .populate("createdBy", "name email")
       .sort({ createdAt: -1 });
 
-    const productsWithViews = await Promise.all(
-      products.map(async (product) => {
-        const viewsCount = await ProductView.countDocuments({ productId: product._id });
-        return { ...product.toObject(), views: viewsCount };
-      })
-    );
+    const viewCounts = await ProductView.aggregate([
+      { $group: { _id: "$productId", views: { $sum: 1 } } }
+    ]);
+    const viewsByProductId = new Map(viewCounts.map((entry) => [String(entry._id), entry.views]));
+    const productsWithViews = products.map((product) => {
+      const plainProduct = product.toObject();
+      return {
+        ...plainProduct,
+        views: viewsByProductId.get(String(plainProduct._id)) || 0,
+        canEdit: canManageProductRecord(req.user, plainProduct),
+        canArchive: canManageProductRecord(req.user, plainProduct)
+      };
+    });
 
     res.status(200).json({
       success: true,
@@ -511,6 +524,27 @@ router.get('/:slug/reviews', async (req, res) => {
   }
 });
 
+router.get("/admin/:id", auth, requirePermission("products.read"), async (req, res) => {
+  try {
+    if (!Product.db.base.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid product id' });
+    }
+    const product = await Product.findById(req.params.id).populate("createdBy", "name email").lean();
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    return res.status(200).json({
+      success: true,
+      product: {
+        ...product,
+        canEdit: canManageProductRecord(req.user, product),
+        canArchive: canManageProductRecord(req.user, product)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching admin product:', error);
+    return res.status(500).json({ success: false, message: 'Server error while fetching product' });
+  }
+});
+
 // Sanitized Product Details payload with real review summary and dynamic
 // related products. The legacy `product` wrapper is retained.
 router.get('/:slug', async (req, res) => {
@@ -531,7 +565,7 @@ router.get('/:slug', async (req, res) => {
 
 
 // Update product
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', auth, requirePermission("products.manage"), async (req, res) => {
   try {
     if (!Product.db.base.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ success: false, message: 'Invalid product id' });
@@ -546,7 +580,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     // Check if user owns the product
-    if (product.createdBy.toString() !== req.user.id) {
+    if (!canManageProductRecord(req.user, product)) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update this product'
@@ -582,7 +616,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete product (soft delete)
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', auth, requirePermission("products.manage"), async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
@@ -594,7 +628,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     // Check if user owns the product
-    if (product.createdBy.toString() !== req.user.id) {
+    if (!canManageProductRecord(req.user, product)) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to delete this product'
@@ -608,7 +642,7 @@ router.delete('/:id', auth, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product deleted successfully'
+      message: 'Product archived successfully'
     });
   } catch (error) {
     console.error('Error deleting product:', error);
@@ -622,7 +656,8 @@ router.delete('/:id', auth, async (req, res) => {
 router._test = {
   ProductPayloadValidationError,
   isDuplicateSlugError,
-  normalizeProductPayload
+  normalizeProductPayload,
+  canManageProductRecord
 };
 
 module.exports = router;

@@ -30,6 +30,7 @@ import {
   X,
   Lock
 } from 'lucide-react';
+import { validateEmail, validateNewPassword } from '../utils/auth';
 
 const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
   const [formData, setFormData] = useState({
@@ -59,16 +60,18 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
       newErrors.name = 'Name is required';
     }
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      newErrors.email = emailError;
     }
     
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    const passwordError = validateNewPassword(formData.password);
+    if (passwordError) {
+      newErrors.password = passwordError;
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
     }
     
     setErrors(newErrors);
@@ -82,10 +85,23 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
     
     setLoading(true);
     try {
-      await onCreateAdmin(formData);
+      await onCreateAdmin({
+        ...formData,
+        email: formData.email.trim().toLowerCase(),
+        name: formData.name.trim(),
+      });
       handleClose();
     } catch (error) {
-      setErrors({ submit: error.message });
+      const fieldErrors = error?.response?.data?.errors || {};
+      setErrors({
+        ...Object.fromEntries(
+          Object.entries(fieldErrors).map(([field, value]) => [
+            field,
+            Array.isArray(value) ? value[0] : value,
+          ])
+        ),
+        submit: error?.response?.data?.message || error.message || "Failed to create administrator.",
+      });
     } finally {
       setLoading(false);
     }
@@ -284,7 +300,7 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              Password must be at least 6 characters long
+              Password must contain at least 12 characters and be no more than 72 UTF-8 bytes.
             </p>
           </div>
 

@@ -96,6 +96,61 @@ Une validation incorrecte renvoie HTTP `400` avec `{ success, message, errors }`
 
 Le frontend supprime son stockage d’authentification local après un reset réussi. Les copies résiduelles du JWT sur d’autres navigateurs restent physiquement présentes dans `localStorage`, mais sont rejetées grâce à `authVersion`. `localStorage` reste lisible par tout script exécuté dans l’origine : prévenir les XSS et envisager à terme des cookies `HttpOnly`, `Secure` et `SameSite` pour réduire ce risque.
 
+## Contrats Admin Dashboard Phase 1
+
+Le dashboard admin utilise maintenant l'identité serveur et des permissions explicites.
+
+- `GET /api/auth/me` exige un JWT valide et retourne uniquement une projection sûre de l'admin courant : `id`, `_id`, `name`, `email`, `role` et `capabilities`.
+- Les routes admin sensibles appliquent une permission backend. `admins.manage` reste réservé aux `superadmin`; les autres capacités couvrent dashboard, commandes, produits, blog, analytics et abonnés.
+- Les réponses de commandes incluent `subtotal`, `total`, `currency: "MAD"` et `allowedTransitions`. Les montants historiques viennent seulement de `products[].unitPrice * products[].quantity`.
+- Les nouvelles commandes enregistrent aussi des snapshots de ligne quand ils sont disponibles : `productName`, `productSlug`, `imageUrl` et `currency`.
+- L'annulation d'une commande exige le support des transactions MongoDB, car elle restaure le stock et modifie le statut dans une seule opération sûre. En MongoDB standalone, l'API retourne `503` au lieu de risquer une mise à jour partielle.
+- La liste des abonnés newsletter retourne uniquement les enregistrements `Email` explicites. Les emails clients provenant des commandes ne sont plus mélangés aux abonnés.
+- Le contenu HTML des blogs est nettoyé côté backend à la création et à la mise à jour avec une allowlist stricte. Le détail public utilise le slug; le détail admin utilise l'ID.
+
+Exemple `GET /api/auth/me` :
+
+```json
+{
+  "success": true,
+  "user": {
+    "id": "66f000000000000000000001",
+    "_id": "66f000000000000000000001",
+    "name": "Adil",
+    "email": "admin@example.com",
+    "role": "superadmin",
+    "capabilities": ["dashboard.view", "orders.read", "admins.manage"]
+  }
+}
+```
+
+Capacités par rôle :
+
+| Rôle | Capacités |
+| --- | --- |
+| `admin` | `dashboard.view`, `orders.read`, `orders.manage`, `orders.export`, `products.read`, `products.manage`, `blog.manage`, `analytics.read`, `subscribers.read`, `subscribers.export` |
+| `superadmin` | toutes les capacités `admin` plus `admins.manage` |
+
+Routes admin principales :
+
+| Route | Permission |
+| --- | --- |
+| `GET /api/orders`, `GET /api/orders/:id` | `orders.read` |
+| `POST /api/orders/update-order-status/:orderId` | `orders.manage` |
+| `GET /api/products/admin/all`, `GET /api/products/admin/:id` | `products.read` |
+| `POST /api/products/create`, `PUT /api/products/:id`, `DELETE /api/products/:id` | `products.manage` |
+| `POST /api/blog/create`, `GET /api/blog/admin/:id`, `POST /api/blog/update/:id`, `DELETE /api/blog/delete/:id` | `blog.manage` |
+| `GET /api/emails/get-emails` | `subscribers.read` |
+| `GET /api/visitors` | `analytics.read` |
+| `GET /api/auth/users`, `POST /api/auth/register` | `admins.manage` via rôle `superadmin` |
+
+Contrats de données :
+
+- Les totaux de commandes n'utilisent plus les prix catalogue courants. Si un ancien document ne contient pas `unitPrice`, le total calculé vaut `0` pour cette ligne plutôt que de réinterpréter l'historique avec un prix produit actuel.
+- `GET /api/emails/get-emails` renvoie seulement `_id`, `email`, `status`, `source`, `consentAt`, `unsubscribedAt`, `createdAt` et `updatedAt`.
+- Le HTML de blog autorise uniquement `p`, `br`, `strong`, `b`, `em`, `i`, `u`, `ul`, `ol`, `li`, `h2`, `h3`, `blockquote`, `a` et `img`. Les attributs sont limités à `href`, `title`, `target`, `rel` sur les liens et `src`, `alt`, `title` sur les images; les schemes dangereux et les tags `script`, `style`, `iframe`, `object`, `embed`, `svg` et `math` sont supprimés.
+- La création de commande utilise les transactions quand la topologie MongoDB les supporte, puis garde le mécanisme de compensation existant en fallback. Pour une garantie crash-safe complète et pour l'annulation de commande avec restauration de stock, utiliser MongoDB Atlas ou un replica set.
+
 ## GET `/api/products`
 
 Endpoint public. Seuls les produits actifs sont renvoyés.

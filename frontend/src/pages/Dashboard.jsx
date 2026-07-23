@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ShoppingCart,
   Users,
@@ -13,6 +13,7 @@ import VisitorStats from "../components/VisitorStats";
 import RecentOrders from "../components/RecentOrders";
 import TopProducts from "../components/TopProducts";
 import { getOrders, getProductsAsAdmin, getVisitors } from "../api/api";
+import { formatMAD, getOrderTotal, isNonCancelledOrder } from "../utils/adminFormatting";
 
 import SubEmails from "../components/Dashboard/SubEmails";
 import VisitorAnalytics from "../components/Dashboard/VisitorAnalytics";
@@ -25,10 +26,7 @@ const Dashboard = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalViews, setTotalViews] = useState(0);
   const [conversionRate, setConversionRate] = useState(0);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const [error, setError] = useState("");
 
   const getUniqueEmail = (orders = []) => {
     const s = new Set();
@@ -36,24 +34,16 @@ const Dashboard = () => {
     return s.size;
   };
 
-  const calculateRevenue = (orders = []) =>
-    orders
-      .filter((o) => o?.status === "delivered")
-      .reduce((acc, o) => {
-        const sub = (o.products || []).reduce((sum, it) => {
-          const price =
-            it.product?.sale_price - it.product?.original_price || 0;
-          return sum + price * (it.quantity ?? 0);
-        }, 0);
-        return acc + sub;
-      }, 0);
+  const calculateBookedSales = (orders = []) =>
+    orders.filter(isNonCancelledOrder).reduce((acc, order) => acc + getOrderTotal(order), 0);
 
   const calculateConversionRate = (ordersCount, visitorsCount) =>
     visitorsCount === 0 ? 0 : ((ordersCount / visitorsCount) * 100).toFixed(2);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
       const [orders, products, visitors] = await Promise.all([
         getOrders(),
         getProductsAsAdmin(),
@@ -74,16 +64,20 @@ const Dashboard = () => {
       setTotalOrders(ordersArr.length);
       setTotalProducts(productsArr.length);
       setTotalCustomers(getUniqueEmail(ordersArr));
-      setTotalRevenue(calculateRevenue(ordersArr));
+      setTotalRevenue(calculateBookedSales(ordersArr));
       setConversionRate(
         calculateConversionRate(ordersArr.length, visitorsArr.length)
       );
     } catch (e) {
-      console.error("Error fetching dashboard data:", e);
+      setError(e?.response?.data?.message || "Dashboard metrics could not be loaded.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   if (loading)
     return (
@@ -91,6 +85,24 @@ const Dashboard = () => {
         Loading...
       </div>
     );
+  if (error) {
+    return (
+      <div className="w-full p-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+          <p className="font-medium">Unable to load dashboard metrics</p>
+          <p className="mt-1 text-sm">{error}</p>
+          <button
+            type="button"
+            onClick={fetchDashboardData}
+            className="mt-3 rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const statCards = [
     {
       title: "Total Orders",
@@ -99,9 +111,9 @@ const Dashboard = () => {
       color: "text-red-500 border-t-2 border-red-500",
     },
     {
-      title: "Total Revenue",
-      value: `MAD ${totalRevenue.toLocaleString()}`,
-      icon: <></>,
+      title: "Booked Sales",
+      value: formatMAD(totalRevenue),
+      icon: <DollarSign className="w-6 h-6" />,
       color: "text-green-500 border-t-2 border-green-500",
     },
     {

@@ -18,6 +18,25 @@ const emailSchema = new mongoose.Schema(
         message: "Please provide a valid email address",
       },
     },
+    status: {
+      type: String,
+      enum: ["active", "unsubscribed", "suppressed"],
+      default: "active",
+    },
+    source: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+      default: "newsletter",
+    },
+    consentAt: {
+      type: Date,
+      default: Date.now,
+    },
+    unsubscribedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

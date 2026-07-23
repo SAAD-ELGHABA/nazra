@@ -6,7 +6,7 @@ const authController = require("../controllers/authController");
 
 const router = express.Router();
 const AUTH_BODY_LIMIT = "8kb";
-const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/users"];
+const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/users", "/me"];
 
 const requireJson = (req, res, next) => {
   if (["POST", "PUT", "PATCH"].includes(req.method) && !req.is("application/json")) {
@@ -58,6 +58,7 @@ router.get(
   requireRole("superadmin"),
   authController.listUsers
 );
+router.get("/me", rejectQuery, ensureAuthDatabase, auth, authController.getCurrentUser);
 
 router.all(AUTH_PATHS, (_req, res) => res.status(405).json({ success: false, message: "Method not allowed." }));
 router.use((_req, res) => res.status(404).json({ success: false, message: "Not found." }));

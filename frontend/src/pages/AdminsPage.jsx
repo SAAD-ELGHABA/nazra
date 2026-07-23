@@ -27,6 +27,7 @@ import {
   AlertDescription,
 } from "@/components/ui/alert";
 import { Search } from "lucide-react";
+import { useAdminAuth } from "../context/AdminAuthContext";
 
 const AdminsPage = () => {
   const [admins, setAdmins] = useState([]);
@@ -35,11 +36,10 @@ const AdminsPage = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentUser, setCurrentUser] = useState("")
+  const { currentUser } = useAdminAuth();
 
   useEffect(() => { 
     fetchUsers();
-    setCurrentUser(JSON.parse(localStorage.getItem('User_Data')))
   }, []);
 
   useEffect(() => {
@@ -65,8 +65,11 @@ const AdminsPage = () => {
       setAdmins(adminsData);
       setFilteredAdmins(adminsData);
     } catch (err) {
-      setError("Failed to fetch admins");
-      console.error("Error fetching admins:", err);
+      setError(
+        err?.response?.status === 403
+          ? "You do not have permission to manage administrators."
+          : err?.response?.data?.message || "Failed to fetch admins"
+      );
     } finally {
       setLoading(false);
     }

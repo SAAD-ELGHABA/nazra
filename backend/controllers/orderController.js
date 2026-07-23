@@ -4,11 +4,17 @@ const crypto = require("node:crypto");
 const { sendEmail } = require("../utils/sendEmail");
 const { userOrderEmail } = require("../emails/userOrderEmail");
 const { adminOrderEmail } = require("../emails/adminOrderEmail");
+const {
+  NON_CANCELLED_STATUSES,
+  SALES_STATUSES,
+  calculateOrderTotal,
+  serializeOrder
+} = require("../utils/orderTotals");
 
 const MAX_ORDER_ITEMS = 50;
 const MAX_ITEM_QUANTITY = 100;
 const ORDER_PRODUCT_FIELDS = [
-  "name sale_price stockStatus inStock",
+  "name slug sale_price stockStatus inStock",
   "colors._id colors.name colors.value colors.sku colors.price colors.stock colors.active colors.images.url",
   "colors.lensOptions._id colors.lensOptions.name colors.lensOptions.type colors.lensOptions.category",
   "colors.lensOptions.sku colors.lensOptions.price colors.lensOptions.stock colors.lensOptions.active colors.lensOptions.images.url"
@@ -190,6 +196,10 @@ const buildValidatedOrderSelection = (requestedItems, products) => {
 
     const colorVariantId = colorVariant._id || null;
     const lensOptionId = lensOption?._id || null;
+    const imageUrl =
+      lensOption?.images?.[0]?.url ||
+      colorVariant?.images?.[0]?.url ||
+      null;
     if (stock !== null) {
       reservations.push({
         productId: product._id,
@@ -212,7 +222,11 @@ const buildValidatedOrderSelection = (requestedItems, products) => {
       inventorySource: lensOption && lensOption.stock !== null && lensOption.stock !== undefined
         ? "lens"
         : (colorVariant.stock !== null && colorVariant.stock !== undefined ? "color" : "none"),
-      unitPrice
+      unitPrice,
+      currency: "MAD",
+      productName: String(product.name || "").trim(),
+      ...(product.slug ? { productSlug: String(product.slug).trim() } : {}),
+      ...(imageUrl ? { imageUrl: String(imageUrl).trim() } : {})
     };
   });
   return { orderItems, reservations };
@@ -222,7 +236,7 @@ const buildValidatedOrderItems = (requestedItems, products) => {
   return buildValidatedOrderSelection(requestedItems, products).orderItems;
 };
 
-const reserveInventory = async (reservations, ProductModel = Product) => {
+const reserveInventory = async (reservations, ProductModel = Product, session = undefined) => {
   const completed = [];
   try {
     for (const reservation of reservations) {
@@ -250,7 +264,7 @@ const reserveInventory = async (reservations, ProductModel = Product) => {
         update = { $inc: { 'colors.$[color].stock': -reservation.quantity } };
         options.arrayFilters = [{ 'color._id': reservation.colorVariantId }];
       }
-      const result = await ProductModel.updateOne(query, update, options);
+      const result = await ProductModel.updateOne(query, update, { ...options, ...(session ? { session } : {}) });
       if (result.modifiedCount !== 1) {
         throw new OrderInputValidationError(`products[${reservation.index}] no longer has enough stock`);
       }
@@ -258,12 +272,12 @@ const reserveInventory = async (reservations, ProductModel = Product) => {
     }
     return completed;
   } catch (error) {
-    await releaseInventory(completed, ProductModel);
+    await releaseInventory(completed, ProductModel, session);
     throw error;
   }
 };
 
-const releaseInventory = async (reservations, ProductModel = Product) => {
+const releaseInventory = async (reservations, ProductModel = Product, session = undefined) => {
   for (const reservation of [...reservations].reverse()) {
     const options = {};
     let update;
@@ -275,7 +289,7 @@ const releaseInventory = async (reservations, ProductModel = Product) => {
       options.arrayFilters = [{ 'color._id': reservation.colorVariantId }];
     }
     try {
-      await ProductModel.updateOne({ _id: reservation.productId }, update, options);
+      await ProductModel.updateOne({ _id: reservation.productId }, update, { ...options, ...(session ? { session } : {}) });
     } catch (_rollbackError) {
       console.error('Inventory rollback failed for an order item');
     }
@@ -310,48 +324,96 @@ const validationResponse = (res, error) => res.status(400).json({
   error: error.message
 });
 
+const getResponseStatusTransitions = () => {
+  if (canUseTransactions()) return STATUS_TRANSITIONS;
+  return Object.fromEntries(
+    Object.entries(STATUS_TRANSITIONS).map(([status, transitions]) => [
+      status,
+      new Set(Array.from(transitions).filter((transition) => transition !== "cancelled"))
+    ])
+  );
+};
+
+const attachOrderComputedFields = (order) => serializeOrder(order, getResponseStatusTransitions());
+
+const buildOrderCreation = async ({ validated, idempotencyKeyHash, session }) => {
+  if (idempotencyKeyHash) {
+    const existingOrder = await Order.findOne({ idempotencyKeyHash }).session(session || null);
+    if (existingOrder) return { existingOrder };
+  }
+
+  const productIds = [...new Set(validated.products.map((item) => item.product))];
+  const productQuery = Product.find({
+    _id: { $in: productIds },
+    isActive: true
+  }).select(ORDER_PRODUCT_FIELDS).lean();
+  if (session) productQuery.session(session);
+
+  const availableProducts = await productQuery;
+  const { orderItems, reservations } = buildValidatedOrderSelection(validated.products, availableProducts);
+  const completedReservations = await reserveInventory(reservations, Product, session);
+
+  const order = new Order({
+    products: orderItems,
+    fullName: validated.customer.fullName,
+    email: validated.customer.email,
+    phone: validated.customer.phone,
+    adresse: validated.customer.adresse,
+    ...(idempotencyKeyHash ? { idempotencyKeyHash } : {})
+  });
+
+  try {
+    await order.save(session ? { session } : undefined);
+    return { order, completedReservations };
+  } catch (saveError) {
+    if (!session) await releaseInventory(completedReservations);
+    if (idempotencyKeyHash && saveError?.code === 11000) {
+      const existingOrder = await Order.findOne({ idempotencyKeyHash }).session(session || null);
+      if (existingOrder) return { existingOrder };
+    }
+    throw saveError;
+  }
+};
+
+const canUseTransactions = () => {
+  const topologyType = Order.db?.client?.topology?.description?.type;
+  return topologyType && topologyType !== "Single";
+};
+
 // Create new order
 exports.createOrder = async (req, res) => {
   try {
     const idempotencyKeyHash = parseIdempotencyKey(req.get("Idempotency-Key"));
-    if (idempotencyKeyHash) {
-      const existingOrder = await Order.findOne({ idempotencyKeyHash });
-      if (existingOrder) {
-        res.set("Idempotency-Replayed", "true");
-        return res.status(200).json({ success: true, message: "Order already created", order: existingOrder });
-      }
-    }
     const validated = validateOrderRequest(req.body);
-    const productIds = [...new Set(validated.products.map((item) => item.product))];
-    const availableProducts = await Product.find({
-      _id: { $in: productIds },
-      isActive: true
-    }).select(ORDER_PRODUCT_FIELDS).lean();
-    const { orderItems, reservations } = buildValidatedOrderSelection(validated.products, availableProducts);
-    const completedReservations = await reserveInventory(reservations);
 
-    const order = new Order({
-      products: orderItems,
-      fullName: validated.customer.fullName,
-      email: validated.customer.email,
-      phone: validated.customer.phone,
-      adresse: validated.customer.adresse,
-      ...(idempotencyKeyHash ? { idempotencyKeyHash } : {})
-    });
-
-    try {
-      await order.save();
-    } catch (saveError) {
-      await releaseInventory(completedReservations);
-      if (idempotencyKeyHash && saveError?.code === 11000) {
-        const existingOrder = await Order.findOne({ idempotencyKeyHash });
-        if (existingOrder) {
-          res.set("Idempotency-Replayed", "true");
-          return res.status(200).json({ success: true, message: "Order already created", order: existingOrder });
-        }
+    let order;
+    let existingOrder;
+    if (canUseTransactions()) {
+      const session = await Order.startSession();
+      try {
+        await session.withTransaction(async () => {
+          const result = await buildOrderCreation({ validated, idempotencyKeyHash, session });
+          order = result.order;
+          existingOrder = result.existingOrder;
+        });
+      } finally {
+        await session.endSession();
       }
-      throw saveError;
+    } else {
+      const result = await buildOrderCreation({ validated, idempotencyKeyHash });
+      order = result.order;
+      existingOrder = result.existingOrder;
     }
+
+    if (existingOrder) {
+      res.set("Idempotency-Replayed", "true");
+      return res.status(200).json({
+        success: true,
+        message: "Order already created",
+        order: attachOrderComputedFields(existingOrder)
+      });
+    }
+
     try {
       await order.populate("products.product", ORDER_PRODUCT_FIELDS);
     } catch (_populateError) {
@@ -380,7 +442,7 @@ exports.createOrder = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: emailsSent ? "Order created successfully and emails sent" : "Order created successfully",
-      order
+      order: attachOrderComputedFields(order)
     });
   } catch (error) {
     if (error instanceof OrderInputValidationError || error?.name === "ValidationError") {
@@ -395,7 +457,7 @@ exports.createOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("products.product", ORDER_PRODUCT_FIELDS);
-    return res.status(200).json({ success: true, orders });
+    return res.status(200).json({ success: true, orders: orders.map(attachOrderComputedFields) });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return res.status(500).json({ success: false, message: "Server error while fetching orders" });
@@ -410,7 +472,7 @@ exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate("products.product", ORDER_PRODUCT_FIELDS);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-    return res.status(200).json({ success: true, order });
+    return res.status(200).json({ success: true, order: attachOrderComputedFields(order) });
   } catch (error) {
     console.error("Error fetching order:", error);
     return res.status(500).json({ success: false, message: "Server error while fetching order" });
@@ -435,7 +497,7 @@ exports.updateOrderStatus = async (req, res) => {
     const current = await Order.findById(orderId);
     if (!current) return res.status(404).json({ success: false, message: "Order not found" });
     if (current.status === status) {
-      return res.status(200).json({ success: true, message: `Order status is already ${status}`, order: current });
+      return res.status(200).json({ success: true, message: `Order status is already ${status}`, order: attachOrderComputedFields(current) });
     }
     if (!STATUS_TRANSITIONS[current.status]?.has(status)) {
       return res.status(409).json({ success: false, message: `Order cannot transition from ${current.status} to ${status}` });
@@ -443,6 +505,13 @@ exports.updateOrderStatus = async (req, res) => {
 
     let order;
     if (status === "cancelled") {
+      if (!canUseTransactions()) {
+        return res.status(503).json({
+          success: false,
+          code: "SERVICE_UNAVAILABLE",
+          message: "Cancelling orders safely requires MongoDB transaction support."
+        });
+      }
       const session = await Order.startSession();
       try {
         await session.withTransaction(async () => {
@@ -475,7 +544,7 @@ exports.updateOrderStatus = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `Order status updated to ${status}`,
-      order
+      order: attachOrderComputedFields(order)
     });
   } catch (error) {
     if (error instanceof OrderInputValidationError) {
@@ -500,5 +569,11 @@ exports._test = {
   reserveInventory,
   restoreOrderInventory,
   STATUS_TRANSITIONS,
-  validateOrderRequest
+  validateOrderRequest,
+  NON_CANCELLED_STATUSES,
+  SALES_STATUSES,
+  calculateOrderTotal,
+  attachOrderComputedFields,
+  canUseTransactions,
+  getResponseStatusTransitions
 };

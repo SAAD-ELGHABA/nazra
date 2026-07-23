@@ -45,6 +45,26 @@ const orderSchema = new mongoose.Schema(
           required: true,
           min: 0,
         },
+        currency: {
+          type: String,
+          enum: ["MAD"],
+          default: "MAD",
+        },
+        productName: {
+          type: String,
+          trim: true,
+          maxlength: 150,
+        },
+        productSlug: {
+          type: String,
+          trim: true,
+          maxlength: 200,
+        },
+        imageUrl: {
+          type: String,
+          trim: true,
+          maxlength: 2048,
+        },
         color: {
           type: String, 
           required: false,

@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/alert";
 import {
   Mail,
-  Phone,
   Calendar,
   Search,
   Download,
@@ -33,20 +32,24 @@ import {
   AlertCircle,
   Clock,
 } from "lucide-react";
+import { neutralizeSpreadsheetCell } from "../../utils/adminFormatting";
 
 function SubEmails() {
   const [emails, setEmails] = useState([]);
   const [filteredEmails, setFilteredEmails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
 
   const getEmails = async () => {
     try {
+      setLoading(true);
+      setError("");
       const res = await getSubEmails();
       setEmails(res?.data?.emails || []);
       setFilteredEmails(res?.data?.emails || []);
     } catch (error) {
-      console.error("Error fetching emails:", error);
+      setError(error?.response?.data?.message || "Subscribers could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +64,8 @@ function SubEmails() {
       const filtered = emails.filter(
         (item) =>
           item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+          item.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.source?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredEmails(filtered);
     } else {
@@ -91,15 +95,22 @@ function SubEmails() {
   };
 
   const exportToCSV = () => {
-    const headers = ["Email", "Phone", "Created At", "Updated At"];
+    const escapeCsv = (value) => {
+      const text = neutralizeSpreadsheetCell(value);
+      return `"${String(text).replace(/"/g, '""')}"`;
+    };
+    const headers = ["Email", "Status", "Source", "Consent At", "Unsubscribed At", "Created At", "Updated At"];
     const csvContent = [
       headers.join(","),
       ...filteredEmails.map(item => [
         item.email,
-        item.phone || "",
+        item.status || "",
+        item.source || "",
+        item.consentAt || "",
+        item.unsubscribedAt || "",
         item.createdAt,
         item.updatedAt
-      ].join(","))
+      ].map(escapeCsv).join(","))
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -168,7 +179,7 @@ function SubEmails() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search emails or phone numbers..."
+              placeholder="Search email, status, or source..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -178,12 +189,25 @@ function SubEmails() {
             variant="outline" 
             size="sm" 
             onClick={exportToCSV}
+            disabled={!filteredEmails.length}
             className="flex items-center gap-2"
           >
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
         </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+              <Button type="button" variant="outline" size="sm" className="ml-3" onClick={getEmails}>
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Results Info */}
         {searchTerm && (
@@ -193,7 +217,7 @@ function SubEmails() {
         )}
 
         {/* Empty State */}
-        {emails?.length === 0 ? (
+        {error ? null : emails?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Mail className="h-12 w-12 mb-3 opacity-50" />
             <p className="text-sm font-medium mb-1">No subscribed emails found</p>
@@ -221,14 +245,19 @@ function SubEmails() {
                   </TableHead>
                   <TableHead>
                     <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      Phone Number
+                      Status
                     </div>
                   </TableHead>
                   <TableHead>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      Subscribed
+                      Source
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Consent At
                     </div>
                   </TableHead>
                   <TableHead>
@@ -245,33 +274,28 @@ function SubEmails() {
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{item.email}</span>
-                        <Badge 
-                          variant="secondary" 
-                          className="w-fit text-xs mt-1"
-                        >
-                          Active
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {item?.phone ? (
-                          <>
-                            <Phone className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-mono text-sm">{item.phone}</span>
-                          </>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">Not provided</span>
+                        {item.status && (
+                          <Badge variant="secondary" className="w-fit text-xs mt-1">
+                            {item.status}
+                          </Badge>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm capitalize">{item.status || "unknown"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm capitalize">{item.source || "newsletter"}</span>
+                    </TableCell>
+                    <TableCell>
                       <div className="flex flex-col">
                         <span className="text-sm">
-                          {formatDate(item.createdAt)}
+                          {formatDate(item.consentAt || item.createdAt)}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {getTimeAgo(item.createdAt)}
+                          {getTimeAgo(item.consentAt || item.createdAt)}
                         </span>
                       </div>
                     </TableCell>
@@ -303,11 +327,11 @@ function SubEmails() {
               <p className="text-xs text-blue-600 font-medium">Total Subscribers</p>
             </div>
             <div className="text-center p-3 bg-green-50 border border-green-200 rounded-lg">
-              <Phone className="h-6 w-6 text-green-600 mx-auto mb-1" />
+              <Users className="h-6 w-6 text-green-600 mx-auto mb-1" />
               <p className="text-lg font-bold text-green-700">
-                {emails.filter(e => e.phone).length}
+                {emails.filter(e => e.status === "active").length}
               </p>
-              <p className="text-xs text-green-600 font-medium">With Phone</p>
+              <p className="text-xs text-green-600 font-medium">Active</p>
             </div>
             <div className="text-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
               <Calendar className="h-6 w-6 text-purple-600 mx-auto mb-1" />
