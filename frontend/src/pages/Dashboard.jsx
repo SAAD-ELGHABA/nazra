@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ShoppingCart,
   Users,
@@ -14,9 +14,14 @@ import RecentOrders from "../components/RecentOrders";
 import TopProducts from "../components/TopProducts";
 import { getOrders, getProductsAsAdmin, getVisitors } from "../api/api";
 import { formatMAD, getOrderTotal, isNonCancelledOrder } from "../utils/adminFormatting";
-
-import SubEmails from "../components/Dashboard/SubEmails";
-import VisitorAnalytics from "../components/Dashboard/VisitorAnalytics";
+import AdminPageContainer from "../components/admin/page/AdminPageContainer";
+import AdminPageHeader from "../components/admin/page/AdminPageHeader";
+import AdminLoadingState from "../components/admin/feedback/AdminLoadingState";
+import AdminErrorState from "../components/admin/feedback/AdminErrorState";
+import AdminOfflineState from "../components/admin/feedback/AdminOfflineState";
+import { AdminRefreshButton } from "../components/admin/shell/AdminTopbar";
+import { useAdminPageMeta } from "../context/AdminPageContext";
+import { DASHBOARDHOME } from "../constant/routerConstants";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -27,23 +32,47 @@ const Dashboard = () => {
   const [totalViews, setTotalViews] = useState(0);
   const [conversionRate, setConversionRate] = useState(0);
   const [error, setError] = useState("");
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const getUniqueEmail = (orders = []) => {
-    const s = new Set();
-    orders.forEach((o) => o.email && s.add(o.email.toLowerCase()));
-    return s.size;
+    const emails = new Set();
+
+    orders.forEach((order) => {
+      if (order.email) {
+        emails.add(order.email.toLowerCase());
+      }
+    });
+
+    return emails.size;
   };
 
   const calculateBookedSales = (orders = []) =>
-    orders.filter(isNonCancelledOrder).reduce((acc, order) => acc + getOrderTotal(order), 0);
+    orders
+      .filter(isNonCancelledOrder)
+      .reduce(
+        (total, order) => total + getOrderTotal(order),
+        0,
+      );
 
-  const calculateConversionRate = (ordersCount, visitorsCount) =>
-    visitorsCount === 0 ? 0 : ((ordersCount / visitorsCount) * 100).toFixed(2);
+  const calculateConversionRate = (
+    ordersCount,
+    visitorsCount,
+  ) => {
+    if (visitorsCount === 0) {
+      return 0;
+    }
 
+    return Number(
+      ((ordersCount / visitorsCount) * 100).toFixed(2),
+    );
+  };
+
+  // Declare this before refreshAction
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+
       const [orders, products, visitors] = await Promise.all([
         getOrders(),
         getProductsAsAdmin(),
@@ -55,51 +84,88 @@ const Dashboard = () => {
       const visitorsArr = visitors?.data?.views ?? [];
 
       const uniqueIPs = new Set(
-        visitorsArr.map((visitor) => visitor.ipAddress)
+        visitorsArr
+          .map((visitor) => visitor.ipAddress)
+          .filter(Boolean),
       );
-      const totalUniqueVisitors = uniqueIPs.size;
-
-      setTotalViews(totalUniqueVisitors);
 
       setTotalOrders(ordersArr.length);
+      setTotalRevenue(calculateBookedSales(ordersArr));
       setTotalProducts(productsArr.length);
       setTotalCustomers(getUniqueEmail(ordersArr));
-      setTotalRevenue(calculateBookedSales(ordersArr));
+      setTotalViews(uniqueIPs.size);
+
       setConversionRate(
-        calculateConversionRate(ordersArr.length, visitorsArr.length)
+        calculateConversionRate(
+          ordersArr.length,
+          visitorsArr.length,
+        ),
       );
-    } catch (e) {
-      setError(e?.response?.data?.message || "Dashboard metrics could not be loaded.");
+
+      setLastUpdated(new Date().toISOString());
+    } catch (error) {
+      setError(
+        error?.response?.data?.message ||
+          "Dashboard metrics could not be loaded.",
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // This can now safely access fetchDashboardData
+  const refreshAction = useMemo(
+    () => (
+      <AdminRefreshButton
+        onClick={fetchDashboardData}
+        disabled={loading}
+      />
+    ),
+    [fetchDashboardData, loading],
+  );
+
+  useAdminPageMeta({
+    title: "Overview",
+    documentTitle: "Overview",
+    breadcrumbs: [
+      {
+        label: "Overview",
+        href: DASHBOARDHOME,
+      },
+    ],
+    lastUpdated,
+    isRefreshing: loading && Boolean(lastUpdated),
+    contextActions: refreshAction,
+  });
+
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
-
-  if (loading)
+  if (loading && !lastUpdated) {
     return (
-      <div className="w-full h-40 flex items-center justify-center">
-        Loading...
-      </div>
+      <AdminPageContainer>
+        <AdminPageHeader
+          title="Overview"
+          description="A snapshot of your store's current performance."
+        />
+        <AdminLoadingState title="Loading overview" variant="cards" rows={6} />
+      </AdminPageContainer>
     );
-  if (error) {
+  }
+
+  if (error && !lastUpdated) {
     return (
-      <div className="w-full p-6">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
-          <p className="font-medium">Unable to load dashboard metrics</p>
-          <p className="mt-1 text-sm">{error}</p>
-          <button
-            type="button"
-            onClick={fetchDashboardData}
-            className="mt-3 rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <AdminPageContainer>
+        <AdminPageHeader
+          title="Overview"
+          description="A snapshot of your store's current performance."
+        />
+        <AdminErrorState
+          title="We couldn't load overview metrics"
+          description={error}
+          onRetry={fetchDashboardData}
+        />
+      </AdminPageContainer>
     );
   }
 
@@ -108,79 +174,78 @@ const Dashboard = () => {
       title: "Total Orders",
       value: totalOrders,
       icon: <ShoppingCart className="w-6 h-6" />,
-      color: "text-red-500 border-t-2 border-red-500",
     },
     {
       title: "Booked Sales",
       value: formatMAD(totalRevenue),
       icon: <DollarSign className="w-6 h-6" />,
-      color: "text-green-500 border-t-2 border-green-500",
     },
     {
       title: "Total Products",
       value: totalProducts,
       icon: <Package className="w-6 h-6" />,
-      color: "text-orange-500 border-t-2 border-orange-500",
     },
     {
       title: "Total Customers",
       value: totalCustomers,
       icon: <Users className="w-6 h-6" />,
-      color: "text-purple-500 border-t-2 border-purple-500",
     },
     {
       title: "Total Views",
       value: totalViews,
       icon: <Eye className="w-6 h-6" />,
-      color: "text-cyan-500 border-t-2 border-cyan-500",
     },
     {
       title: "Conversion Rate",
       value: `${conversionRate}%`,
       icon: <TrendingUp className="w-6 h-6" />,
-      color: "text-red-600 border-t-2 border-red-600",
     },
   ];
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">
-        Quick Statics Overview
-      </h1>
+    <AdminPageContainer>
+      <AdminPageHeader
+        title="Overview"
+        description="A snapshot of your store's current performance."
+      />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      {error && lastUpdated && (
+        <AdminOfflineState
+          title="Showing previously loaded data"
+          description={error}
+          onRetry={fetchDashboardData}
+        />
+      )}
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {statCards.map((c, i) => (
           <StatCard key={i} {...c} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <OrderStats />
-          <ProductStats />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <OrderStats />
+        <ProductStats />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <VisitorStats visitors={totalViews} />
-          <RecentOrders />
-          <VisitorAnalytics/>
-          <TopProducts />
-        <div  className="lg:col-span-2">
-          <SubEmails />
-        </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <VisitorStats visitors={totalViews} />
+        <RecentOrders />
+        <TopProducts />
       </div>
-    </div>
+    </AdminPageContainer>
   );
 };
 
-const StatCard = ({ title, value, icon, color }) => (
-  <div
-    className={`rounded-xl shadow-md p-4 flex flex-col items-center justify-center ${color}`}
-  >
-    <div className="flex items-center gap-2 mb-2">
+const StatCard = ({ title, value, icon }) => (
+  <div className="flex min-h-28 flex-col justify-between rounded-xl border bg-card p-4 shadow-sm">
+    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
       {icon}
-      <span className="text-xl font-bold">{value}</span>
     </div>
-    <p className="text-sm opacity-90 text-center">{title}</p>
+    <div className="mt-3">
+      <p className="text-xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{title}</p>
+    </div>
   </div>
 );
 

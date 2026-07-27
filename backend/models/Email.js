@@ -42,5 +42,7 @@ const emailSchema = new mongoose.Schema(
 );
 
 emailSchema.index({ email: 1 }, { unique: true });
+emailSchema.index({ status: 1, createdAt: -1 });
+emailSchema.index({ source: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Email", emailSchema);

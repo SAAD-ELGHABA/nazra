@@ -1,357 +1,254 @@
-import React, { useEffect, useState } from "react";
-import { getSubEmails } from "../../api/api";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Download, Mail } from "lucide-react";
+import { getSubEmails } from "@/api/api";
+import { neutralizeSpreadsheetCell } from "@/utils/adminFormatting";
+import { formatAdminDateTime, formatRelativeTime } from "@/utils/adminDates";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { paginateAdminItems, useAdminListQuery } from "@/hooks/useAdminListQuery";
+import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import AdminFilterBar, { AdminSearchInput } from "@/components/admin/filters/AdminFilterBar";
+import AdminErrorState from "@/components/admin/feedback/AdminErrorState";
+import { AdminOfflineState } from "@/components/admin/feedback/AdminErrorState";
+import AdminEmptyState from "@/components/admin/feedback/AdminEmptyState";
+import StatusBadge from "@/components/admin/status/StatusBadge";
+import AdminTable, {
+  AdminTableHeader,
+  AdminTableSkeleton,
   TableBody,
   TableCell,
   TableHead,
-  TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
-import {
-  Mail,
-  Calendar,
-  Search,
-  Download,
-  Users,
-  AlertCircle,
-  Clock,
-} from "lucide-react";
-import { neutralizeSpreadsheetCell } from "../../utils/adminFormatting";
+} from "@/components/admin/table/AdminTable";
+import AdminTablePagination from "@/components/admin/table/AdminTablePagination";
 
-function SubEmails() {
-  const [emails, setEmails] = useState([]);
-  const [filteredEmails, setFilteredEmails] = useState([]);
+export default function SubEmails() {
+  const requestId = useRef(0);
+  const { hasCapability } = useAdminAuth();
+  const canExport = hasCapability("subscribers.export");
+  const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const {
+    page,
+    limit,
+    status,
+    setQuery,
+    clearFilters,
+    searchParams,
+  } = useAdminListQuery({
+    defaults: { page: 1, limit: 25, search: "", status: "all" },
+    allowedFilters: ["status"],
+  });
 
-  const getEmails = async () => {
+  const loadSubscribers = useCallback(async () => {
+    const currentRequest = ++requestId.current;
+    setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      setError("");
-      const res = await getSubEmails();
-      setEmails(res?.data?.emails || []);
-      setFilteredEmails(res?.data?.emails || []);
-    } catch (error) {
-      setError(error?.response?.data?.message || "Subscribers could not be loaded.");
+      const response = await getSubEmails();
+      if (currentRequest === requestId.current) {
+        setSubscribers(response?.data?.emails ?? []);
+      }
+    } catch (loadError) {
+      if (currentRequest === requestId.current) {
+        setError(loadError?.response?.data?.message || "Subscribers could not be loaded.");
+      }
     } finally {
-      setLoading(false);
+      if (currentRequest === requestId.current) setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    getEmails();
   }, []);
 
   useEffect(() => {
-    if (searchTerm) {
-      const filtered = emails.filter(
-        (item) =>
-          item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.source?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredEmails(filtered);
-    } else {
-      setFilteredEmails(emails);
-    }
-  }, [searchTerm, emails]);
-
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getTimeAgo = (dateStr) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-    return `${Math.floor(diffInHours / 168)}w ago`;
-  };
-
-  const exportToCSV = () => {
-    const escapeCsv = (value) => {
-      const text = neutralizeSpreadsheetCell(value);
-      return `"${String(text).replace(/"/g, '""')}"`;
+    loadSubscribers();
+    return () => {
+      requestId.current += 1;
     };
-    const headers = ["Email", "Status", "Source", "Consent At", "Unsubscribed At", "Created At", "Updated At"];
-    const csvContent = [
-      headers.join(","),
-      ...filteredEmails.map(item => [
-        item.email,
-        item.status || "",
-        item.source || "",
-        item.consentAt || "",
-        item.unsubscribedAt || "",
-        item.createdAt,
-        item.updatedAt
-      ].map(escapeCsv).join(","))
-    ].join("\n");
+  }, [loadSubscribers]);
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
+  useEffect(() => {
+    if (searchParams.has("q")) {
+      setQuery({ q: "" }, { replace: true });
+    }
+  }, [searchParams, setQuery]);
+
+  const filteredSubscribers = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return [...subscribers]
+      .filter((subscriber) => {
+        const matchesStatus = status === "all" || subscriber.status === status;
+        const matchesSearch =
+          !query ||
+          [subscriber.email, subscriber.source].some((value) =>
+            String(value ?? "").toLowerCase().includes(query),
+          );
+        return matchesStatus && matchesSearch;
+      })
+      .sort((a, b) => new Date(b.consentAt ?? b.createdAt) - new Date(a.consentAt ?? a.createdAt));
+  }, [search, status, subscribers]);
+
+  const pagination = paginateAdminItems(filteredSubscribers, page, limit);
+
+  useEffect(() => {
+    if (page !== pagination.page) setQuery({ page: pagination.page }, { replace: true });
+  }, [page, pagination.page, setQuery]);
+
+  const exportToCsv = () => {
+    const escapeCsv = (value) =>
+      `"${String(neutralizeSpreadsheetCell(value)).replace(/"/g, '""')}"`;
+    const rows = [
+      ["Email", "Status", "Source", "Consent At", "Unsubscribed At", "Updated At"],
+      ...filteredSubscribers.map((subscriber) => [
+        subscriber.email,
+        subscriber.status || "",
+        subscriber.source || "",
+        subscriber.consentAt || subscriber.createdAt || "",
+        subscriber.unsubscribedAt || "",
+        subscriber.updatedAt || "",
+      ]),
+    ];
+    const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "subscribed-emails.csv";
+    link.download = `subscribers_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
-  if (loading) {
-    return (
-      <Card className="w-full">
-        <CardHeader className="pb-3">
-          <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-4 w-48" />
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="space-y-3">
-            <Skeleton className="h-10 w-full" />
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <Skeleton className="h-12 flex-1" />
-                <Skeleton className="h-12 w-24" />
-                <Skeleton className="h-12 w-32" />
-                <Skeleton className="h-12 w-32" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const sortedEmails = filteredEmails?.sort(
-    (a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)
-  );
+  const clearListFilters = () => {
+    setSearch("");
+    clearFilters();
+  };
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="space-y-1">
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <Mail className="h-5 w-5 text-blue-500" />
-              Email Subscriptions
-            </CardTitle>
-            <CardDescription>
-              Manage and view all newsletter subscribers
-            </CardDescription>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-sm">
-              <Users className="h-3 w-3 mr-1" />
-              {emails.length} Total
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="pt-0">
-        {/* Search and Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search email, status, or source..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportToCSV}
-            disabled={!filteredEmails.length}
-            className="flex items-center gap-2"
+    <div className="space-y-6">
+      {error && subscribers.length > 0 && (
+        <AdminOfflineState description={error} onRetry={loadSubscribers} />
+      )}
+      <AdminFilterBar
+        showClear={Boolean(search || status !== "all")}
+        onClear={clearListFilters}
+      >
+        <AdminSearchInput
+          id="subscriber-search"
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setQuery({ page: 1 }, { replace: true });
+          }}
+          label="Search subscribers"
+          placeholder="Search email or consent source..."
+          className="max-w-xl"
+        />
+        <Select value={status} onValueChange={(value) => setQuery({ status: value })}>
+          <SelectTrigger className="w-full md:w-[180px]" aria-label="Filter subscribers by status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+          </SelectContent>
+        </Select>
+        {canExport && (
+          <Button
+            variant="outline"
+            onClick={exportToCsv}
+            disabled={!filteredSubscribers.length}
+            className="md:ml-auto"
           >
-            <Download className="h-4 w-4" />
+            <Download aria-hidden="true" />
             Export CSV
           </Button>
-        </div>
-
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {error}
-              <Button type="button" variant="outline" size="sm" className="ml-3" onClick={getEmails}>
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
         )}
+      </AdminFilterBar>
 
-        {/* Results Info */}
-        {searchTerm && (
-          <div className="mb-4 text-sm text-muted-foreground">
-            Found {filteredEmails.length} of {emails.length} subscribers
-          </div>
-        )}
-
-        {/* Empty State */}
-        {error ? null : emails?.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Mail className="h-12 w-12 mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">No subscribed emails found</p>
-            <p className="text-xs text-center">
-              There are no email subscribers in your database yet.
-            </p>
-          </div>
-        ) : filteredEmails?.length === 0 ? (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              No subscribers found matching your search criteria.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email Address
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-2">
-                      Status
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Source
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Consent At
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      Last Updated
-                    </div>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedEmails?.map((item) => (
-                  <TableRow key={item._id} className="group hover:bg-muted/50">
+      {loading && subscribers.length === 0 ? (
+        <AdminTableSkeleton rows={6} columns={4} />
+      ) : error && subscribers.length === 0 ? (
+        <AdminErrorState
+          title="We couldn't load subscribers"
+          description={error}
+          onRetry={loadSubscribers}
+        />
+      ) : filteredSubscribers.length === 0 ? (
+        <AdminEmptyState
+          icon={Mail}
+          title={subscribers.length ? "No subscribers match your filters" : "No subscribers yet"}
+          description={
+            subscribers.length
+              ? "Adjust or clear the current filters."
+              : "People who explicitly consent to newsletter updates will appear here."
+          }
+          action={
+            subscribers.length
+              ? <Button variant="outline" onClick={clearListFilters}>Clear filters</Button>
+              : null
+          }
+        />
+      ) : (
+        <>
+          <AdminTable ariaLabel="Newsletter subscribers">
+            <AdminTableHeader sticky>
+              <TableRow>
+                <TableHead>Email</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Source</TableHead>
+                <TableHead className="hidden lg:table-cell">Consent</TableHead>
+                <TableHead className="hidden xl:table-cell">Last updated</TableHead>
+              </TableRow>
+            </AdminTableHeader>
+            <TableBody>
+              {pagination.items.map((subscriber) => {
+                const consentDate = subscriber.consentAt ?? subscriber.createdAt;
+                return (
+                  <TableRow key={subscriber._id ?? subscriber.email}>
                     <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">{item.email}</span>
-                        {item.status && (
-                          <Badge variant="secondary" className="w-fit text-xs mt-1">
-                            {item.status}
-                          </Badge>
-                        )}
+                      <div className="min-w-[210px]">
+                        <p className="text-sm font-medium">{subscriber.email}</p>
+                        <p className="text-xs text-muted-foreground md:hidden">
+                          {subscriber.source || "newsletter"}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm capitalize">{item.status || "unknown"}</span>
-                      </div>
+                      <StatusBadge status={subscriber.status || "active"} />
                     </TableCell>
-                    <TableCell>
-                      <span className="text-sm capitalize">{item.source || "newsletter"}</span>
+                    <TableCell className="hidden capitalize md:table-cell">
+                      {subscriber.source || "newsletter"}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-sm">
-                          {formatDate(item.consentAt || item.createdAt)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {getTimeAgo(item.consentAt || item.createdAt)}
-                        </span>
-                      </div>
+                    <TableCell className="hidden lg:table-cell">
+                      <p className="text-sm">{formatAdminDateTime(consentDate)}</p>
+                      <p className="text-xs text-muted-foreground">{formatRelativeTime(consentDate)}</p>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-sm">
-                          {formatDate(item.updatedAt)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {getTimeAgo(item.updatedAt)}
-                        </span>
-                      </div>
+                    <TableCell className="hidden xl:table-cell">
+                      {formatAdminDateTime(subscriber.updatedAt)}
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-
-        {/* Stats Summary */}
-        {emails?.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t">
-            <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <Mail className="h-6 w-6 text-blue-600 mx-auto mb-1" />
-              <p className="text-lg font-bold text-blue-700">
-                {emails.length}
-              </p>
-              <p className="text-xs text-blue-600 font-medium">Total Subscribers</p>
-            </div>
-            <div className="text-center p-3 bg-green-50 border border-green-200 rounded-lg">
-              <Users className="h-6 w-6 text-green-600 mx-auto mb-1" />
-              <p className="text-lg font-bold text-green-700">
-                {emails.filter(e => e.status === "active").length}
-              </p>
-              <p className="text-xs text-green-600 font-medium">Active</p>
-            </div>
-            <div className="text-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
-              <Calendar className="h-6 w-6 text-purple-600 mx-auto mb-1" />
-              <p className="text-lg font-bold text-purple-700">
-                {emails.filter(e => new Date(e.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
-              </p>
-              <p className="text-xs text-purple-600 font-medium">This Week</p>
-            </div>
-            <div className="text-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <Users className="h-6 w-6 text-orange-600 mx-auto mb-1" />
-              <p className="text-lg font-bold text-orange-700">
-                {emails.filter(e => new Date(e.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length}
-              </p>
-              <p className="text-xs text-orange-600 font-medium">Today</p>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                );
+              })}
+            </TableBody>
+          </AdminTable>
+          <AdminTablePagination
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            total={pagination.total}
+            pageSize={pagination.limit}
+            pageSizeOptions={[10, 25, 50]}
+            onPageChange={(nextPage) => setQuery({ page: nextPage })}
+            onPageSizeChange={(nextLimit) => setQuery({ limit: nextLimit, page: 1 })}
+          />
+        </>
+      )}
+    </div>
   );
 }
-
-export default SubEmails;

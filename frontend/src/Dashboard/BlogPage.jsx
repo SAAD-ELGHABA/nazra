@@ -6,7 +6,6 @@ import {
   Upload,
   Trash2,
   Save,
-  Edit3,
   Check,
   X,
   LoaderCircle,
@@ -15,6 +14,11 @@ import { uploadMultipleImagesToCloudinary } from "../utils/cloudinary";
 import { createBlogArticle, deleteBlog, updateBlogArticle } from "../api/api";
 import { toast } from "sonner";
 import Blog from "../pages/Blog";
+import AdminPageContainer from "@/components/admin/page/AdminPageContainer";
+import AdminPageHeader from "@/components/admin/page/AdminPageHeader";
+import AdminConfirmDialog from "@/components/admin/forms/AdminConfirmDialog";
+import { useAdminPageMeta } from "@/context/AdminPageContext";
+import { DASHBOARDBLOG, DASHBOARDHOME } from "@/constant/routerConstants";
 
 function BlogPage() {
   const [title, setTitle] = useState("");
@@ -25,6 +29,16 @@ function BlogPage() {
   const [blog, setBlog] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useAdminPageMeta({
+    title: "Blog",
+    breadcrumbs: [
+      { label: "Overview", href: DASHBOARDHOME },
+      { label: "Blog", href: DASHBOARDBLOG },
+    ],
+  });
 
   useEffect(() => {
     window.scrollTo({top:0,behavior:"smooth"})
@@ -114,51 +128,32 @@ const handleSubmit = async () => {
   }
 };
 
-const onDelete = async (id) => {
-  // Show confirmation toast
-  toast(
-    (t) => (
-      <div className="flex flex-col gap-2 ">
-        <span>Are you sure you want to delete this blog?</span>
-        <div className="flex justify-end gap-2 mt-2 w-full ">
-          <button
-            className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-black"
-            onClick={() => toast.dismiss(t.id)}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white"
-            onClick={async () => {
-              toast.dismiss(t.id); // close toast
-              try {
-                const response = await deleteBlog(id);
-                toast.success(response?.data?.message);
-                if (blog?._id === id) setBlog(null);
-                setRefreshKey((value) => value + 1);
-              } catch (error) {
-                toast.error(error?.response?.data?.message || "Failed to delete the blog.");
-              }
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    ),
-    { duration: 5000 } 
-  );
+const onDelete = (article) => {
+  setDeleteTarget(article);
+};
+
+const confirmDelete = async () => {
+  if (!deleteTarget?._id) return;
+  setIsDeleting(true);
+  try {
+    const response = await deleteBlog(deleteTarget._id);
+    toast.success(response?.data?.message || "Article deleted");
+    if (blog?._id === deleteTarget._id) setBlog(null);
+    setRefreshKey((value) => value + 1);
+    setDeleteTarget(null);
+  } catch (error) {
+    toast.error(error?.response?.data?.message || "Failed to delete the article.");
+  } finally {
+    setIsDeleting(false);
+  }
 };
 
   return (
-    <div className="min-h-screen bg-white text-black px-4 md:px-8 py-10 flex flex-col items-center justify-center">
-      <div className="w-full md:max-w-5xl space-y-10">
-        <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
-          <h1 className="md:text-3xl font-semibold flex items-center gap-2">
-            <Edit3 className="w-3 h-3 md:w-6 md:h-6 text-black" />
-            Blog Editor
-          </h1>
-
+    <AdminPageContainer>
+      <AdminPageHeader
+        title="Blog"
+        description="Create and manage NAZRA editorial content."
+        primaryAction={
           <button
             onClick={handleSubmit}
             disabled={isLoading}
@@ -171,11 +166,14 @@ const onDelete = async (id) => {
             )}
             {blog?._id ? "Update" : "Publish"}
           </button>
-        </div>
+        }
+      />
+      <div className="mx-auto w-full max-w-5xl space-y-8">
 
         <div className="space-y-2">
-          <label className="font-medium text-neutral-600">Article Title</label>
+          <label htmlFor="article-title" className="font-medium text-neutral-600">Article Title</label>
           <input
+            id="article-title"
             type="text"
             placeholder="Enter the article title..."
             value={title}
@@ -199,8 +197,9 @@ const onDelete = async (id) => {
             <ImagePlus className="w-5 h-5" /> Image Gallery
           </h2>
 
-          <div
-            className="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center hover:border-black/70 transition cursor-pointer bg-neutral-50/30"
+          <button
+            type="button"
+            className="w-full border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center hover:border-black/70 transition cursor-pointer bg-neutral-50/30"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onClick={() => fileInputRef.current.click()}
@@ -214,15 +213,16 @@ const onDelete = async (id) => {
                 </span>
               </p>
             </div>
-            <input
-              type="file"
-              multiple
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={(e) => handleFiles(e.target.files)}
-            />
-          </div>
+          </button>
+          <input
+            type="file"
+            multiple
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            aria-label="Choose article images"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
         </div>
 
         {images.length > 0 && (
@@ -249,15 +249,14 @@ const onDelete = async (id) => {
                     {isSelected ? (
                       <Check className="w-8 h-8 text-white" />
                     ) : (
-                      <Trash2
-                        onClick={() => removeImage(img)}
-                        className="w-6 h-6 text-white cursor-pointer hover:text-red-400 transition"
-                      />
+                      <Trash2 className="w-6 h-6 text-white" aria-hidden="true" />
                     )}
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => removeImage(img)}
+                    aria-label="Remove article image"
                     className="absolute top-2 right-2 bg-white/80 hover:bg-white rounded-full p-1 transition"
                   >
                     <X className="w-4 h-4 text-black" />
@@ -272,7 +271,19 @@ const onDelete = async (id) => {
       <div className="w-full">
         <Blog isAdmin={true} setBlog={setBlog} onDelete={onDelete} refreshKey={refreshKey}/>
       </div>
-    </div>
+      <AdminConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete article?"
+        description={`“${deleteTarget?.title || "This article"}” will be removed from the blog.`}
+        confirmLabel="Delete article"
+        onConfirm={confirmDelete}
+        loading={isDeleting}
+        destructive
+      />
+    </AdminPageContainer>
   );
 }
 

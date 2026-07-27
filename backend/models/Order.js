@@ -134,5 +134,8 @@ orderSchema.path("products").validate(
 
 orderSchema.index({ status: 1, "products.product": 1 });
 orderSchema.index({ idempotencyKeyHash: 1 }, { unique: true, sparse: true });
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ email: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Order", orderSchema);

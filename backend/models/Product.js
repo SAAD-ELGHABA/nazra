@@ -16,6 +16,8 @@ const productImageSchema = new mongoose.Schema({
   }
 }, { _id: true });
 
+const isNullableInteger = (value) => value == null || Number.isInteger(value);
+
 const lensOptionSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 100 },
   type: { type: String, required: true, trim: true, maxlength: 50 },
@@ -23,7 +25,15 @@ const lensOptionSchema = new mongoose.Schema({
   sku: { type: String, trim: true, maxlength: 100, default: null },
   price: { type: Number, min: 0, default: null },
   compareAtPrice: { type: Number, min: 0, default: null },
-  stock: { type: Number, min: 0, validate: Number.isInteger, default: null },
+  stock: {
+    type: Number,
+    min: 0,
+    validate: {
+      validator: isNullableInteger,
+      message: 'Stock must be a whole number when inventory is tracked'
+    },
+    default: null
+  },
   active: { type: Boolean, default: true },
   images: { type: [productImageSchema], default: [] }
 });
@@ -42,7 +52,15 @@ const colorVariantSchema = new mongoose.Schema({
   sku: { type: String, trim: true, maxlength: 100, default: null },
   price: { type: Number, min: 0, default: null },
   compareAtPrice: { type: Number, min: 0, default: null },
-  stock: { type: Number, min: 0, validate: Number.isInteger, default: null },
+  stock: {
+    type: Number,
+    min: 0,
+    validate: {
+      validator: isNullableInteger,
+      message: 'Stock must be a whole number when inventory is tracked'
+    },
+    default: null
+  },
   active: { type: Boolean, default: true },
   images: { type: [productImageSchema], default: [] },
   lensOptions: { type: [lensOptionSchema], default: [] }
@@ -226,6 +244,7 @@ productSchema.index({ isActive: 1, gender: 1 });
 productSchema.index({ isActive: 1, collection: 1 });
 productSchema.index({ isActive: 1, frameShape: 1 });
 productSchema.index({ isActive: 1, 'colors.name': 1 });
+productSchema.index({ isActive: 1, 'colors.sku': 1 });
 productSchema.index({ isActive: 1, 'colors.lensOptions.sku': 1 });
 productSchema.index({ isActive: 1, category: 1, type: 1 });
 productSchema.index({ isActive: 1, polarized: 1 });
@@ -234,6 +253,7 @@ productSchema.index({ isActive: 1, stockStatus: 1 });
 productSchema.index({ isActive: 1, inStock: 1 });
 productSchema.index({ isActive: 1, sale_price: 1, _id: 1 });
 productSchema.index({ isActive: 1, createdAt: -1, _id: 1 });
+productSchema.index({ isActive: 1, updatedAt: -1, _id: 1 });
 productSchema.index({ isActive: 1, ratingAverage: -1, reviewCount: -1, _id: 1 });
 
 module.exports = mongoose.model('Product', productSchema);

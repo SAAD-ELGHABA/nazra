@@ -41,5 +41,6 @@ blogSchema.pre('save', function (next) {
 });
 
 blogSchema.index({ title: "text" });
+blogSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Blog", blogSchema);

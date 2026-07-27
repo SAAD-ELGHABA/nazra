@@ -1,13 +1,14 @@
-// Frontend utility for uploading images to Cloudinary
-// This is for your React frontend
-
-const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME}/image/upload`;
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
-  // const parset = "nazra-preset";
-  // const cloud_name = "dpzzuubck";
+const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
 // Upload single image to Cloudinary
 export const uploadImageToCloudinary = async (file, folder = 'sunglasses-products') => {
   try {
+    if (!CLOUDINARY_CLOUD_NAME || !UPLOAD_PRESET) {
+      throw new Error("Cloudinary upload configuration is missing.");
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
@@ -17,12 +18,16 @@ export const uploadImageToCloudinary = async (file, folder = 'sunglasses-product
       method: 'POST',
       body: formData
     });
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      throw new Error('Upload failed');
+      throw new Error(data?.error?.message || "Cloudinary upload failed.");
     }
 
-    const data = await response.json();
+    if (!data?.secure_url || !data?.public_id) {
+      throw new Error("Cloudinary returned an incomplete upload response.");
+    }
+
     return {
       url: data.secure_url,
       public_id: data.public_id

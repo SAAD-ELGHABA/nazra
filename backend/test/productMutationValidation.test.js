@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
+const Product = require('../models/Product');
 const { _test } = require('../routes/products');
 
 const validProduct = () => ({
@@ -73,6 +74,24 @@ test('validates localized details, specifications and nested lens options', () =
   assert.equal(payload.specifications.lensWidth, 52);
   assert.equal(payload.colors[0].lensOptions[0].sku, 'ATLAS-BLK-POL');
   assert.equal(payload.colors[0].lensOptions[0].stock, 4);
+});
+
+test('allows null stock for untracked color and lens inventory', () => {
+  const product = new Product({
+    ...validProduct(),
+    createdBy: '64b000000000000000000001',
+    colors: [{
+      ...validProduct().colors[0],
+      stock: null,
+      lensOptions: [{
+        name: 'Standard',
+        type: 'standard',
+        stock: null
+      }]
+    }]
+  });
+
+  assert.equal(product.validateSync(), undefined);
 });
 
 test('rejects malformed nested product detail data', () => {

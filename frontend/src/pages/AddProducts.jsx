@@ -1,9 +1,16 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DASHBOARDPRODUCTS } from "../constant/routerConstants";
 import { createAdminProduct, getAdminProduct, updateAdminProduct } from "../api/api";
+import { uploadImageToCloudinary } from "../utils/cloudinary";
+import AdminPageContainer from "@/components/admin/page/AdminPageContainer";
+import AdminPageHeader from "@/components/admin/page/AdminPageHeader";
+import AdminLoadingState from "@/components/admin/feedback/AdminLoadingState";
+import AdminErrorState from "@/components/admin/feedback/AdminErrorState";
+import AdminNotFoundState from "@/components/admin/feedback/AdminNotFoundState";
+import { FormErrorSummary } from "@/components/admin/forms/AdminFormLayout";
+import { useAdminPageMeta } from "@/context/AdminPageContext";
 
 const EMPTY_DESCRIPTION = { en: "", fr: "", ar: "" };
 const MAX_COLOR_VARIANTS = 50;
@@ -37,8 +44,6 @@ const inputClassName =
 
 
 const AddProducts = () => {
-  const parset = "nazra-preset";
-  const cloud_name = "dpzzuubck";
   const location = useLocation();
   const navigate = useNavigate();
   const { id: productId } = useParams();
@@ -50,6 +55,7 @@ const AddProducts = () => {
   const [loadError, setLoadError] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [formError, setFormError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
   const errorSummaryRef = useRef(null);
   const [productData, setProductData] = useState(createEmptyProductData);
 
@@ -83,7 +89,7 @@ const AddProducts = () => {
     return () => {
       active = false;
     };
-  }, [productId]);
+  }, [productId, retryKey]);
 
   // Prefill form if editing
   useEffect(() => {
@@ -180,6 +186,20 @@ const AddProducts = () => {
     setFormError(message);
     window.requestAnimationFrame(() => errorSummaryRef.current?.focus());
   };
+
+  const pageTitle = isEditing
+    ? `Edit ${product?.name || "product"}`
+    : "Add Product";
+
+  useAdminPageMeta({
+    title: pageTitle,
+    documentTitle: pageTitle,
+    breadcrumbs: [
+      { label: "Products", href: DASHBOARDPRODUCTS },
+      { label: isEditing ? "Edit" : "New" },
+      ...(isEditing && product?.name ? [{ label: product.name }] : []),
+    ],
+  });
 
   const handleColorInputChange = (e) => {
     const { name, value } = e.target;
@@ -373,19 +393,7 @@ const AddProducts = () => {
               // Skip already uploaded images
               if (img.url) return img;
 
-              const formData = new FormData();
-              formData.append("file", img);
-              formData.append("upload_preset", parset);
-
-              const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
-                formData
-              );
-
-              return {
-                url: response.data.secure_url,
-                public_id: response.data.public_id,
-              };
+              return uploadImageToCloudinary(img, "sunglasses-products");
             })
           );
 
@@ -414,6 +422,10 @@ const AddProducts = () => {
           };
         })
       );
+
+      // Preserve successful uploads so an API validation failure can be
+      // retried without uploading the same files to Cloudinary again.
+      setProductData((previous) => ({ ...previous, colors: updatedColors }));
 
       const productDataToSend = {
         ...productData,
@@ -460,51 +472,63 @@ const AddProducts = () => {
 
   if (isLoadingProduct) {
     return (
-      <div className="grid min-h-[60vh] place-items-center text-sm text-gray-500">
-        Loading product...
-      </div>
+      <AdminPageContainer>
+        <AdminPageHeader
+          title={pageTitle}
+          description="Preparing the product editor."
+        />
+        <AdminLoadingState
+          title="Loading product"
+          description="Preparing the product editor."
+        />
+      </AdminPageContainer>
     );
   }
 
   if (notFound) {
     return (
-      <div className="grid min-h-[60vh] place-items-center p-6 text-center">
-        <div>
-          <h1 className="text-2xl font-semibold">Product not found</h1>
-          <p className="mt-2 text-sm text-gray-500">This product may have been removed or archived.</p>
-          <button
-            type="button"
-            onClick={() => navigate(DASHBOARDPRODUCTS)}
-            className="mt-4 rounded-md bg-black px-4 py-2 text-white"
-          >
-            Back to products
-          </button>
-        </div>
-      </div>
+      <AdminPageContainer>
+        <AdminPageHeader
+          title={pageTitle}
+          description="Manage your product catalog."
+        />
+        <AdminNotFoundState
+          title="Product not found"
+          description="This product may have been removed or archived."
+          backHref={DASHBOARDPRODUCTS}
+          backLabel="Back to products"
+        />
+      </AdminPageContainer>
     );
   }
 
   if (loadError) {
     return (
-      <div className="grid min-h-[60vh] place-items-center p-6 text-center">
-        <div>
-          <h1 className="text-2xl font-semibold">Unable to load product</h1>
-          <p className="mt-2 text-sm text-gray-500">{loadError}</p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="mt-4 rounded-md bg-black px-4 py-2 text-white"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <AdminPageContainer>
+        <AdminPageHeader
+          title={pageTitle}
+          description="Manage your product catalog."
+        />
+        <AdminErrorState
+          title="We couldn't load this product"
+          description={loadError}
+          onRetry={() => setRetryKey((value) => value + 1)}
+        />
+      </AdminPageContainer>
     );
   }
 
   return (
-    <div className="min-h-screen py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <AdminPageContainer>
+      <AdminPageHeader
+        title={pageTitle}
+        description={
+          isEditing
+            ? "Update product information while preserving existing variants and images."
+            : "Add a product to the NAZRA catalog."
+        }
+      />
+      <div className="mx-auto w-full max-w-4xl">
         <div className="bg-white shadow rounded-lg overflow-hidden relative">
           {isUploading && (
             <div
@@ -519,9 +543,7 @@ const AddProducts = () => {
             </div>
           )}
           <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">
-              {isEditing ? "Update Product" : "Add New Sunglass Product"}
-            </h3>
+            <h2 className="text-lg font-medium text-gray-900">Product details</h2>
             <p className="mt-1 text-sm text-gray-500">
               {isEditing
                 ? "Edit product information."
@@ -534,17 +556,13 @@ const AddProducts = () => {
             className="px-4 py-5 sm:p-6"
             aria-busy={isUploading}
           >
-            {formError && (
-              <div
+            <FormErrorSummary
                 ref={errorSummaryRef}
                 id="product-form-error"
-                role="alert"
-                tabIndex={-1}
-                className="mb-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="mb-6"
               >
                 {formError}
-              </div>
-            )}
+            </FormErrorSummary>
 
             {/* Basic Info */}
             <div className="grid grid-cols-1 gap-4 mb-6">
@@ -1011,6 +1029,7 @@ const AddProducts = () => {
                             <button
                               type="button"
                               onClick={() => removeImage(colorIndex, imgIndex)}
+                              aria-label={`Remove image ${imgIndex + 1} from ${color.name}`}
                               className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full"
                             >
                               ×
@@ -1054,7 +1073,7 @@ const AddProducts = () => {
           }
         `}
       </style>
-    </div>
+    </AdminPageContainer>
   );
 };
 

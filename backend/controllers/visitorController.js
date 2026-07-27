@@ -1,17 +1,35 @@
 const Visitor = require("../models/View");
+const { listVisitorAnalytics } = require("../services/admin/adminListService");
+const {
+  DEFAULT_TIMEZONE,
+  DAY_MS,
+  AdminDateRangeValidationError
+} = require("../utils/adminDateRange");
+const {
+  AdminQueryValidationError
+} = require("../utils/adminQuery");
 
 const ToggleVisitor = async (req, res) => {
   try {
-    const ip = req.params.visitorId; 
+    const visitorId = typeof req.params.visitorId === "string"
+      ? req.params.visitorId.trim()
+      : "";
+    if (!visitorId || visitorId.length > 200 || !/^[A-Za-z0-9._:-]+$/.test(visitorId)) {
+      return res.status(400).json({
+        success: false,
+        code: "VALIDATION_ERROR",
+        message: "Invalid visitor identifier"
+      });
+    }
     const today = new Date().toISOString().slice(0, 10);
 
-    const userAgent = req.get("user-agent") || req.body.userAgent || "Unknown";
-    const referrer = req.get("referer") || req.body.referrer  || "direct";
+    const userAgent = String(req.get("user-agent") || req.body?.userAgent || "Unknown").slice(0, 1024);
+    const referrer = String(req.get("referer") || req.body?.referrer || "direct").slice(0, 2048);
 
-    const visitor = await Visitor.findOneAndUpdate(
-      { ipAddress: ip, date: today },
+    await Visitor.findOneAndUpdate(
+      { ipAddress: visitorId, date: today },
       {
-        $setOnInsert: { ipAddress: ip, date: today },
+        $setOnInsert: { ipAddress: visitorId, date: today },
         $set: {
           lastVisit: new Date(),
           referrer,
@@ -19,13 +37,12 @@ const ToggleVisitor = async (req, res) => {
         },
         $inc: { visitCount: 1 },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true, setDefaultsOnInsert: false }
     );
 
     res.status(200).json({
       success: true,
-      message: "Visit recorded successfully",
-      visitor,
+      message: "Visit recorded successfully"
     });
   } catch (_err) {
     console.error("Visitor tracking failed");
@@ -39,12 +56,36 @@ const ToggleVisitor = async (req, res) => {
 
 const getVisitors = async (req, res) => {
   try {
-    const views = await Visitor.find();
+    const now = new Date();
+    const query = req.query.from || req.query.to
+      ? req.query
+      : {
+          ...req.query,
+          from: new Date(now.getTime() - 30 * DAY_MS).toISOString(),
+          to: now.toISOString(),
+          timezone: req.query.timezone || DEFAULT_TIMEZONE
+        };
+    const data = await listVisitorAnalytics(query);
     return res.status(200).json({
+      success: true,
       status: "success",
-      views: views
+      data,
+      meta: {
+        generatedAt: new Date().toISOString(),
+        deprecated: true,
+        replacement: "/api/admin/analytics/visitors"
+      }
     });
-  } catch (_err) {
+  } catch (error) {
+    if (error instanceof AdminDateRangeValidationError || error instanceof AdminQueryValidationError) {
+      return res.status(400).json({
+        success: false,
+        code: "VALIDATION_ERROR",
+        status: "error",
+        message: "The analytics query is invalid.",
+        errors: error.errors
+      });
+    }
     console.error("Visitor list request failed");
     return res.status(500).json({
       success: false,

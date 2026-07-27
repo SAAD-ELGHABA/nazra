@@ -1,141 +1,128 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { getBlogs } from '../api/api';
-import { motion as Motion } from 'framer-motion';
-import { Edit, Trash2 } from "lucide-react";
-function Blog({isAdmin=false , setBlog,onDelete, refreshKey = 0}) {
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Edit, FileText, Trash2 } from "lucide-react";
+import { getBlogs } from "@/api/api";
+import { Button } from "@/components/ui/button";
+import AdminErrorState from "@/components/admin/feedback/AdminErrorState";
+import AdminEmptyState from "@/components/admin/feedback/AdminEmptyState";
+import AdminLoadingState from "@/components/admin/feedback/AdminLoadingState";
+import AdminTablePagination from "@/components/admin/table/AdminTablePagination";
+import { useAdminListQuery } from "@/hooks/useAdminListQuery";
+
+export default function Blog({
+  isAdmin = false,
+  setBlog,
+  onDelete,
+  refreshKey = 0,
+}) {
+  const requestId = useRef(0);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [meta, setMeta] = useState({ totalPages: 1, total: 0, limit: 10 });
+  const { page, setQuery } = useAdminListQuery({ defaults: { page: 1 } });
 
-  const getBlogArticles = useCallback(async (pageNumber = 1) => {
+  const loadArticles = useCallback(async () => {
+    const currentRequest = ++requestId.current;
+    setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      setError("");
-      const response = await getBlogs(pageNumber); 
+      const response = await getBlogs(page);
+      if (currentRequest !== requestId.current) return;
       const nextBlogs = response?.data?.data || response?.data?.blogs || [];
-      const meta = response?.data?.meta || response?.data || {};
-      if (nextBlogs.length) {
-        setBlogs((previous) => pageNumber === 1 ? nextBlogs : [...previous, ...nextBlogs]);
-        setHasMore(Number(meta.page) < Number(meta.totalPages));
-      } else {
-        if (pageNumber === 1) setBlogs([]);
-        setHasMore(false);
+      const responseMeta = response?.data?.meta || response?.data || {};
+      setBlogs(nextBlogs);
+      setMeta({
+        totalPages: Math.max(1, Number(responseMeta.totalPages) || 1),
+        total: Number(responseMeta.total ?? responseMeta.totalItems) || nextBlogs.length,
+        limit: Math.max(1, Number(responseMeta.limit) || 10),
+      });
+    } catch (loadError) {
+      if (currentRequest === requestId.current) {
+        setError(loadError?.response?.data?.message || "Blog articles could not be loaded.");
       }
-    } catch (error) {
-      setError(error?.response?.data?.message || "Blog articles could not be loaded.");
     } finally {
-      setLoading(false);
+      if (currentRequest === requestId.current) setLoading(false);
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
-    setBlogs([]);
-    setHasMore(true);
-    setPage((currentPage) => {
-      if (currentPage === 1) getBlogArticles(1);
-      return 1;
-    });
-  }, [refreshKey, getBlogArticles]);
-
-  useEffect(() => {
-    getBlogArticles(page);
-  }, [page, getBlogArticles]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop + 100 >=
-        document.documentElement.scrollHeight
-      ) {
-        if (!loading && hasMore) {
-          setPage((prev) => prev + 1);
-        }
-      }
+    loadArticles();
+    return () => {
+      requestId.current += 1;
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore]);
+  }, [loadArticles, refreshKey]);
 
   return (
-    <div className="my-10 h-screen w-full md:max-w-4xl mx-auto p-4">
-        <div className='md:text-3xl font-semibold'>
-            Blog
-        </div>
-      {error && (
-        <div className="my-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          <p>{error}</p>
-          <button type="button" onClick={() => getBlogArticles(1)} className="mt-2 rounded bg-red-700 px-3 py-2 text-white">
-            Retry
-          </button>
-        </div>
-      )}
-      {blogs.map((blog) => (
-        <Motion.div
-          key={blog._id}
-          className="bg-white shadow-md rounded-lg mb-6 overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {blog.images?.[0] && (
-            <img
-              src={blog.images[0].url}
-              alt={blog.title}
-              className="w-full h-48 object-cover"
-            />
-          )}
-          <div className="p-4">
-            <h2 className="text-xl font-bold mb-2">{blog.title}</h2>
-            <div
-            dangerouslySetInnerHTML={{
-                __html: blog?.content?.slice(0, 200) + (blog.content.length > 200 ? "..." : "")
-            }}
-            />
+    <section aria-labelledby="article-list-title" className="space-y-5 border-t pt-8">
+      <div>
+        <h2 id="article-list-title" className="text-xl font-semibold">Published articles</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Select an article to edit it or remove it from the blog.
+        </p>
+      </div>
 
-          </div>
-          {
-            isAdmin &&
-            <div className="flex gap-3 my-4">
-                <button
-                    onClick={()=>setBlog(blog)}
-                    className="flex items-center gap-2 px-4 py-2 border border-black text-black font-medium rounded-lg
-                            hover:bg-black hover:text-white transition-colors duration-200"
-                >
-                    <Edit size={16} /> Modify
-                </button>
-
-                <button
-                    onClick={()=>onDelete(blog?._id)}
-                    className="flex items-center gap-2 px-4 py-2 border border-black text-black font-medium rounded-lg
-                            hover:bg-red-600 hover:text-white transition-colors duration-200"
-                >
-                    <Trash2 size={16} /> Delete
-                </button>
-            </div>
-          }
-        </Motion.div>
-      ))}
-
-      {loading && (
-        <div className="flex justify-center space-x-2 mt-6">
-          {[...Array(5)].map((_, i) => (
-            <Motion.div
-              key={i}
-              className="w-4 h-4 bg-gray-500 rounded-full"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.1 }}
-            />
+      {loading ? (
+        <AdminLoadingState variant="cards" rows={3} title="Loading articles" />
+      ) : error ? (
+        <AdminErrorState
+          title="We couldn't load blog articles"
+          description={error}
+          onRetry={loadArticles}
+        />
+      ) : blogs.length === 0 ? (
+        <AdminEmptyState
+          icon={FileText}
+          title="No articles yet"
+          description="Create and publish the first NAZRA article using the editor above."
+        />
+      ) : (
+        <div className="grid gap-5 lg:grid-cols-2">
+          {blogs.map((article) => (
+            <article key={article._id} className="overflow-hidden rounded-xl border bg-card shadow-sm">
+              {article.images?.[0]?.url && (
+                <img
+                  src={article.images[0].url}
+                  alt=""
+                  className="h-44 w-full object-cover"
+                />
+              )}
+              <div className="space-y-3 p-5">
+                <h3 className="text-lg font-semibold">{article.title}</h3>
+                <div
+                  className="line-clamp-3 text-sm text-muted-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      article?.content?.slice(0, 240) +
+                      (article?.content?.length > 240 ? "…" : ""),
+                  }}
+                />
+                {isAdmin && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <Button type="button" variant="outline" onClick={() => setBlog(article)}>
+                      <Edit aria-hidden="true" />
+                      Edit
+                    </Button>
+                    <Button type="button" variant="destructive" onClick={() => onDelete(article)}>
+                      <Trash2 aria-hidden="true" />
+                      Delete
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </article>
           ))}
         </div>
       )}
 
-      {!hasMore && !loading && blogs.length > 0 && (
-        <p className="text-center text-gray-400 mt-4">No more articles.</p>
+      {!loading && !error && meta.totalPages > 1 && (
+        <AdminTablePagination
+          page={Math.min(page, meta.totalPages)}
+          totalPages={meta.totalPages}
+          total={meta.total}
+          pageSize={meta.limit}
+          onPageChange={(nextPage) => setQuery({ page: nextPage })}
+        />
       )}
-    </div>
+    </section>
   );
 }
-
-export default Blog;

@@ -32,8 +32,10 @@ import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
 import AdminsPage from "./pages/AdminsPage";
 import BlogPage from './Dashboard/BlogPage'
+import DashboardAnalytics from "./pages/DashboardAnalytics";
+import DashboardSubscribers from "./pages/DashboardSubscribers";
 import Forbidden from "./pages/Forbidden";
-import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
 import { getCurrentAdmin } from "./api/api";
 import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
@@ -43,14 +45,45 @@ const ProtectedRoutes = ({ children }) => {
     loading: true,
     currentUser: null,
     capabilities: [],
+    sessionError: "",
   });
 
   const refreshCurrentUser = React.useCallback(async () => {
-    const response = await getCurrentAdmin();
-    const user = response?.data?.user;
-    const capabilities = Array.isArray(user?.capabilities) ? user.capabilities : [];
-    setState({ loading: false, currentUser: user, capabilities });
-    return user;
+    setState((previous) => ({
+      ...previous,
+      loading: true,
+      sessionError: "",
+    }));
+
+    try {
+      const response = await getCurrentAdmin();
+      const user = response?.data?.user;
+      const capabilities = Array.isArray(user?.capabilities) ? user.capabilities : [];
+      setState({
+        loading: false,
+        currentUser: user,
+        capabilities,
+        sessionError: "",
+      });
+      return user;
+    } catch (error) {
+      const unauthorized = error?.response?.status === 401;
+
+      if (unauthorized) {
+        clearAuthStorage();
+      }
+
+      setState({
+        loading: false,
+        currentUser: null,
+        capabilities: [],
+        sessionError: unauthorized
+          ? ""
+          : error?.response?.data?.message ||
+            "The admin session could not be verified. Check your connection and try again.",
+      });
+      return null;
+    }
   }, []);
 
   React.useEffect(() => {
@@ -61,23 +94,14 @@ const ProtectedRoutes = ({ children }) => {
       return;
     }
 
-    getCurrentAdmin()
-      .then((response) => {
-        if (!active) return;
-        const user = response?.data?.user;
-        const capabilities = Array.isArray(user?.capabilities) ? user.capabilities : [];
-        setState({ loading: false, currentUser: user, capabilities });
-      })
-      .catch(() => {
-        if (!active) return;
-        clearAuthStorage();
-        setState({ loading: false, currentUser: null, capabilities: [] });
-      });
+    refreshCurrentUser().finally(() => {
+      if (!active) return;
+    });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [refreshCurrentUser]);
 
   if (!hasStoredAuthSession()) {
     clearAuthStorage();
@@ -88,6 +112,23 @@ const ProtectedRoutes = ({ children }) => {
       <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">
         Loading admin session...
       </div>
+    );
+  }
+  if (state.sessionError) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-muted/30 p-6">
+        <div className="w-full max-w-md rounded-xl border bg-card p-6 text-center shadow-sm">
+          <h1 className="text-xl font-semibold">Admin session unavailable</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{state.sessionError}</p>
+          <button
+            type="button"
+            onClick={refreshCurrentUser}
+            className="mt-5 inline-flex min-h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Retry
+          </button>
+        </div>
+      </main>
     );
   }
   if (!state.currentUser) return <Navigate to={LOGIN} replace={true} />;
@@ -198,23 +239,43 @@ export const Router = createBrowserRouter([
     children: [
       {
         path: DASHBOARDHOME,
-        element: <Dashboard />,
+        element: (
+          <CapabilityRoute capability="dashboard.view">
+            <Dashboard />
+          </CapabilityRoute>
+        ),
       },
       {
         path: DASHBOARDPRODUCTS,
-        element: <DashboardProducts />,
+        element: (
+          <CapabilityRoute capability="products.read">
+            <DashboardProducts />
+          </CapabilityRoute>
+        ),
       },
       {
         path: DASHBOARDPRODUCTSNEW,
-        element: <AddProducts />,
+        element: (
+          <CapabilityRoute capability="products.manage">
+            <AddProducts />
+          </CapabilityRoute>
+        ),
       },
       {
         path: "/admins/dashboard/products/:id/edit",
-        element: <AddProducts />,
+        element: (
+          <CapabilityRoute capability="products.manage">
+            <AddProducts />
+          </CapabilityRoute>
+        ),
       },
       {
         path: DASHBOARDORDERS,
-        element: <OrderManagementPage />,
+        element: (
+          <CapabilityRoute capability="orders.read">
+            <OrderManagementPage />
+          </CapabilityRoute>
+        ),
       },
       {
         path: DASHBOARDADMINS,
@@ -226,7 +287,27 @@ export const Router = createBrowserRouter([
       },
       {
         path: DASHBOARDBLOG,
-        element: <BlogPage />,
+        element: (
+          <CapabilityRoute capability="blog.manage">
+            <BlogPage />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDANALYTICS,
+        element: (
+          <CapabilityRoute capability="analytics.read">
+            <DashboardAnalytics />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDSUBSCRIBERS,
+        element: (
+          <CapabilityRoute capability="subscribers.read">
+            <DashboardSubscribers />
+          </CapabilityRoute>
+        ),
       },
     ],
   },

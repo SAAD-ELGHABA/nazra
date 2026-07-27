@@ -37,6 +37,46 @@ Copier `.env.example` vers `.env.local` en local et définir les mêmes noms dan
 
 Toutes les variables `VITE_*` sont publiques : Vite les intègre au bundle téléchargé par le navigateur. Ne jamais y placer un secret Cloudinary, un mot de passe SMTP, un JWT secret, un pepper ou une chaîne MongoDB. Le cloud name, un preset d’upload non signé strictement restreint et une clé SDK explicitement prévue pour le client peuvent être publics ; appliquer malgré tout les restrictions d’origine, de format, de taille et de quota du fournisseur.
 
+## Fondation de l’administration (Phase 2)
+
+L’administration utilise un shell React partagé sous le préfixe `/admins/dashboard`. Il fournit la navigation responsive, la barre supérieure, les breadcrumbs, l’identité de l’administrateur courant, les titres de page et les états communs des listes.
+
+Routes actuellement disponibles :
+
+- `/admins/dashboard` : vue d’ensemble ;
+- `/admins/dashboard/products` : produits ;
+- `/admins/dashboard/products/new` : création d’un produit ;
+- `/admins/dashboard/products/:id/edit` : modification d’un produit ;
+- `/admins/dashboard/orders` : commandes ;
+- `/admins/dashboard/blogs` : blog ;
+- `/admins/dashboard/analytics` : visiteurs et analytics ;
+- `/admins/dashboard/subscribers` : abonnés consentants ;
+- `/admins/dashboard/admins` : administrateurs.
+
+`src/components/admin/navigation/adminNavigation.js` centralise les liens, leur correspondance avec les routes imbriquées et la capability requise. Le client charge l’utilisateur courant et ses capabilities, masque les entrées non autorisées et affiche un état 403 sur une route interdite. Cette filtration reste une aide d’interface : les contrôles d’autorisation du backend demeurent la source de vérité.
+
+Principaux éléments réutilisables :
+
+- `src/components/admin/shell/` : shell, sidebar, top bar, breadcrumbs et menu utilisateur ;
+- `src/components/admin/page/`, `feedback/`, `filters/`, `table/`, `forms/` et `status/` : en-têtes, états de données, filtres, tables, pagination, confirmations et badges ;
+- `src/context/AdminAuthContext.jsx` et `src/context/AdminPageContext.jsx` : identité/capabilities et métadonnées propres à la page ;
+- `src/hooks/useAdminListQuery.js` : état de liste non sensible dans l’URL (`page`, `limit`, `sort` et filtres autorisés) ;
+- `src/utils/adminFormatting.js` et `src/utils/adminDates.js` : montants MAD, données de commande et dates administratives cohérentes.
+
+La recherche produit peut être conservée dans `q`, car elle concerne le catalogue. Les recherches de commandes, d’abonnés et d’administrateurs restent uniquement dans l’état React et suppriment `q` de l’URL : une recherche peut contenir un nom, un e-mail, un téléphone ou un identifiant personnel qui ne doit pas apparaître dans l’historique du navigateur ou dans une URL partagée.
+
+Limitation actuelle : les pages migrées chargent leur collection puis appliquent filtres et pagination côté client avec `paginateAdminItems`. Les totaux représentent donc les données déjà reçues, pas une pagination serveur. Pour des volumes importants, conserver les mêmes composants mais faire évoluer les endpoints afin qu’ils renvoient les lignes paginées et leurs métadonnées.
+
+Pour vérifier la fondation depuis `frontend` :
+
+```bash
+npm run lint
+npm run build
+npm run dev
+```
+
+Il n’existe toujours pas de script de tests automatisés frontend. `npm run dev` permet les contrôles interactifs locaux ; cette documentation ne présume pas qu’ils ont été exécutés.
+
 ## Mot de passe oublié
 
 Le lien « Forgot password? » de `/login` ouvre `/forgot-password`. Le parcours comporte deux étapes :

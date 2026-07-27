@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, LoaderCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeClosed, LoaderCircle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { loginAdmin } from "../api/api";
@@ -29,6 +29,8 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [requestError, setRequestError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+
 
   useEffect(() => {
     if (location.state?.passwordReset) {
@@ -184,9 +186,10 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
-          <Input
+          <div className="relative">
+<Input
             id="login-password"
-            type="password"
+            type={showPassword ? 'text': 'password'}
             value={form.password}
             onChange={(event) => updateField("password", event.target.value)}
             autoComplete="current-password"
@@ -196,6 +199,21 @@ export default function LoginPage() {
             }
             className="h-11"
           />
+          <Button
+          type="button"
+          onClick={()=> setShowPassword(!showPassword)}
+          variant="outline"
+          className="absolute top-1/2 -translate-y-1/2 right-1 p-1">
+            {
+              showPassword ? 
+                <EyeClosed />
+               : 
+              <Eye />
+              
+            }
+          </Button>
+          </div>
+          
           {fieldErrors.password ? (
             <p id="login-password-error" className="text-sm text-destructive">
               {fieldErrors.password}
