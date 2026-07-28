@@ -34,8 +34,15 @@ import AdminsPage from "./pages/AdminsPage";
 import BlogPage from './Dashboard/BlogPage'
 import DashboardAnalytics from "./pages/DashboardAnalytics";
 import DashboardSubscribers from "./pages/DashboardSubscribers";
+import DashboardActivity from "./pages/DashboardActivity";
+import DashboardContacts from "./pages/DashboardContacts";
+import DashboardCustomers from "./pages/DashboardCustomers";
+import DashboardExports from "./pages/DashboardExports";
+import DashboardInventory from "./pages/DashboardInventory";
+import DashboardReviews from "./pages/DashboardReviews";
+import DashboardSettings from "./pages/DashboardSettings";
 import Forbidden from "./pages/Forbidden";
-import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDHOME, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
 import { getCurrentAdmin } from "./api/api";
 import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
@@ -309,6 +316,62 @@ export const Router = createBrowserRouter([
         element: (
           <CapabilityRoute capability="subscribers.read">
             <DashboardSubscribers />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDINVENTORY,
+        element: (
+          <CapabilityRoute capability="inventory.read">
+            <DashboardInventory />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDCUSTOMERS,
+        element: (
+          <CapabilityRoute capability="customers.read">
+            <DashboardCustomers />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDCONTACTS,
+        element: (
+          <CapabilityRoute capability="contacts.read">
+            <DashboardContacts />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDREVIEWS,
+        element: (
+          <CapabilityRoute capability="reviews.read">
+            <DashboardReviews />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDACTIVITY,
+        element: (
+          <CapabilityRoute capability="activity.read">
+            <DashboardActivity />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDEXPORTS,
+        element: (
+          <CapabilityRoute capability="orders.export">
+            <DashboardExports />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDSETTINGS,
+        element: (
+          <CapabilityRoute capability="settings.read">
+            <DashboardSettings />
           </CapabilityRoute>
         ),
       },

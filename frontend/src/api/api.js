@@ -96,6 +96,123 @@ export const getAdminDashboardSummary = async (params = {}, signal) => {
   });
 };
 
+export const getAdminActionCenter = async (signal) => {
+  return api.get("/admin/action-center", {
+    ...getBearerConfig(),
+    signal,
+  });
+};
+
+export const getAdminInventory = async (params = {}, signal) => {
+  return api.get("/admin/inventory", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const getAdminCustomers = async (params = {}, signal) => {
+  return api.get("/admin/customers", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const getAdminContacts = async (params = {}, signal) => {
+  return api.get("/admin/contacts", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const updateAdminContactStatus = async (id, status) => {
+  return api.patch(`/admin/contacts/${id}/status`, { status }, getBearerConfig());
+};
+
+export const getAdminReviews = async (params = {}, signal) => {
+  return api.get("/admin/reviews", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const updateAdminReviewModeration = async (id, payload) => {
+  return api.patch(`/admin/reviews/${id}/moderation`, payload, getBearerConfig());
+};
+
+export const getAdminActivityLogs = async (params = {}, signal) => {
+  return api.get("/admin/activity-logs", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const getAdminSettings = async (signal) => {
+  return api.get("/admin/settings", {
+    ...getBearerConfig(),
+    signal,
+  });
+};
+
+export const updateAdminSettings = async (payload) => {
+  return api.patch("/admin/settings", payload, getBearerConfig());
+};
+
+export const getAdminExports = async (params = {}, signal) => {
+  return api.get("/admin/exports", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const createAdminExport = async (payload) => {
+  return api.post("/admin/exports", payload, getBearerConfig());
+};
+
+export const downloadAdminExport = async (id) => {
+  return api.get(`/admin/exports/${id}/download`, {
+    ...getBearerConfig(),
+    responseType: "blob",
+  });
+};
+
+export const getAdminNotifications = async (params = {}, signal) => {
+  return api.get("/admin/notifications", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const markAdminNotificationRead = async (id) => {
+  return api.patch(`/admin/notifications/${id}/read`, {}, getBearerConfig());
+};
+
+export const getAdminSavedViews = async (params = {}, signal) => {
+  return api.get("/admin/saved-views", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
+export const createAdminSavedView = async (payload) => {
+  return api.post("/admin/saved-views", payload, getBearerConfig());
+};
+
+export const searchAdminRecords = async (params = {}, signal) => {
+  return api.get("/admin/search", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
+};
+
 //admins
 export const getAdmins = async() => {
   const response = await api.get('/auth/users', getBearerConfig())

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom";
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
   Boxes,
   CircleDollarSign,
@@ -42,6 +43,7 @@ import {
 } from "@/components/ui/card";
 import {
   getAdminDashboardSummary,
+  getAdminActionCenter,
   getProductsAsAdmin,
 } from "../api/api";
 import { formatMAD } from "../utils/adminFormatting";
@@ -119,6 +121,7 @@ const Dashboard = () => {
   const [summary, setSummary] = useState(null);
   const [products, setProducts] = useState([]);
   const [catalogError, setCatalogError] = useState("");
+  const [actionItems, setActionItems] = useState([]);
   const [error, setError] = useState("");
   const [errorStatus, setErrorStatus] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -137,9 +140,10 @@ const Dashboard = () => {
       const productRequest = canReadProducts
         ? getProductsAsAdmin(signal)
         : Promise.resolve(null);
-      const [summaryResult, productsResult] = await Promise.allSettled([
+      const [summaryResult, productsResult, actionCenterResult] = await Promise.allSettled([
         getAdminDashboardSummary({ comparison: "previous_period" }, signal),
         productRequest,
+        getAdminActionCenter(signal),
       ]);
 
       if (!isLatestRequest()) return;
@@ -157,6 +161,11 @@ const Dashboard = () => {
 
       setSummary(summaryPayload);
       setLastUpdated(summaryResponse?.data?.meta?.generatedAt || new Date().toISOString());
+      setActionItems(
+        actionCenterResult.status === "fulfilled"
+          ? actionCenterResult.value?.data?.data ?? []
+          : [],
+      );
 
       if (!canReadProducts) {
         setProducts([]);
@@ -490,6 +499,8 @@ const Dashboard = () => {
         ))}
       </section>
 
+      <ActionCenterPanel items={actionItems} />
+
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
         <PerformanceChart data={insights.salesSeries} />
         <StatusChart data={insights.statusData} ordersCount={insights.orders} />
@@ -518,6 +529,57 @@ const HeroSignal = ({ label, value, icon: Icon }) => (
     <p className="mt-2 text-2xl font-semibold tracking-normal text-white">{value}</p>
   </div>
 );
+
+const severityStyles = {
+  critical: "border-destructive/25 bg-destructive/5 text-destructive",
+  warning: "border-amber-300/60 bg-amber-50 text-amber-900",
+  info: "border-border bg-muted/30 text-muted-foreground",
+};
+
+const ActionCenterPanel = ({ items = [] }) => {
+  const actionable = items.filter((item) => Number(item.count || 0) > 0);
+
+  return (
+    <Card className="overflow-hidden py-0">
+      <CardHeader className="border-b px-5 py-5">
+        <CardTitle className="flex items-center gap-2 text-xl">
+          <AlertTriangle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          Action Center
+        </CardTitle>
+        <CardDescription>Operational work that needs attention now</CardDescription>
+      </CardHeader>
+      <CardContent className="p-5">
+        {actionable.length ? (
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {actionable.map((item) => (
+              <Link
+                key={item.key}
+                to={item.href}
+                className={`rounded-lg border p-4 transition hover:bg-accent ${severityStyles[item.severity] || severityStyles.info}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{item.title}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Open related admin view</p>
+                  </div>
+                  <Badge variant={item.severity === "critical" ? "destructive" : "outline"}>
+                    {item.count}
+                  </Badge>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <EmptyPanel
+            icon={AlertTriangle}
+            title="No urgent actions"
+            description="Pending work, stock alerts, contact messages, and reviews will appear here."
+          />
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const MiniMetric = ({ label, value, description }) => (
   <div className="rounded-lg border bg-muted/40 p-3">

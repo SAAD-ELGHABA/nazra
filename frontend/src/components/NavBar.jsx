@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import CardModal from "./CardModal";
+import BrandLogo from "./BrandLogo";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCard } from "../context/CardContext";
 
@@ -55,7 +56,7 @@ export default function NavBar() {
       </div>
       <div className="border-b border-stone-200 bg-white/95 backdrop-blur-md">
         <div className="nazra-container grid h-16 grid-cols-[auto_1fr_auto] items-center gap-4 lg:h-[70px]">
-          <Link to="/" className="font-display text-xl font-semibold tracking-[.22em]" aria-label="NAZRA — accueil">NAZRA</Link>
+          <Link to="/" className="inline-flex w-[132px] items-center sm:w-[150px]" aria-label="NAZRA — accueil"><BrandLogo /></Link>
           <nav className="hidden justify-self-center lg:block" aria-label="Navigation principale">
             <ul className="flex items-center gap-6 xl:gap-8">
               {NAV_LINKS.map(([key, href]) => {

@@ -1,6 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Download, Edit, Eye, Package } from "lucide-react";
+import {
+  Banknote,
+  Check,
+  CheckCircle2,
+  Clock,
+  Download,
+  Edit,
+  Eye,
+  Package,
+  Truck,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import ProductDetailsModal from "@/components/ProductDetailsModal";
 import { getOrders, updateOrderStatus } from "@/api/api";
@@ -11,7 +22,7 @@ import {
   getProductSnapshotName,
   neutralizeSpreadsheetCell,
 } from "@/utils/adminFormatting";
-import { formatAdminDate, formatAdminDateTime } from "@/utils/adminDates";
+import { formatAdminDate, formatAdminDateTime, formatRelativeTime } from "@/utils/adminDates";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminPageMeta } from "@/context/AdminPageContext";
 import { paginateAdminItems, useAdminListQuery } from "@/hooks/useAdminListQuery";
@@ -25,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import AdminPageContainer from "@/components/admin/page/AdminPageContainer";
 import AdminPageHeader from "@/components/admin/page/AdminPageHeader";
+import { AdminMetricCard, AdminMetricGrid } from "@/components/admin/page/AdminMetricCards";
 import AdminFilterBar, { AdminSearchInput } from "@/components/admin/filters/AdminFilterBar";
 import AdminErrorState from "@/components/admin/feedback/AdminErrorState";
 import AdminEmptyState from "@/components/admin/feedback/AdminEmptyState";
@@ -42,6 +54,13 @@ import AdminTable, {
 import AdminTablePagination from "@/components/admin/table/AdminTablePagination";
 
 const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
+
+const getProductsPreview = (products = []) => {
+  if (!products.length) return "No products";
+  const [firstProduct, ...remainingProducts] = products;
+  const firstName = getProductSnapshotName(firstProduct);
+  return remainingProducts.length ? `${firstName} +${remainingProducts.length} more` : firstName;
+};
 
 export default function OrderManagementPage() {
   const requestId = useRef(0);
@@ -127,6 +146,22 @@ export default function OrderManagementPage() {
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [orders, search, status]);
 
+  const orderSummary = useMemo(() => {
+    const openStatuses = new Set(["pending", "processing"]);
+    const openOrders = filteredOrders.filter((order) => openStatuses.has(order.status)).length;
+    const shippedOrders = filteredOrders.filter((order) => order.status === "shipped").length;
+    const deliveredOrders = filteredOrders.filter((order) => order.status === "delivered").length;
+    const filteredValue = filteredOrders.reduce((sum, order) => sum + getOrderTotal(order), 0);
+
+    return {
+      total: filteredOrders.length,
+      open: openOrders,
+      shipped: shippedOrders,
+      delivered: deliveredOrders,
+      value: filteredValue,
+    };
+  }, [filteredOrders]);
+
   const pagination = paginateAdminItems(filteredOrders, page, limit);
 
   useEffect(() => {
@@ -211,7 +246,7 @@ export default function OrderManagementPage() {
   const secondaryActions = canExport ? (
     <Button variant="outline" onClick={exportToExcel} disabled={!filteredOrders.length}>
       <Download aria-hidden="true" />
-      Export
+      Export filtered
     </Button>
   ) : null;
 
@@ -224,9 +259,42 @@ export default function OrderManagementPage() {
     <AdminPageContainer>
       <AdminPageHeader
         title="Orders"
-        description="Review and manage customer orders."
+        description="Review customer details, fulfillment progress, and order value from one operational list."
         secondaryActions={secondaryActions}
       />
+
+      {!loading || orders.length > 0 ? (
+        <AdminMetricGrid>
+          <AdminMetricCard
+            title="Visible orders"
+            value={orderSummary.total}
+            description={status === "all" && !search ? "All loaded customer orders." : "Matching the current filters."}
+            icon={Package}
+            tone="primary"
+          />
+          <AdminMetricCard
+            title="Needs action"
+            value={orderSummary.open}
+            description="Pending or processing orders."
+            icon={Clock}
+            tone="warning"
+          />
+          <AdminMetricCard
+            title="In transit"
+            value={orderSummary.shipped}
+            description="Orders marked as shipped."
+            icon={Truck}
+            tone="default"
+          />
+          <AdminMetricCard
+            title="Filtered value"
+            value={formatMAD(orderSummary.value, { compact: true })}
+            description={`${orderSummary.delivered} delivered in this view.`}
+            icon={Banknote}
+            tone="success"
+          />
+        </AdminMetricGrid>
+      ) : null}
 
       {error && orders.length > 0 && (
         <AdminErrorState title="Some order data may be stale" description={error} onRetry={loadOrders} />
@@ -266,6 +334,11 @@ export default function OrderManagementPage() {
             ))}
           </SelectContent>
         </Select>
+        <p className="text-sm text-muted-foreground md:ml-auto">
+          {filteredOrders.length === 1
+            ? "1 order in view"
+            : `${filteredOrders.length} orders in view`}
+        </p>
       </AdminFilterBar>
 
       {loading && orders.length === 0 ? (
@@ -320,9 +393,14 @@ export default function OrderManagementPage() {
                 return (
                   <TableRow key={order._id}>
                     <TableCell>
-                      <code className="rounded bg-muted px-2 py-1 text-xs font-medium">
-                        #{String(order._id).slice(-8).toUpperCase()}
-                      </code>
+                      <div className="min-w-[116px]">
+                        <code className="rounded bg-muted px-2 py-1 text-xs font-medium">
+                          #{String(order._id).slice(-8).toUpperCase()}
+                        </code>
+                        <p className="mt-2 max-w-[180px] truncate text-xs text-muted-foreground xl:hidden">
+                          {getProductsPreview(order.products)}
+                        </p>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="min-w-[160px]">
@@ -336,12 +414,22 @@ export default function OrderManagementPage() {
                       </div>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      {formatAdminDateTime(order.createdAt)}
+                      <p className="text-sm">{formatAdminDateTime(order.createdAt)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatRelativeTime(order.createdAt)}
+                      </p>
                     </TableCell>
                     <TableCell className="hidden xl:table-cell">
-                      <Button variant="link" className="h-auto max-w-[230px] justify-start p-0" onClick={() => showProducts(order.products)}>
-                        {(order.products ?? []).length} item{order.products?.length === 1 ? "" : "s"}
+                      <Button
+                        variant="link"
+                        className="h-auto max-w-[260px] justify-start truncate p-0"
+                        onClick={() => showProducts(order.products)}
+                      >
+                        {getProductsPreview(order.products)}
                       </Button>
+                      <p className="text-xs text-muted-foreground">
+                        {(order.products ?? []).length} item{order.products?.length === 1 ? "" : "s"}
+                      </p>
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatMAD(getOrderTotal(order), { compact: true })}
@@ -367,13 +455,22 @@ export default function OrderManagementPage() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <Button size="sm" onClick={requestStatusUpdate} disabled={updating}>Save</Button>
+                          <Button size="sm" onClick={requestStatusUpdate} disabled={updating}>
+                            <Check aria-hidden="true" />
+                            Save
+                          </Button>
                           <Button size="sm" variant="ghost" onClick={() => setEditing(null)} disabled={updating}>
+                            <X aria-hidden="true" />
                             Cancel
                           </Button>
                         </div>
                       ) : (
-                        <StatusBadge status={order.status} />
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={order.status} />
+                          {order.status === "delivered" && (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-label="Delivered" />
+                          )}
+                        </div>
                       )}
                     </TableCell>
                     <TableCell>

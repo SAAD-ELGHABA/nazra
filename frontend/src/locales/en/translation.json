@@ -260,7 +260,12 @@
   "checkout": "Checkout",
   "sending":"sending",
   "continueShopping": "Continue Shopping",
+  "drawerSummary": "{{count}} item in your cart",
+  "emptyHint": "Explore the collection and keep your favorite styles ready when you are.",
+  "shippingNote": "Delivery and final availability are confirmed when the order is placed.",
   "remove": "Remove",
+  "decrease": "Decrease quantity",
+  "increase": "Increase quantity",
   "quantity": "Quantity",
   "item": "Item",
   "price": "Price",
@@ -281,6 +286,19 @@
     "formSubmitted": "Your order has been submitted!"
   }
 ,
+  "wishlist": {
+    "eyebrow": "Your edit",
+    "title": "Wishlist",
+    "description": "{{count}} saved style ready to compare, revisit, or add to cart.",
+    "emptyTitle": "Your wishlist is empty",
+    "emptyCopy": "Save your favorite frames while browsing, then come back here when you are ready to choose.",
+    "shop": "Explore the collection",
+    "home": "Back home",
+    "keepShopping": "Keep shopping",
+    "tipTitle": "Shopping tip",
+    "tipCopy": "Move favorites to your cart when you are ready to order.",
+    "count": "{{count}} saved favorite"
+  },
   "contact": {
     "title": "Contact Us",
     "subtitle": "We’d love to hear from you. Reach out anytime!",
@@ -429,6 +447,19 @@
     "contactPhone": "Phone"
   },
   "checkoutPage":{
+    "eyebrow": "Secure order",
+    "description": "Choose the items you want to order, review quantities, then add your delivery details.",
+    "items": "Items",
+    "selected": "Selected",
+    "reviewItems": "Cart items",
+    "selectedSummary": "{{count}} item selected for checkout.",
+    "selectAll": "Select all",
+    "selectItem": "Select",
+    "orderSummary": "Order summary",
+    "successTitle": "Order confirmed",
+    "successCopy": "Your order #{{id}} is confirmed. Our team will contact you to finalize delivery.",
+    "missingConfirmation": "The order was created without a confirmation number.",
+    "submitError": "Unable to place your order right now.",
     "selectAtLeastMsg":"Please select at least one item to checkout."
   }
   ,

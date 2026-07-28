@@ -151,6 +151,36 @@ const summarizeStock = (product) => {
   };
 };
 
+const getProductHealth = (product, stock) => {
+  const issues = [];
+  const hasImage = (product.colors || []).some(
+    (color) =>
+      (color.images || []).length > 0 ||
+      (color.lensOptions || []).some((lens) => (lens.images || []).length > 0)
+  );
+  const hasDescription = Boolean(
+    product.description?.fr || product.description?.en || product.description?.ar
+  );
+  const hasActiveVariant = (product.colors || []).some((color) => {
+    if (color.active === false) return false;
+    if ((color.lensOptions || []).length === 0) return true;
+    return color.lensOptions.some((lens) => lens.active !== false);
+  });
+  const hasValidPricing = Number(product.sale_price) >= 0 && Number(product.original_price) >= 0;
+
+  if (!hasImage) issues.push("missing_images");
+  if (!hasDescription) issues.push("missing_description");
+  if (!product.category) issues.push("missing_category");
+  if (!product.references) issues.push("missing_reference");
+  if (!hasActiveVariant) issues.push("no_active_variant");
+  if (!hasValidPricing) issues.push("invalid_pricing");
+  if (stock.trackingState !== "untracked" && stock.trackedStock <= 0) issues.push("no_stock");
+
+  const checks = 7;
+  const score = Math.max(0, Math.round(((checks - issues.length) / checks) * 100));
+  return { score, issues };
+};
+
 const listProducts = async (query, user) => {
   const { page, limit } = parsePagination(query);
   const sort = parseSort(query.sort, PRODUCT_SORTS, "-createdAt");
@@ -179,7 +209,7 @@ const listProducts = async (query, user) => {
   const productSortField = sort.field === "price" ? "sale_price" : sort.field;
   const [products, total] = await Promise.all([
     Product.find(filter)
-      .select("_id name slug original_price sale_price compareAtPrice type category collection references colors isActive stockStatus inStock createdBy createdAt updatedAt")
+      .select("_id name slug original_price sale_price compareAtPrice type category collection references description colors isActive stockStatus inStock createdBy createdAt updatedAt")
       .sort({ [productSortField]: sort.direction, _id: sort.direction })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -205,6 +235,8 @@ const listProducts = async (query, user) => {
     const skus = (product.colors || [])
       .flatMap((color) => [color.sku, ...(color.lensOptions || []).map((lens) => lens.sku)])
       .filter(Boolean);
+    const stock = summarizeStock(product);
+    const health = getProductHealth(product, stock);
     return {
       id: serializeObjectId(product._id),
       name: product.name,
@@ -218,7 +250,9 @@ const listProducts = async (query, user) => {
         (count, color) => count + Math.max(1, (color.lensOptions || []).length),
         0
       ),
-      stock: summarizeStock(product),
+      stock,
+      healthScore: health.score,
+      healthIssues: health.issues,
       availabilityStatus: product.stockStatus || (product.inStock === false ? "out_of_stock" : "in_stock"),
       status: product.isActive ? "active" : "archived",
       views: Number(views.get(String(product._id)) || 0),

@@ -7,6 +7,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { HOME } from "@/constant/routerConstants";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function AuthShell({ title, description, children, footer }) {
   return (
@@ -18,10 +19,10 @@ export default function AuthShell({ title, description, children, footer }) {
       <div className="relative w-full max-w-md">
         <Link
           to={HOME}
-          className="mx-auto mb-6 block w-fit font-display text-xl font-semibold tracking-[0.24em] text-black"
+          className="mx-auto mb-6 flex w-[168px] items-center justify-center"
           aria-label="NAZRA home"
         >
-          NAZRA
+          <BrandLogo />
         </Link>
 
         <Card className="gap-0 rounded-2xl border-black/10 bg-white py-0 shadow-xl shadow-black/5">

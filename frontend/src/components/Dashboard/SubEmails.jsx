@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Mail } from "lucide-react";
+import { Download, Mail, MailCheck, ShieldAlert, UserX } from "lucide-react";
 import { getSubEmails } from "@/api/api";
 import { neutralizeSpreadsheetCell } from "@/utils/adminFormatting";
 import { formatAdminDateTime, formatRelativeTime } from "@/utils/adminDates";
@@ -17,6 +17,7 @@ import AdminFilterBar, { AdminSearchInput } from "@/components/admin/filters/Adm
 import AdminErrorState from "@/components/admin/feedback/AdminErrorState";
 import { AdminOfflineState } from "@/components/admin/feedback/AdminErrorState";
 import AdminEmptyState from "@/components/admin/feedback/AdminEmptyState";
+import { AdminMetricCard, AdminMetricGrid } from "@/components/admin/page/AdminMetricCards";
 import StatusBadge from "@/components/admin/status/StatusBadge";
 import AdminTable, {
   AdminTableHeader,
@@ -94,6 +95,25 @@ export default function SubEmails() {
       .sort((a, b) => new Date(b.consentAt ?? b.createdAt) - new Date(a.consentAt ?? a.createdAt));
   }, [search, status, subscribers]);
 
+  const subscriberSummary = useMemo(() => {
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const active = subscribers.filter((subscriber) => (subscriber.status || "active") === "active").length;
+    const unsubscribed = subscribers.filter((subscriber) => subscriber.status === "unsubscribed").length;
+    const suppressed = subscribers.filter((subscriber) => subscriber.status === "suppressed").length;
+    const recent = subscribers.filter((subscriber) => {
+      const consentDate = new Date(subscriber.consentAt ?? subscriber.createdAt).getTime();
+      return Number.isFinite(consentDate) && consentDate >= thirtyDaysAgo;
+    }).length;
+
+    return {
+      total: subscribers.length,
+      active,
+      unsubscribed,
+      suppressed,
+      recent,
+    };
+  }, [subscribers]);
+
   const pagination = paginateAdminItems(filteredSubscribers, page, limit);
 
   useEffect(() => {
@@ -134,6 +154,40 @@ export default function SubEmails() {
       {error && subscribers.length > 0 && (
         <AdminOfflineState description={error} onRetry={loadSubscribers} />
       )}
+
+      {!loading || subscribers.length > 0 ? (
+        <AdminMetricGrid>
+          <AdminMetricCard
+            title="Total subscribers"
+            value={subscriberSummary.total}
+            description={`${subscriberSummary.recent} new consent events in the last 30 days.`}
+            icon={Mail}
+            tone="primary"
+          />
+          <AdminMetricCard
+            title="Active list"
+            value={subscriberSummary.active}
+            description="Eligible to receive campaigns."
+            icon={MailCheck}
+            tone="success"
+          />
+          <AdminMetricCard
+            title="Unsubscribed"
+            value={subscriberSummary.unsubscribed}
+            description="Suppressed from future sends."
+            icon={UserX}
+            tone="default"
+          />
+          <AdminMetricCard
+            title="Suppressed"
+            value={subscriberSummary.suppressed}
+            description="Blocked from marketing delivery."
+            icon={ShieldAlert}
+            tone="warning"
+          />
+        </AdminMetricGrid>
+      ) : null}
+
       <AdminFilterBar
         showClear={Boolean(search || status !== "all")}
         onClear={clearListFilters}
@@ -157,17 +211,22 @@ export default function SubEmails() {
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+            <SelectItem value="suppressed">Suppressed</SelectItem>
           </SelectContent>
         </Select>
+        <p className="text-sm text-muted-foreground md:ml-auto">
+          {filteredSubscribers.length === 1
+            ? "1 subscriber in view"
+            : `${filteredSubscribers.length} subscribers in view`}
+        </p>
         {canExport && (
           <Button
             variant="outline"
             onClick={exportToCsv}
             disabled={!filteredSubscribers.length}
-            className="md:ml-auto"
           >
             <Download aria-hidden="true" />
-            Export CSV
+            Export filtered CSV
           </Button>
         )}
       </AdminFilterBar>
@@ -218,13 +277,18 @@ export default function SubEmails() {
                         <p className="text-xs text-muted-foreground md:hidden">
                           {subscriber.source || "newsletter"}
                         </p>
+                        <p className="text-xs text-muted-foreground lg:hidden">
+                          {formatRelativeTime(consentDate)}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={subscriber.status || "active"} />
                     </TableCell>
                     <TableCell className="hidden capitalize md:table-cell">
-                      {subscriber.source || "newsletter"}
+                      <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
+                        {subscriber.source || "newsletter"}
+                      </span>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <p className="text-sm">{formatAdminDateTime(consentDate)}</p>

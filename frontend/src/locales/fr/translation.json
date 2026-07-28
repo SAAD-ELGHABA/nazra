@@ -265,7 +265,12 @@
   "checkout": "Commander",
   "sending":"envoi",
   "continueShopping": "Continuer vos achats",
+  "drawerSummary": "{{count}} article dans votre panier",
+  "emptyHint": "Découvrez la collection et gardez vos modèles préférés à portée de main.",
+  "shippingNote": "La livraison et la disponibilité finale sont confirmées lors de la commande.",
   "remove": "Supprimer",
+  "decrease": "Réduire la quantité",
+  "increase": "Augmenter la quantité",
   "quantity": "Quantité",
   "item": "Article",
   "price": "Prix",
@@ -286,6 +291,19 @@
     "formSubmitted": "Votre commande a été envoyée !"
   }
 ,
+"wishlist": {
+    "eyebrow": "Votre sélection",
+    "title": "Liste de souhaits",
+    "description": "{{count}} modèle enregistré pour comparer, revoir ou ajouter au panier.",
+    "emptyTitle": "Votre liste de souhaits est vide",
+    "emptyCopy": "Enregistrez vos montures préférées pendant votre navigation, puis revenez ici pour choisir tranquillement.",
+    "shop": "Découvrir la collection",
+    "home": "Retour à l'accueil",
+    "keepShopping": "Continuer la sélection",
+    "tipTitle": "Conseil shopping",
+    "tipCopy": "Ajoutez vos favoris au panier quand vous êtes prêt à commander.",
+    "count": "{{count}} favori enregistré"
+  },
 "contact": {
     "title": "Contactez-nous",
     "subtitle": "Nous serions ravis de vous entendre. Contactez-nous à tout moment !",
@@ -434,6 +452,19 @@
     "contactPhone": "Téléphone"
   },
   "checkoutPage":{
+    "eyebrow": "Commande sécurisée",
+    "description": "Sélectionnez les articles à commander, vérifiez les quantités, puis renseignez vos coordonnées de livraison.",
+    "items": "Articles",
+    "selected": "Sélection",
+    "reviewItems": "Articles du panier",
+    "selectedSummary": "{{count}} article sélectionné pour la commande.",
+    "selectAll": "Tout sélectionner",
+    "selectItem": "Sélectionner",
+    "orderSummary": "Résumé de commande",
+    "successTitle": "Commande confirmée",
+    "successCopy": "Votre commande #{{id}} est confirmée. Notre équipe vous contactera pour finaliser la livraison.",
+    "missingConfirmation": "La commande a été créée sans numéro de confirmation.",
+    "submitError": "Impossible de passer la commande pour le moment.",
     "selectAtLeastMsg":"Veuillez sélectionner au moins un article à commander."
   },
 "comingSoon": {

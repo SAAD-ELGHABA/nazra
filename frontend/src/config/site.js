@@ -1,6 +1,11 @@
 export const SITE_CONFIG = {
   name: "NAZRA",
   url: "https://nazra.store",
+  brand: {
+    logo: "/assets/brand/nazra-logo-primary.png",
+    logoLight: "/assets/brand/nazra-logo-primary-white.png",
+    icon: "/assets/brand/nazra-icon.png",
+  },
   email: "nazraglasses@gmail.com",
   phone: "+212638995117",
   whatsapp: "+212638995117",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,21 +18,29 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { FieldError, FormErrorSummary } from "@/components/admin/forms/AdminFormLayout";
+import AdminConfirmDialog from "@/components/admin/forms/AdminConfirmDialog";
 import { 
   UserPlus, 
   Crown, 
   Mail, 
+  Eye,
+  EyeOff,
   Key, 
   User, 
   Shield,
   AlertCircle,
-  CheckCircle2,
-  X,
   Lock
 } from 'lucide-react';
 import { validateEmail, validateNewPassword } from '../utils/auth';
 
-const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
+const CreateAdminModal = ({
+  isOpen,
+  onClose,
+  onCreateAdmin,
+  currentUser,
+  canCreateAdmin,
+}) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -42,16 +50,33 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [confirmSuperAdminOpen, setConfirmSuperAdminOpen] = useState(false);
+  const nameInputRef = useRef(null);
+  const emailInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+  const roleTriggerRef = useRef(null);
+  const submitErrorRef = useRef(null);
 
-  // Check if current user is superadmin
   useEffect(() => {
+    if (typeof canCreateAdmin === "boolean") {
+      setIsSuperAdmin(canCreateAdmin);
+      return;
+    }
+
     if (currentUser) {
       const userIsSuperAdmin = currentUser.role === 'superadmin' || 
                               currentUser.role === 'super-admin' ||
                               currentUser.isSuperAdmin === true;
       setIsSuperAdmin(userIsSuperAdmin);
     }
-  }, [currentUser]);
+  }, [canCreateAdmin, currentUser]);
+
+  useEffect(() => {
+    if (errors.submit) {
+      submitErrorRef.current?.focus();
+    }
+  }, [errors.submit]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -75,14 +100,26 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
     }
     
     setErrors(newErrors);
+
+    const firstInvalidField = Object.keys(newErrors)[0];
+    if (firstInvalidField) {
+      focusField(firstInvalidField);
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-    
+  const focusField = (fieldName) => {
+    const fieldRefs = {
+      name: nameInputRef,
+      email: emailInputRef,
+      password: passwordInputRef,
+      role: roleTriggerRef,
+    };
+    requestAnimationFrame(() => fieldRefs[fieldName]?.current?.focus());
+  };
+
+  const createAdministrator = async () => {
     setLoading(true);
     try {
       await onCreateAdmin({
@@ -93,18 +130,38 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
       handleClose();
     } catch (error) {
       const fieldErrors = error?.response?.data?.errors || {};
-      setErrors({
-        ...Object.fromEntries(
-          Object.entries(fieldErrors).map(([field, value]) => [
-            field,
-            Array.isArray(value) ? value[0] : value,
-          ])
-        ),
+      const normalizedFieldErrors = Object.fromEntries(
+        Object.entries(fieldErrors).map(([field, value]) => [
+          field,
+          Array.isArray(value) ? value[0] : value,
+        ])
+      );
+      const nextErrors = {
+        ...normalizedFieldErrors,
         submit: error?.response?.data?.message || error.message || "Failed to create administrator.",
-      });
+      };
+      setErrors(nextErrors);
+      const firstFieldError = Object.keys(normalizedFieldErrors)[0];
+      if (firstFieldError) {
+        focusField(firstFieldError);
+      }
     } finally {
       setLoading(false);
+      setConfirmSuperAdminOpen(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    if (formData.role === "superadmin") {
+      setConfirmSuperAdminOpen(true);
+      return;
+    }
+
+    await createAdministrator();
   };
 
   const handleChange = (e) => {
@@ -117,7 +174,8 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [name]: '',
+        submit: ''
       }));
     }
   };
@@ -127,6 +185,13 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
       ...prev,
       role: value
     }));
+    if (errors.role) {
+      setErrors(prev => ({
+        ...prev,
+        role: '',
+        submit: ''
+      }));
+    }
   };
 
   const handleClose = () => {
@@ -137,17 +202,19 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
       role: 'admin'
     });
     setErrors({});
+    setShowPassword(false);
+    setConfirmSuperAdminOpen(false);
     onClose();
   };
 
   // If user is not superadmin, show restricted access view
   if (!isSuperAdmin) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4">
-              <div className="h-12 w-12 bg-destructive/10 rounded-full flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
                 <Lock className="h-6 w-6 text-destructive" />
               </div>
             </div>
@@ -155,7 +222,7 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
               Access Denied
             </DialogTitle>
             <DialogDescription className="text-center">
-              You don't have permission to create new administrators
+              You don't have permission to create new administrators.
             </DialogDescription>
           </DialogHeader>
 
@@ -167,7 +234,7 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
               </AlertDescription>
             </Alert>
 
-            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+            <div className="space-y-3 rounded-lg border bg-muted/40 p-4">
               <div className="flex items-center gap-3">
                 <Crown className="h-5 w-5 text-amber-500" />
                 <div>
@@ -198,120 +265,148 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+    <>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && handleClose()}>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4">
-            <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-              <UserPlus className="h-6 w-6 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <UserPlus className="h-6 w-6 text-primary" />
             </div>
           </div>
           <DialogTitle className="text-xl flex items-center justify-center gap-2">
-            <Shield className="h-5 w-5 text-blue-500" />
+            <Shield className="h-5 w-5 text-primary" />
             Create Administrator
           </DialogTitle>
           <DialogDescription>
-            Add a new administrator to your team with appropriate permissions
+            Add a new administrator to your team with the appropriate dashboard role.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Super Admin Badge */}
         <div className="flex justify-center">
-          <Badge variant="default" className="flex items-center gap-1">
+          <Badge variant="outline" className="flex items-center gap-1">
             <Crown className="h-3 w-3" />
             Super Admin Mode
           </Badge>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Error Alert */}
           {errors.submit && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{errors.submit}</AlertDescription>
-            </Alert>
+            <FormErrorSummary ref={submitErrorRef} title="Administrator was not created">
+              {errors.submit}
+            </FormErrorSummary>
           )}
 
-          {/* Name Field */}
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
-              Full Name *
+              Full name
             </Label>
             <Input
+              ref={nameInputRef}
               id="name"
               name="name"
               type="text"
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter full name"
+              autoComplete="name"
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? "admin-name-error" : undefined}
               className={errors.name ? "border-destructive" : ""}
             />
             {errors.name && (
-              <p className="text-sm text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
+              <FieldError id="admin-name-error" className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" aria-hidden="true" />
                 {errors.name}
-              </p>
+              </FieldError>
             )}
           </div>
 
-          {/* Email Field */}
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              Email Address *
+              Email address
             </Label>
             <Input
+              ref={emailInputRef}
               id="email"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter email address"
+              autoComplete="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? "admin-email-error" : undefined}
               className={errors.email ? "border-destructive" : ""}
             />
             {errors.email && (
-              <p className="text-sm text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
+              <FieldError id="admin-email-error" className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" aria-hidden="true" />
                 {errors.email}
-              </p>
+              </FieldError>
             )}
           </div>
 
-          {/* Password Field */}
           <div className="space-y-2">
             <Label htmlFor="password" className="flex items-center gap-2">
               <Key className="h-4 w-4 text-muted-foreground" />
-              Password *
+              Temporary password
             </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter password"
-              className={errors.password ? "border-destructive" : ""}
-            />
+            <div className="relative">
+              <Input
+                ref={passwordInputRef}
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                autoComplete="new-password"
+                aria-invalid={Boolean(errors.password)}
+                aria-describedby={errors.password ? "admin-password-error admin-password-help" : "admin-password-help"}
+                className={errors.password ? "border-destructive pr-10" : "pr-10"}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((visible) => !visible)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                )}
+              </Button>
+            </div>
             {errors.password && (
-              <p className="text-sm text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
+              <FieldError id="admin-password-error" className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" aria-hidden="true" />
                 {errors.password}
-              </p>
+              </FieldError>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p id="admin-password-help" className="text-xs text-muted-foreground">
               Password must contain at least 12 characters and be no more than 72 UTF-8 bytes.
             </p>
           </div>
 
-          {/* Role Field */}
           <div className="space-y-2">
             <Label htmlFor="role" className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-muted-foreground" />
               Role
             </Label>
             <Select value={formData.role} onValueChange={handleRoleChange}>
-              <SelectTrigger>
+              <SelectTrigger
+                ref={roleTriggerRef}
+                id="role"
+                aria-invalid={Boolean(errors.role)}
+                aria-describedby={errors.role ? "admin-role-error admin-role-help" : "admin-role-help"}
+              >
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
@@ -329,28 +424,32 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
                 </SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              Super administrators have full system access
+            {errors.role && (
+              <FieldError id="admin-role-error" className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" aria-hidden="true" />
+                {errors.role}
+              </FieldError>
+            )}
+            <p id="admin-role-help" className="text-xs text-muted-foreground">
+              Super administrators have full system access.
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="flex-1"
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1"
             >
               {loading ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" aria-live="polite">
                   <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   Creating...
                 </div>
@@ -365,6 +464,19 @@ const CreateAdminModal = ({ isOpen, onClose, onCreateAdmin, currentUser }) => {
         </form>
       </DialogContent>
     </Dialog>
+    <AdminConfirmDialog
+      open={confirmSuperAdminOpen}
+      onOpenChange={(open) => {
+        if (!open && !loading) setConfirmSuperAdminOpen(false);
+      }}
+      title="Create a Super Administrator?"
+      description="This account will have full system access. Confirm that this person should be able to manage administrators and protected dashboard operations."
+      confirmLabel="Create Super Admin"
+      onConfirm={createAdministrator}
+      loading={loading}
+      destructive
+    />
+    </>
   );
 };
 

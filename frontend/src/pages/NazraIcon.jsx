@@ -1,9 +1,10 @@
 import React from "react";
+import BrandLogo from "../components/BrandLogo";
 
 const NazraIcon = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <img src="/favicon.svg" alt="nazra-icon" />
+    <div className="flex min-h-screen items-center justify-center bg-[#fbfaf7]">
+      <BrandLogo compact className="w-40" />
     </div>
   );
 };

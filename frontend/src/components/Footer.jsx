@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { storeEmail } from "../api/api";
 import { createWhatsAppLink, SITE_CONFIG } from "../config/site";
+import BrandLogo from "./BrandLogo";
 
 const FOOTER_GROUPS = [
   { title: "shop", links: [["men", "/store/products?category=Men"], ["women", "/store/products?category=Women"], ["collections", "/store/products"], ["bestSellers", "/#best-sellers"], ["all", "/store/products"]] },
@@ -52,7 +53,7 @@ export default function Footer() {
     <footer className="bg-[#101413] text-white">
       <Newsletter />
       <div className="nazra-container grid gap-10 border-t border-white/10 py-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.25fr]">
-        <div><Link to="/" className="font-display text-2xl tracking-[.22em]">NAZRA</Link><p className="mt-4 max-w-52 text-xs leading-5 text-white/55">{t("home.footer.tagline")}</p><div className="mt-5 flex gap-2"><a href={SITE_CONFIG.social.instagram} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center border border-white/20" aria-label="Instagram"><Instagram size={15} /></a><a href={SITE_CONFIG.social.facebook} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center border border-white/20" aria-label="Facebook"><Facebook size={15} /></a></div></div>
+        <div><Link to="/" className="inline-flex w-[170px]" aria-label="NAZRA home"><BrandLogo variant="light" /></Link><p className="mt-4 max-w-52 text-xs leading-5 text-white/55">{t("home.footer.tagline")}</p><div className="mt-5 flex gap-2"><a href={SITE_CONFIG.social.instagram} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center border border-white/20" aria-label="Instagram"><Instagram size={15} /></a><a href={SITE_CONFIG.social.facebook} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center border border-white/20" aria-label="Facebook"><Facebook size={15} /></a></div></div>
         {FOOTER_GROUPS.map((group) => <div key={group.title}><h2 className="text-xs font-semibold">{t(`home.footer.${group.title}`)}</h2><ul className="mt-4 space-y-2.5">{group.links.map(([key, href]) => <li key={key}><Link to={href} className="text-[11px] text-white/55 transition hover:text-white">{t(`home.footer.${key}`)}</Link></li>)}</ul></div>)}
         <div><h2 className="text-xs font-semibold">{t("home.footer.support")}</h2><a href={createWhatsAppLink(t("home.whatsapp.message"))} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-2 text-xs text-white/70 hover:text-white"><MessageCircle size={16} /> {SITE_CONFIG.whatsapp}</a><a href={`mailto:${SITE_CONFIG.email}`} className="mt-3 block break-all text-[11px] text-white/55 hover:text-white">{SITE_CONFIG.email}</a></div>
       </div>

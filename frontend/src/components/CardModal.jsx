@@ -1,248 +1,206 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCard } from "../context/CardContext";
-import { RemoveFormatting, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { formatPrice, normalizeSwatch } from "./store/storeUtils";
 
-const Link = ({ to, onClick, className, children }) => (
-  <a href={to} onClick={onClick} className={className}>
-    {children}
-  </a>
-);
-const useTranslation = () => ({ t: (key) => key.split(".").pop() }); // Mock translation
+const getVariant = (item) => item?.colors?.[0] || {};
+const getVariantId = (item) => getVariant(item)?._id || getVariant(item)?.id || getVariant(item)?.name || "";
+const getLensId = (item) =>
+  item?.lensOptionId ||
+  item?.lensOption?._id ||
+  item?.lensOption?.id ||
+  item?.selectedVariant?.lensOptionId ||
+  "";
+const getItemKey = (item) => `${item?._id || item?.id || "item"}-${getVariantId(item)}-${getLensId(item)}`;
+const getImage = (item) =>
+  getVariant(item)?.images?.[0]?.url ||
+  item?.selectedVariant?.images?.[0]?.url ||
+  "/fall-back-sunglasses-image.webp";
 
+function CartLineItem({ item, onClose }) {
+  const { t, i18n } = useTranslation();
+  const { updateQuantity, removeFromCard } = useCard();
+  const variant = getVariant(item);
+  const quantity = Math.max(1, Number(item?.quantity) || 1);
+  const price = Number(item?.sale_price) || 0;
+  const lensName = item?.lensOption?.name || item?.selectedVariant?.lensName;
+
+  return (
+    <li className="grid grid-cols-[88px_1fr] gap-3 border-b border-stone-200 py-4 last:border-b-0">
+      <Link
+        to={`/product/${item?.slug}`}
+        onClick={onClose}
+        className="block overflow-hidden rounded-md bg-[#f4f0ea]"
+      >
+        <img
+          src={getImage(item)}
+          alt={item?.name || "NAZRA"}
+          width="176"
+          height="176"
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = "/fall-back-sunglasses-image.webp";
+          }}
+          className="aspect-square h-full w-full object-cover"
+        />
+      </Link>
+
+      <div className="min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <Link
+            to={`/product/${item?.slug}`}
+            onClick={onClose}
+            className="font-display text-xs font-bold uppercase tracking-wide text-stone-950 hover:underline"
+          >
+            {item?.name}
+          </Link>
+          <strong className="shrink-0 text-sm">{formatPrice(price * quantity, i18n.language)}</strong>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+          {variant?.name && (
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="h-3 w-3 rounded-full border border-stone-300"
+                style={{ backgroundColor: normalizeSwatch(variant?.value || variant?.name) }}
+                aria-hidden="true"
+              />
+              {variant.name}
+            </span>
+          )}
+          {lensName && <span>{lensName}</span>}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="inline-flex h-10 items-center rounded-md border border-stone-300">
+            <button
+              type="button"
+              className="grid h-10 w-10 place-items-center text-stone-700 transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={quantity <= 1}
+              onClick={() => updateQuantity(item?._id, quantity - 1, getVariantId(item), getLensId(item))}
+              aria-label={t("cart.decrease")}
+            >
+              <Minus className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <span className="min-w-8 text-center text-sm font-semibold">{quantity}</span>
+            <button
+              type="button"
+              className="grid h-10 w-10 place-items-center text-stone-700 transition hover:bg-stone-100"
+              onClick={() => updateQuantity(item?._id, quantity + 1, getVariantId(item), getLensId(item))}
+              aria-label={t("cart.increase")}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="inline-flex h-10 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-stone-500 transition hover:bg-stone-100 hover:text-destructive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+            onClick={() => removeFromCard(item?._id, getVariantId(item), getLensId(item))}
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            {t("cart.remove")}
+          </button>
+        </div>
+      </div>
+    </li>
+  );
+}
 
 function CardModal({ isOpen, onClose }) {
-  const { cardItems, updateQuantity, removeFromCard } = useCard();
-  const { t } = useTranslation();
-
-  const total = cardItems.reduce(
-    (sum, item) => sum + item.sale_price * item.quantity,
-    0
+  const { cardItems } = useCard();
+  const { t, i18n } = useTranslation();
+  const itemCount = cardItems.reduce((sum, item) => sum + (Number(item?.quantity) || 1), 0);
+  const total = useMemo(
+    () => cardItems.reduce((sum, item) => sum + (Number(item?.sale_price) || 0) * (Number(item?.quantity) || 1), 0),
+    [cardItems],
   );
 
   return (
-    <>
-      <style>
-        {`
-          .overlay {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background-color: rgba(0, 0, 0, 0);
-            transition: background-color 0.3s ease-in-out;
-            z-index: 40; /* Tailwind z-40 */
-            pointer-events: none;
-          }
-          .overlay-show {
-            background-color: rgba(0, 0, 0, 0.6);
-            pointer-events: auto;
-          }
-          .modal {
-            position: fixed;
-            top: 0;
-            right: 0;
-            height: 100%;
-            width: 100%;
-            max-width: 420px; /* Max width for luxury feel */
-            background-color: #ffffff;
-            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth slide */
-            z-index: 50; /* Tailwind z-50 */
-            transform: translateX(100%);
-          }
-          .modal-slide-in {
-            transform: translateX(0%);
-          }
-          .modal-slide-out {
-            transform: translateX(100%);
-          }
-          @media (max-width: 640px) {
-            .modal {
-              max-width: 100%;
-            }
-          }
-        `}
-      </style>
-
-      {/* Overlay backdrop */}
-      <div
-        className={`overlay ${isOpen ? "overlay-show" : ""}`}
-        onClick={onClose}
-      ></div>
-
-      {/* Slide-out Modal */}
-      <div
-        className={`modal ${
-          isOpen ? "modal-slide-in" : "modal-slide-out"
-        } flex flex-col`}
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent
+        side={i18n.dir() === "rtl" ? "left" : "right"}
+        className="w-full gap-0 border-stone-200 bg-[#fbfaf7] p-0 sm:max-w-md"
       >
-        {/* Modal Header: High Contrast */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-100">
-          <h2 className="text-xl font-extrabold tracking-tight text-gray-900">
+        <SheetHeader className="border-b border-stone-200 bg-white p-5 pe-12 text-start">
+          <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#906941]">
+            NAZRA
+          </p>
+          <SheetTitle className="font-display text-2xl uppercase tracking-normal">
             {t("cart.yourCart")}
-            <span className="ml-2 text-sm font-medium text-green-600">
-              ({cardItems.length})
-            </span>
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-black transition text-3xl leading-none"
-            aria-label="Close cart"
-          >
-            <X />
-          </button>
-        </div>
+          </SheetTitle>
+          <SheetDescription>
+            {itemCount > 0 ? t("cart.drawerSummary", { count: itemCount }) : t("cart.emptyHint")}
+          </SheetDescription>
+        </SheetHeader>
 
-        {/* Cart Items List: Elegant Scrollable Area */}
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-5">
           {cardItems.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <p className="text-lg mb-2">{t("cart.empty")}</p>
-              <button
-                onClick={onClose}
-                className="text-green-600 hover:text-green-800 font-medium transition"
-              >
-                Start Shopping
-              </button>
+            <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
+              <span className="grid h-16 w-16 place-items-center rounded-full bg-stone-100">
+                <ShoppingBag className="h-7 w-7 text-stone-500" aria-hidden="true" />
+              </span>
+              <h3 className="mt-5 font-display text-xl font-bold uppercase tracking-normal">
+                {t("cart.empty")}
+              </h3>
+              <p className="mt-2 max-w-xs text-sm leading-6 text-stone-600">
+                {t("cart.emptyHint")}
+              </p>
+              <Button asChild className="mt-6 min-h-11 rounded-sm bg-black px-5 text-white hover:bg-stone-800">
+                <Link to="/store/products" onClick={onClose}>
+                  {t("cart.continueShopping")}
+                </Link>
+              </Button>
             </div>
           ) : (
-            <ul className="space-y-6">
+            <ul>
               {cardItems.map((item) => (
-                <li
-                  key={item?.id}
-                  className="flex items-start gap-4 pb-6 border-b border-gray-100 last:border-b-0"
-                >
-                  {/* Item Image */}
-                  <Link
-                    to={`/product/${item?.slug}`}
-                    onClick={onClose}
-                    className="flex-shrink-0"
-                  >
-                    <img
-                      src={
-                        item?.colors[0]?.images[0]?.url ||
-                        "https://placehold.co/80x80/E5E7EB/A1A1AA?text=NAZRA"
-                      }
-                      alt={item?.name}
-                      className="w-16 h-16 object-cover rounded-lg border border-gray-100 shadow-sm transition-opacity hover:opacity-80"
-                      loading="lazy"
-                    />
-                  </Link>
-
-                  {/* Item Details and Controls */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start">
-                      <Link
-                        to={`/product/${item?.slug}`}
-                        onClick={onClose}
-                        className="hover:text-indigo-600 transition"
-                      >
-                        <h3 className="font-semibold text-sm text-gray-900 truncate whitespace-pre-line pr-2">
-                          {item?.name}
-                        </h3>
-                      </Link>
-                      <span className="font-bold text-base text-gray-900 whitespace-nowrap">
-                        MAD {(item?.sale_price * item?.quantity).toFixed(2)}
-                      </span>
-                    </div>
-
-                    {/* Color and Quantity Controls */}
-                    <div className="flex items-center justify-between mt-2 text-sm">
-                      {/* Color Tag & Remove Button */}
-                      <div className="flex items-center gap-2">
-                        {/* Color Swatch */}
-                        <span
-                          style={{ backgroundColor: item?.colors[0]?.value }}
-                          className={`
-                            w-6 h-6 rounded-full inline-block border-2 shadow-inner
-                            ${
-                              item?.colors[0]?.name === "Onyx Black"
-                                ? "border-gray-500"
-                                : "border-transparent"
-                            }
-                          `}
-                          title={`Color: ${item?.colors[0]?.name}`}
-                        ></span>
-
-                        <button
-                          onClick={() =>
-                            removeFromCard(item?._id, item?.colors[0]?._id)
-                          }
-                          className="text-xs text-red-500 hover:text-red-700 transition font-medium ml-2"
-                        >
-                          <Trash2 />
-                        </button>
-                      </div>
-
-                      {/* Quantity Controls */}
-                      <div className="flex items-center border border-gray-300 rounded-full overflow-hidden">
-                        <button
-                          onClick={() =>
-                            updateQuantity(
-                              item?._id,
-                              item?.quantity - 1,
-                              item?.colors[0]?._id
-                            )
-                          }
-                          className="w-8 h-8 flex items-center justify-center text-lg font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={item?.quantity <= 1}
-                          aria-label="Decrease quantity"
-                        >
-                          −
-                        </button>
-                        <span className="px-3 text-sm font-semibold">
-                          {item?.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(
-                              item?._id,
-                              item?.quantity + 1,
-                              item?.colors[0]?._id
-                            )
-                          }
-                          className="w-8 h-8 flex items-center justify-center text-lg font-medium text-gray-700 hover:bg-gray-100"
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
+                <CartLineItem key={getItemKey(item)} item={item} onClose={onClose} />
               ))}
             </ul>
           )}
         </div>
 
-        {/* Fixed Footer: Total and Checkout (Luxury Dark Block) */}
         {cardItems.length > 0 && (
-          <div className="border-t border-gray-200 p-6 w-full bg-gray-100  sticky bottom-0">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-medium tracking-wide capitalize">
-                {t("cart.total")}:
-              </span>
-              <span className="text-2xl font-extrabold">
-                MAD {total.toFixed(2)}
-              </span>
+          <SheetFooter className="border-t border-stone-200 bg-white p-5">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="text-stone-500">{t("cart.subtotal")}</span>
+                <strong className="text-lg">{formatPrice(total, i18n.language)}</strong>
+              </div>
+              <Separator />
+              <p className="text-xs leading-5 text-stone-500">{t("cart.shippingNote")}</p>
             </div>
-
-            <p className="text-xs text-gray-400 mb-4 text-center">
-              Shipping calculated at checkout.
-            </p>
-
-            <Link
-              to="/checkout-card"
-              onClick={onClose}
-              className="block w-full text-center bg-green-600 text-white py-3 rounded-lg text-sm font-bold transition-colors duration-300 hover:bg-green-700 shadow-xl shadow-green-600/30 tracking-wider uppercase"
-            >
-              {t("cart.checkout")}
-            </Link>
-          </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button asChild variant="outline" className="min-h-11 rounded-sm">
+                <Link to="/store/products" onClick={onClose}>
+                  {t("cart.continueShopping")}
+                </Link>
+              </Button>
+              <Button asChild className="min-h-11 rounded-sm bg-black text-white hover:bg-stone-800">
+                <Link to="/checkout-card" onClick={onClose}>
+                  {t("cart.checkout")}
+                  <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
+          </SheetFooter>
         )}
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 }
 
