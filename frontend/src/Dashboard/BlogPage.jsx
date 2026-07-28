@@ -20,12 +20,23 @@ import AdminConfirmDialog from "@/components/admin/forms/AdminConfirmDialog";
 import { useAdminPageMeta } from "@/context/AdminPageContext";
 import { DASHBOARDBLOG, DASHBOARDHOME } from "@/constant/routerConstants";
 
+const MAX_BLOG_IMAGES = 20;
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+];
+
 function BlogPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]); // both existing + new images
   const [selectedImages, setSelectedImages] = useState([]);
   const fileInputRef = useRef(null);
+  const isSubmittingRef = useRef(false);
   const [blog, setBlog] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -54,7 +65,35 @@ function BlogPage() {
   }, [blog]);
 
   const handleFiles = (files) => {
-    const newImages = Array.from(files).map((file) => ({
+    if (isSubmittingRef.current || isLoading) return;
+
+    const selectedFiles = Array.from(files || []);
+    if (images.length + selectedFiles.length > MAX_BLOG_IMAGES) {
+      toast.error(`An article can contain at most ${MAX_BLOG_IMAGES} images.`);
+      return;
+    }
+
+    const invalidType = selectedFiles.find(
+      (file) => !ALLOWED_IMAGE_TYPES.includes(file.type),
+    );
+    if (invalidType) {
+      toast.error(
+        `${invalidType.name} is not supported. Use JPEG, PNG, WebP, GIF, or AVIF.`,
+      );
+      return;
+    }
+
+    const invalidSize = selectedFiles.find(
+      (file) => file.size <= 0 || file.size > MAX_IMAGE_SIZE_BYTES,
+    );
+    if (invalidSize) {
+      toast.error(
+        `${invalidSize.name} must be larger than 0 bytes and no more than 10 MB.`,
+      );
+      return;
+    }
+
+    const newImages = selectedFiles.map((file) => ({
       file,
       url: URL.createObjectURL(file),
       isExisting: false, 
@@ -64,47 +103,91 @@ function BlogPage() {
 
   const handleDrop = (e) => {
     e.preventDefault();
+    if (isSubmittingRef.current || isLoading) return;
     handleFiles(e.dataTransfer.files);
   };
 
   const handleDragOver = (e) => e.preventDefault();
 
   const toggleImageSelection = (img) => {
+    if (isSubmittingRef.current || isLoading) return;
     setSelectedImages((prev) =>
       prev.includes(img) ? prev.filter((i) => i !== img) : [...prev, img]
     );
   };
 
   const removeImage = (img) => {
+    if (isSubmittingRef.current || isLoading) return;
     setImages((prev) => prev.filter((i) => i !== img));
     setSelectedImages((prev) => prev.filter((i) => i !== img));
   };
 
 const handleSubmit = async () => {
-  if (isLoading) return;
-  if(!title || !content || images?.length === 0){
+  if (isSubmittingRef.current || isLoading) return;
+  if(!title.trim() || !content.trim() || images?.length === 0){
     toast.info("You Must Fill up some data !!")
     return ;
   }
+
+  if (images.length > MAX_BLOG_IMAGES) {
+    toast.error(`An article can contain at most ${MAX_BLOG_IMAGES} images.`);
+    return;
+  }
+
+  const pendingImages = images.filter((img) => !img.isExisting);
+  const invalidPendingImage = pendingImages.find(
+    (img) =>
+      !img.file ||
+      !ALLOWED_IMAGE_TYPES.includes(img.file.type) ||
+      img.file.size <= 0 ||
+      img.file.size > MAX_IMAGE_SIZE_BYTES,
+  );
+  const invalidStoredImage = images
+    .filter((img) => img.isExisting)
+    .find((img) => !img.url || !img.public_id);
+  if (invalidPendingImage || invalidStoredImage) {
+    toast.error(
+      "One or more images are invalid. Use JPEG, PNG, WebP, GIF, or AVIF images up to 10 MB.",
+    );
+    return;
+  }
+
   try {
+    isSubmittingRef.current = true;
     setIsLoading(true);
 
-    const newImagesFiles = images.filter((img) => !img.isExisting);
     let uploadedImages = [];
-    if (newImagesFiles.length > 0) {
+    if (pendingImages.length > 0) {
       uploadedImages = await uploadMultipleImagesToCloudinary(
-        newImagesFiles.map((img) => img.file),
-        "blog-images"
+        pendingImages.map((img) => img.file),
+        "blog",
+        {
+          onUploaded: (uploadedImage, index) => {
+            const pendingImage = pendingImages[index];
+            setImages((currentImages) =>
+              currentImages.map((image) =>
+                image === pendingImage
+                  ? { ...uploadedImage, isExisting: true }
+                  : image,
+              ),
+            );
+          },
+        },
       );
     }
 
     const finalImages = [
-      ...images.filter((img) => img.isExisting),
+      ...images
+        .filter((img) => img.isExisting)
+        .map(({ url, public_id }) => ({ url, public_id })),
       ...uploadedImages,
     ];
 
+    setImages(finalImages.map((image) => ({ ...image, isExisting: true })));
+    setSelectedImages([]);
+
     const blogData = {
-      title,
+      title: title.trim(),
       content,
       images: finalImages,
     };
@@ -122,8 +205,13 @@ const handleSubmit = async () => {
       setRefreshKey((value) => value + 1);
     }
   } catch (error) {
-    toast.error(error?.response?.data?.message || "An error occurred while saving the blog.");
+    toast.error(
+      error?.response?.data?.message ||
+        error?.message ||
+        "An error occurred while saving the blog.",
+    );
   } finally {
+    isSubmittingRef.current = false;
     setIsLoading(false);
   }
 };
@@ -177,7 +265,10 @@ const confirmDelete = async () => {
             type="text"
             placeholder="Enter the article title..."
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              if (!isSubmittingRef.current) setTitle(e.target.value);
+            }}
+            disabled={isLoading}
             className="w-full border border-neutral-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none placeholder-neutral-400 text-sm shadow-sm"
           />
         </div>
@@ -186,7 +277,10 @@ const confirmDelete = async () => {
           <ReactQuill
             theme="snow"
             value={content}
-            onChange={setContent}
+            onChange={(value) => {
+              if (!isSubmittingRef.current) setContent(value);
+            }}
+            readOnly={isLoading}
             placeholder="Write your article content..."
             className="text-black min-h-[220px]"
           />
@@ -202,7 +296,10 @@ const confirmDelete = async () => {
             className="w-full border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center hover:border-black/70 transition cursor-pointer bg-neutral-50/30"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            onClick={() => fileInputRef.current.click()}
+            onClick={() => {
+              if (!isSubmittingRef.current) fileInputRef.current?.click();
+            }}
+            disabled={isLoading}
           >
             <div className="flex flex-col items-center justify-center gap-2">
               <Upload className="w-7 h-7 text-neutral-400" />
@@ -219,9 +316,10 @@ const confirmDelete = async () => {
             multiple
             ref={fileInputRef}
             className="hidden"
-            accept="image/*"
+            accept={ALLOWED_IMAGE_TYPES.join(",")}
             aria-label="Choose article images"
             onChange={(e) => handleFiles(e.target.files)}
+            disabled={isLoading}
           />
         </div>
 
@@ -239,8 +337,11 @@ const confirmDelete = async () => {
                   <img
                     src={img.url}
                     alt="preview"
-                    className="w-full h-40 object-cover cursor-pointer"
+                    className={`w-full h-40 object-cover ${
+                      isLoading ? "cursor-not-allowed" : "cursor-pointer"
+                    }`}
                     onClick={() => toggleImageSelection(img)}
+                    aria-disabled={isLoading}
                   />
 
                   <div
@@ -257,6 +358,7 @@ const confirmDelete = async () => {
                     type="button"
                     onClick={() => removeImage(img)}
                     aria-label="Remove article image"
+                    disabled={isLoading}
                     className="absolute top-2 right-2 bg-white/80 hover:bg-white rounded-full p-1 transition"
                   >
                     <X className="w-4 h-4 text-black" />

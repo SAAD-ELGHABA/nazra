@@ -34,10 +34,58 @@ Sous macOS ou Linux, remplacer `Copy-Item` par `cp`. Le serveur écoute sur `POR
 | `API_URL` | Selon déploiement | Origine API ajoutée à la liste CORS existante |
 | `BCRYPT_ROUNDS` | Optionnelle | Coût bcrypt de `10` à `14`, `12` par défaut |
 | `NODE_ENV`, `PORT` | Optionnelles | Environnement d’exécution et port HTTP |
-| `CLOUDINARY_*` | Requises pour les médias | Configuration serveur Cloudinary ; le secret reste exclusivement côté backend |
+| `CLOUDINARY_CLOUD_NAME` | Requise pour les médias | Nom du cloud utilisé par le backend pour préparer les uploads signés |
+| `CLOUDINARY_API_KEY` | Requise pour les médias | Clé API Cloudinary associée au cloud |
+| `CLOUDINARY_API_SECRET` | Requise pour les médias | Secret de signature, exclusivement côté backend |
+| `CLOUDINARY_UPLOAD_PRESET` | Requise pour les médias | Preset Cloudinary signé et restrictif appliqué à chaque upload |
 | `ADMIN_EMAIL`, `CONTACT_EMAIL` | Optionnelles | Destinataires des notifications administratives et de contact |
 
-Les trois secrets d’authentification doivent être différents. Ne jamais les copier dans une variable `VITE_*`, car ces variables sont intégrées au JavaScript livré au navigateur.
+Les trois secrets d’authentification doivent être différents. Ne jamais copier un secret, notamment `CLOUDINARY_API_SECRET`, dans une variable `VITE_*`, car ces variables sont intégrées au JavaScript livré au navigateur.
+
+## Uploads médias Cloudinary signés
+
+Le frontend n’utilise plus de preset d’upload non signé. Il demande au backend des paramètres temporaires, puis charge directement l’image vers Cloudinary. Les quatre variables `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` et `CLOUDINARY_UPLOAD_PRESET` doivent être configurées sur le serveur ; aucune variable Cloudinary n’est requise dans le frontend. `CLOUDINARY_UPLOAD_PRESET` doit désigner un preset signé et restrictif configuré dans Cloudinary.
+
+### POST `/api/media/upload-signature`
+
+Cet endpoint exige `Content-Type: application/json`, `Authorization: Bearer <token>` et un corps contenant uniquement `purpose` :
+
+```json
+{
+  "purpose": "product"
+}
+```
+
+Les usages et permissions backend sont :
+
+- `product` : permission `products.manage`, dossier Cloudinary `sunglasses-products` ;
+- `blog` : permission `blog.manage`, dossier Cloudinary `blog-images`.
+
+Une réussite renvoie HTTP `200` avec les paramètres à transmettre à l’API d’upload Cloudinary :
+
+```json
+{
+  "success": true,
+  "data": {
+    "cloudName": "<cloud-name>",
+    "apiKey": "<api-key>",
+    "timestamp": 1700000000,
+    "signature": "<temporary-signature>",
+    "folder": "sunglasses-products",
+    "publicId": "<generated-public-id>",
+    "overwrite": false,
+    "uploadPreset": "<signed-upload-preset>"
+  }
+}
+```
+
+Le Bearer token absent ou invalide renvoie HTTP `401`, une permission insuffisante HTTP `403`, un `purpose` absent ou différent de `product`/`blog` HTTP `400`, et une configuration Cloudinary incomplète HTTP `503`. Les paramètres de requête sont refusés. Le secret API n’est jamais inclus dans la réponse.
+
+Pour vérifier ce contrat depuis `backend/` :
+
+```bash
+node --test test/mediaUpload.test.js
+```
 
 ## Authentification et réinitialisation du mot de passe
 
@@ -565,4 +613,6 @@ npm run build
 - **HTTP `400` après ajout d’un filtre** : vérifier son nom exact ; les paramètres inconnus sont volontairement rejetés.
 - **Facettes absentes** : fournir `page` et `include=filters` (ou `include=facets`/`facets=true`).
 - **HTTP `401` sur une mutation** : fournir un Bearer token valide et vérifier `JWT_SECRET`; après un reset, se reconnecter pour obtenir un JWT portant le nouvel `authVersion`.
+- **Upload média HTTP `403`** : vérifier que le compte possède `products.manage` pour `purpose: "product"` ou `blog.manage` pour `purpose: "blog"`.
+- **Upload média HTTP `503`** : définir les quatre variables `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` et `CLOUDINARY_UPLOAD_PRESET` côté backend, puis vérifier que le preset est signé et restrictif.
 - **Tri, filtres ou reset lents après déploiement** : créer les index déclarés par les schémas avec les commandes ci-dessus.

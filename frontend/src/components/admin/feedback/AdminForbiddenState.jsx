@@ -7,6 +7,9 @@ import { DASHBOARDHOME } from "@/constant/routerConstants";
 export function AdminForbiddenState({
   title = "You don't have permission to access this page.",
   description = "Contact a super administrator if you believe this is an error.",
+  actionHref = DASHBOARDHOME,
+  actionLabel = "Back to Overview",
+  showAction = true,
   className,
 }) {
   return (
@@ -18,9 +21,11 @@ export function AdminForbiddenState({
         <ShieldAlert className="mx-auto h-10 w-10 text-amber-500" aria-hidden="true" />
         <h1 id="forbidden-title" className="mt-4 text-2xl font-semibold">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-        <Button asChild className="mt-6">
-          <Link to={DASHBOARDHOME}>Back to Overview</Link>
-        </Button>
+        {showAction && (
+          <Button asChild className="mt-6">
+            <Link to={actionHref}>{actionLabel}</Link>
+          </Button>
+        )}
       </div>
     </section>
   );

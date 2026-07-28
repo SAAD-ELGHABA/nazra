@@ -1,56 +1,136 @@
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
-const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+import { requestCloudinaryUploadSignature } from "../api/api";
 
-// Upload single image to Cloudinary
-export const uploadImageToCloudinary = async (file, folder = 'sunglasses-products') => {
+const MAX_CONCURRENT_UPLOADS = 4;
+const SUPPORTED_UPLOAD_PURPOSES = new Set(["product", "blog"]);
+let activeUploads = 0;
+const pendingUploads = [];
+
+const acquireUploadSlot = () =>
+  new Promise((resolve) => {
+    if (activeUploads < MAX_CONCURRENT_UPLOADS) {
+      activeUploads += 1;
+      resolve();
+      return;
+    }
+
+    pendingUploads.push(resolve);
+  });
+
+const releaseUploadSlot = () => {
+  const nextUpload = pendingUploads.shift();
+  if (nextUpload) {
+    nextUpload();
+    return;
+  }
+
+  activeUploads -= 1;
+};
+
+const withUploadSlot = async (upload) => {
+  await acquireUploadSlot();
   try {
-    if (!CLOUDINARY_CLOUD_NAME || !UPLOAD_PRESET) {
-      throw new Error("Cloudinary upload configuration is missing.");
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-    formData.append('folder', folder);
-
-    const response = await fetch(CLOUDINARY_URL, {
-      method: 'POST',
-      body: formData
-    });
-    const data = await response.json().catch(() => null);
-
-    if (!response.ok) {
-      throw new Error(data?.error?.message || "Cloudinary upload failed.");
-    }
-
-    if (!data?.secure_url || !data?.public_id) {
-      throw new Error("Cloudinary returned an incomplete upload response.");
-    }
-
-    return {
-      url: data.secure_url,
-      public_id: data.public_id
-    };
-  } catch (error) {
-    console.error('Cloudinary upload error:', error);
-    throw error;
+    return await upload();
+  } finally {
+    releaseUploadSlot();
   }
 };
 
-// Upload multiple images to Cloudinary
-export const uploadMultipleImagesToCloudinary = async (files, folder = 'sunglasses-products') => {
-  try {
-    const uploadPromises = Array.from(files).map(file => 
-      uploadImageToCloudinary(file, folder)
-    );
-    
-    const results = await Promise.all(uploadPromises);
-    return results;
-  } catch (error) {
-    console.error('Multiple upload error:', error);
-    throw error;
+const getSignedUploadFields = async (purpose) => {
+  if (!SUPPORTED_UPLOAD_PURPOSES.has(purpose)) {
+    throw new Error("A valid upload purpose is required.");
   }
+
+  const response = await requestCloudinaryUploadSignature(purpose);
+  const fields = response?.data?.data;
+
+  if (
+    !fields?.cloudName ||
+    !fields?.apiKey ||
+    !fields?.timestamp ||
+    !fields?.signature ||
+    !fields?.folder ||
+    !fields?.publicId ||
+    !fields?.uploadPreset ||
+    fields?.overwrite !== false
+  ) {
+    throw new Error("The upload service returned an incomplete signature.");
+  }
+
+  return fields;
+};
+
+// Upload single image to Cloudinary
+export const uploadImageToCloudinary = async (file, purpose) =>
+  withUploadSlot(async () => {
+    try {
+      const {
+        cloudName,
+        apiKey,
+        timestamp,
+        signature,
+        folder,
+        publicId,
+        uploadPreset,
+      } = await getSignedUploadFields(purpose);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", apiKey);
+      formData.append("timestamp", String(timestamp));
+      formData.append("signature", signature);
+      formData.append("folder", folder);
+      formData.append("public_id", publicId);
+      formData.append("overwrite", "false");
+      formData.append("upload_preset", uploadPreset);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.error?.message || "Cloudinary upload failed.");
+      }
+
+      if (!data?.secure_url || !data?.public_id) {
+        throw new Error("Cloudinary returned an incomplete upload response.");
+      }
+
+      return {
+        url: data.secure_url,
+        public_id: data.public_id,
+      };
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      throw error;
+    }
+  });
+
+// Upload multiple images to Cloudinary
+export const uploadMultipleImagesToCloudinary = async (
+  files,
+  purpose,
+  { onUploaded } = {},
+) => {
+  const results = await Promise.allSettled(
+    Array.from(files).map(async (file, index) => {
+      const uploadedImage = await uploadImageToCloudinary(file, purpose);
+      onUploaded?.(uploadedImage, index);
+      return uploadedImage;
+    }),
+  );
+
+  const failedUpload = results.find((result) => result.status === "rejected");
+  if (failedUpload) {
+    console.error("Multiple upload error:", failedUpload.reason);
+    throw failedUpload.reason;
+  }
+
+  return results.map((result) => result.value);
 };
 
 // Delete image from Cloudinary (you'll need to implement this on your backend)

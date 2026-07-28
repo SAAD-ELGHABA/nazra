@@ -309,8 +309,11 @@ const getVisitorMetrics = async (range) => {
   };
 };
 
-const buildDashboardSummary = async (range, granularity) => {
+const buildDashboardSummary = async (range, granularity, options = {}) => {
   const compare = range.comparison === "previous_period";
+  const capabilities = new Set(options.capabilities || []);
+  const canReadOrders = capabilities.has("orders.read");
+  const canReadProducts = capabilities.has("products.read");
   const previousRange = {
     ...range,
     from: range.previousFrom,
@@ -330,8 +333,8 @@ const buildDashboardSummary = async (range, granularity) => {
     compare ? aggregateOrderMetrics(previousRange.from, previousRange.to) : Promise.resolve(null),
     getSalesSeries(range, granularity),
     getOrderStatusBreakdown(range),
-    getRecentOrders(range),
-    getTopProducts(range),
+    canReadOrders ? getRecentOrders(range) : Promise.resolve([]),
+    canReadProducts ? getTopProducts(range) : Promise.resolve([]),
     getVisitorMetrics(range),
     compare ? getVisitorMetrics(previousRange) : Promise.resolve(null)
   ]);
@@ -373,7 +376,9 @@ const buildDashboardSummary = async (range, granularity) => {
     salesSeries,
     orderStatusBreakdown,
     recentOrders,
+    recentOrdersAvailable: canReadOrders,
     topProducts,
+    topProductsAvailable: canReadProducts,
     inventoryAlerts: [],
     inventoryAlertsAvailable: false
   };

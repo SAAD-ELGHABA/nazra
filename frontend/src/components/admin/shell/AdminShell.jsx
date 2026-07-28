@@ -21,8 +21,8 @@ export function AdminShell() {
     <SidebarProvider
       defaultOpen={defaultSidebarOpen}
       style={{
-        "--sidebar-width": "15.5rem",
-        "--sidebar-width-icon": "3rem",
+        "--sidebar-width": "17rem",
+        "--sidebar-width-icon": "3.25rem",
       }}
     >
       <AdminPageProvider>
@@ -37,7 +37,7 @@ export function AdminShell() {
           capabilities={capabilities}
           onLogout={logout}
         />
-        <SidebarInset className="min-h-svh bg-muted/30">
+        <SidebarInset className="min-h-svh bg-[linear-gradient(180deg,var(--background)_0%,var(--muted)_100%)]">
           <AdminTopbar />
           <div
             id="admin-main-content"

@@ -8,6 +8,7 @@ const {
   chooseGranularity,
   sendDateRangeValidationError
 } = require("../utils/adminDateRange");
+const { getCapabilitiesForRole } = require("../middleware/requirePermission");
 const { buildDashboardSummary } = require("../services/admin/dashboardMetricsService");
 const {
   listOrders,
@@ -39,7 +40,9 @@ const getDashboardSummary = async (req, res) => {
   try {
     const range = parseAdminDateRange(req.query);
     const granularity = chooseGranularity(range.durationMs, req.query.granularity);
-    const data = await buildDashboardSummary(range, granularity);
+    const data = await buildDashboardSummary(range, granularity, {
+      capabilities: getCapabilitiesForRole(req.user?.role)
+    });
     return res.status(200).json({
       success: true,
       data,

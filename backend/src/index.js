@@ -28,6 +28,8 @@ app.set("trust proxy", 1);
 app.use('/api/contact', require('../routes/contactRoutes'));
 // Auth has its own strict 8 KiB JSON parser and database guard.
 app.use('/api/auth', require('../routes/authRoutes'));
+// Signed media upload requests use a strict parser and keep Cloudinary secrets server-side.
+app.use('/api/media', require('../routes/mediaRoutes'));
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

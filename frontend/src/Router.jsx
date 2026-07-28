@@ -145,7 +145,10 @@ const ProtectedRoutes = ({ children }) => {
 
 const CapabilityRoute = ({ capability, children }) => {
   const { hasCapability } = useAdminAuth();
-  return hasCapability(capability) ? children : <Forbidden />;
+  const requiredCapabilities = Array.isArray(capability) ? capability : [capability];
+  return requiredCapabilities.every((entry) => hasCapability(entry))
+    ? children
+    : <Forbidden />;
 };
 
 export const Router = createBrowserRouter([
@@ -240,7 +243,7 @@ export const Router = createBrowserRouter([
       {
         path: DASHBOARDHOME,
         element: (
-          <CapabilityRoute capability="dashboard.view">
+          <CapabilityRoute capability={["dashboard.view", "analytics.read"]}>
             <Dashboard />
           </CapabilityRoute>
         ),

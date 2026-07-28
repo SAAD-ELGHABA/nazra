@@ -5,8 +5,27 @@ import {
   clearAuthStorage,
 } from "../utils/auth";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL?.trim();
+
+if (!API_BASE_URL) {
+  throw new Error("VITE_API_URL is required.");
+}
+
+if (import.meta.env.DEV) {
+  const developmentApiUrl = new URL(API_BASE_URL);
+  const isLocalDevelopmentApi =
+    ["localhost", "127.0.0.1"].includes(developmentApiUrl.hostname) &&
+    developmentApiUrl.port === "5000";
+
+  if (!isLocalDevelopmentApi) {
+    throw new Error(
+      "Development API requests must use http://localhost:5000/api.",
+    );
+  }
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -59,6 +78,22 @@ export const resetPasswordWithCode = async (payload) => {
 
 export const getCurrentAdmin = async () => {
   return api.get("/auth/me", getBearerConfig());
+};
+
+export const requestCloudinaryUploadSignature = async (purpose) => {
+  return api.post(
+    "/media/upload-signature",
+    { purpose },
+    getBearerConfig(),
+  );
+};
+
+export const getAdminDashboardSummary = async (params = {}, signal) => {
+  return api.get("/admin/dashboard/summary", {
+    ...getBearerConfig(),
+    params,
+    signal,
+  });
 };
 
 //admins
@@ -144,8 +179,11 @@ export const deleteProduct = async (id)=>{
     return response;
 }
 
-export const getProductsAsAdmin = async ()=>{
-    const response = await api.get('/products/admin/all', getBearerConfig())
+export const getProductsAsAdmin = async (signal)=>{
+    const response = await api.get('/products/admin/all', {
+      ...getBearerConfig(),
+      signal,
+    })
     return response;
 }
 

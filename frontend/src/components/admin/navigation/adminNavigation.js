@@ -26,7 +26,7 @@ export const adminNavigation = [
     label: "Overview",
     href: DASHBOARDHOME,
     icon: LayoutDashboard,
-    requiredCapability: "dashboard.view",
+    requiredCapability: ["dashboard.view", "analytics.read"],
     exactMatch: true,
     documentTitle: "Overview",
   },

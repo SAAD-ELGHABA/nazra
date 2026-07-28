@@ -1,3 +1,11 @@
+const hasRequiredCapability = (requiredCapability, capabilitySet) => {
+  if (!requiredCapability) return true;
+  const required = Array.isArray(requiredCapability)
+    ? requiredCapability
+    : [requiredCapability];
+  return required.every((capability) => capabilitySet.has(capability));
+};
+
 export const isNavItemActive = (pathname, item) => {
   if (!item?.href) return false;
 
@@ -21,7 +29,7 @@ export const filterNavigationByCapabilities = (navigation, capabilities = []) =>
   return navigation
     .map((entry) => {
       if (entry.href) {
-        if (entry.requiredCapability && !capabilitySet.has(entry.requiredCapability)) {
+        if (!hasRequiredCapability(entry.requiredCapability, capabilitySet)) {
           return null;
         }
         return entry;
@@ -30,7 +38,7 @@ export const filterNavigationByCapabilities = (navigation, capabilities = []) =>
       if (!Array.isArray(entry.items)) return null;
 
       const visibleItems = entry.items.filter(
-        (item) => !item.requiredCapability || capabilitySet.has(item.requiredCapability),
+        (item) => hasRequiredCapability(item.requiredCapability, capabilitySet),
       );
 
       if (visibleItems.length === 0) return null;
