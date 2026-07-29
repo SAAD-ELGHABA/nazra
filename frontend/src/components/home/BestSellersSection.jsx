@@ -53,7 +53,7 @@ export default function BestSellersSection({ products, source, loading, error, o
         ) : !loading && products.length === 0 ? (
           <div className="mt-8 flex min-h-48 items-center justify-center border border-dashed border-stone-300 bg-stone-50 p-6 text-center text-sm text-stone-600">{t("home.bestSellers.empty")}</div>
         ) : (
-          <div className="-mx-4 mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:-mx-0 sm:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible">
+          <div className="-mx-4 mt-7 flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto px-4 pb-3 sm:-mx-0 sm:px-0 lg:grid lg:grid-cols-4 lg:overflow-visible">
             {loading ? Array.from({ length: 4 }, (_, index) => <ProductSkeleton key={index} />) : products.map((product) => <HomeProductCard key={product._id} product={product} inFavorites={isFavorite(product._id)} onFavorite={toggleFavorite} onAdd={addToCart} />)}
           </div>
         )}
