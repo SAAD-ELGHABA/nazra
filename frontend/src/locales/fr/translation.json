@@ -465,7 +465,14 @@
     "successCopy": "Votre commande #{{id}} est confirmée. Notre équipe vous contactera pour finaliser la livraison.",
     "missingConfirmation": "La commande a été créée sans numéro de confirmation.",
     "submitError": "Impossible de passer la commande pour le moment.",
-    "selectAtLeastMsg":"Veuillez sélectionner au moins un article à commander."
+    "selectAtLeastMsg":"Veuillez sélectionner au moins un article à commander.",
+    "upsellTitle": "Merci d'avoir choisi NAZRA",
+    "upsellSubtitle": "Un cadeau pour votre prochaine commande",
+    "couponCopy": "Copier",
+    "couponCopied": "Copié",
+    "couponDetails": "Utilisez ce code lors de votre prochain achat après la confirmation de votre commande actuelle.",
+    "recommendedTitle": "Recommandé pour vous",
+    "viewProduct": "Voir le produit"
   },
 "comingSoon": {
     "title": "Bientôt Disponible",

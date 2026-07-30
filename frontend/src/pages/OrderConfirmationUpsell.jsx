@@ -1,23 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, Clipboard } from "lucide-react";
-import axios from "axios";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getProducts } from "../api/api";
+import { getLocalizedText } from "../components/ProductDetails/productUtils";
+import { formatPrice, getProductImages } from "../components/store/storeUtils";
 
-const Link = ({ to, className, children }) => (
-  <a
-    href={to}
-    className={className}
-    onClick={() => console.log(`Navigating to ${to}`)}
-  >
-    {children}
-  </a>
-);
-// const useTranslation = () => ({ t: (key) => key.split(".").pop() });
-const handleAddToCart = (product) =>
-  console.log(`Added ${product.name} to cart.`);
+const getProductKey = (product) => product?._id || product?.id || product?.slug;
+const getProductPath = (product) => product?.slug ? `/product/${product.slug}` : "/store/products";
+const getProductImage = (product) => getProductImages(product)[0] || product?.imageUrl || "/fall-back-sunglasses-image.webp";
 
 function OrderConfirmationUpsell({ orderId }) {
-//   const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [products, setProducts] = useState([]);
 
@@ -32,7 +26,7 @@ function OrderConfirmationUpsell({ orderId }) {
   const getRandomProducts = async () => {
     try {
       const response = await getProducts();
-      setProducts(response?.data?.products);
+      setProducts(Array.isArray(response?.data?.products) ? response.data.products.slice(0, 4) : []);
     } catch (error) {
       console.log(error);
     }
@@ -43,11 +37,10 @@ function OrderConfirmationUpsell({ orderId }) {
       {/* 1. Future Purchase Incentive (High Visibility) */}
       <div className="text-center mb-10 pb-6 border-b border-gray-100">
         <h2 className="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">
-          {/* {t("upsell.thankYouTitle")} */}
-          hello
+          {t("checkoutPage.upsellTitle")}
         </h2>
         <p className="text-indigo-600 text-xl font-semibold mb-6">
-          {/* {t("upsell.giftForYou")} */}hello
+          {t("checkoutPage.upsellSubtitle")}
         </p>
 
         <div className="inline-flex items-center justify-center p-3 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg shadow-inner">
@@ -68,72 +61,73 @@ function OrderConfirmationUpsell({ orderId }) {
             {copied ? (
               <>
                 <CheckCircle className="h-4 w-4" />
-                <span>
-                    {/* {t("upsell.copied")} */}
-                    copied
-                </span>
+                <span>{t("checkoutPage.couponCopied")}</span>
               </>
             ) : (
               <>
                 <Clipboard className="h-4 w-4" />
-                <span>
-                    copy
-                    {/* {t("upsell.copy")} */}
-                    </span>
+                <span>{t("checkoutPage.couponCopy")}</span>
               </>
             )}
           </button>
         </div>
 
         <p className="mt-4 text-sm text-gray-600 font-medium">
-          {/* {t("upsell.discountDetails")} */}
-          hello
+          {t("checkoutPage.couponDetails")}
         </p>
       </div>
 
       {/* 2. Immediate Cross-Sell (Complementary Accessories) */}
       <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-        {/* {t("upsell.dontForgetEssentials")} */}
-        hello
+        {t("checkoutPage.recommendedTitle")}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center shadow-md hover:shadow-lg transition duration-300"
-          >
-            {/* Image */}
-            <Link to={`/product/${product.slug}`} className="flex-shrink-0">
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-20 h-20 object-cover rounded-md mr-4 border border-gray-100"
-              />
-            </Link>
+        {products.map((product, index) => {
+          const description = getLocalizedText(product?.description, i18n.resolvedLanguage || i18n.language);
+          const image = getProductImage(product);
+          const price = Number(product?.sale_price ?? product?.price ?? 0);
 
-            {/* Details and CTA */}
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-lg truncate">{product.name}</h4>
-              <p className="text-sm text-gray-600 mb-2">
-                {product.description}
-              </p>
+          return (
+            <div
+              key={getProductKey(product) || index}
+              className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center shadow-md hover:shadow-lg transition duration-300"
+            >
+              <Link to={getProductPath(product)} className="flex-shrink-0">
+                <img
+                  src={image}
+                  alt={product?.name || "NAZRA"}
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = "/fall-back-sunglasses-image.webp";
+                  }}
+                  className="w-20 h-20 object-cover rounded-md mr-4 border border-gray-100"
+                />
+              </Link>
 
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-indigo-600">
-                  MAD {product.price}
-                </span>
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  className="bg-gray-900 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-indigo-700 transition"
-                >
-                  {/* {t("upsell.addToOrder")} */}
-                  hello
-                </button>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-lg truncate">{product?.name}</h4>
+                {description && (
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {description}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-bold text-indigo-600">
+                    {formatPrice(price, i18n.language)}
+                  </span>
+                  <Link
+                    to={getProductPath(product)}
+                    className="rounded-full bg-gray-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-indigo-700"
+                  >
+                    {t("checkoutPage.viewProduct")}
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

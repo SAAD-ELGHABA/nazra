@@ -460,7 +460,14 @@
     "successCopy": "Your order #{{id}} is confirmed. Our team will contact you to finalize delivery.",
     "missingConfirmation": "The order was created without a confirmation number.",
     "submitError": "Unable to place your order right now.",
-    "selectAtLeastMsg":"Please select at least one item to checkout."
+    "selectAtLeastMsg":"Please select at least one item to checkout.",
+    "upsellTitle": "Thank you for choosing NAZRA",
+    "upsellSubtitle": "A gift for your next order",
+    "couponCopy": "Copy",
+    "couponCopied": "Copied",
+    "couponDetails": "Use this code on your next purchase after your current order is confirmed.",
+    "recommendedTitle": "Recommended for you",
+    "viewProduct": "View product"
   }
   ,
   "comingSoon": {

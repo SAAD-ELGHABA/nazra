@@ -460,7 +460,14 @@
     "successCopy": "تم تأكيد طلبك #{{id}}. سيتواصل معك فريقنا لإتمام التوصيل.",
     "missingConfirmation": "تم إنشاء الطلب بدون رقم تأكيد.",
     "submitError": "تعذر إرسال طلبك حالياً.",
-    "selectAtLeastMsg":"يرجى تحديد عنصر واحد على الأقل لإكمال عملية الشراء."
+    "selectAtLeastMsg":"يرجى تحديد عنصر واحد على الأقل لإكمال عملية الشراء.",
+    "upsellTitle": "شكراً لاختيارك NAZRA",
+    "upsellSubtitle": "هدية لطلبك القادم",
+    "couponCopy": "نسخ",
+    "couponCopied": "تم النسخ",
+    "couponDetails": "استخدم هذا الرمز في عملية الشراء القادمة بعد تأكيد طلبك الحالي.",
+    "recommendedTitle": "منتجات مقترحة لك",
+    "viewProduct": "عرض المنتج"
   },
   "comingSoon": {
     "title": "قريباً",
