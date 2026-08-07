@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { SITE_CONFIG } from "../config/site";
 
 export default function ShippingInfo() {
   const { t, i18n } = useTranslation();
@@ -30,8 +31,18 @@ export default function ShippingInfo() {
 
         <div className="mt-6 p-6 border border-gray-700 rounded-lg bg-white text-black">
           <h3 className="text-lg font-semibold mb-2">{t("shippingInfo.contactTitle")}</h3>
-          <p className=" mb-1">{t("shippingInfo.contactEmail")}: nazraglasses@gmail.com</p>
-          <p className="">{t("shippingInfo.contactPhone")}: +212 638 995 117</p>
+          <p className=" mb-1">
+            {t("shippingInfo.contactEmail")}:{" "}
+            <a href={`mailto:${SITE_CONFIG.email}`} className="underline underline-offset-4" dir="ltr">
+              {SITE_CONFIG.email}
+            </a>
+          </p>
+          <p className="">
+            {t("shippingInfo.contactPhone")}:{" "}
+            <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`} className="underline underline-offset-4" dir="ltr">
+              {SITE_CONFIG.phone}
+            </a>
+          </p>
         </div>
       </div>
     </section>

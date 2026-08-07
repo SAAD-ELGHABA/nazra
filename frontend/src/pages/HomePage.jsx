@@ -3,6 +3,7 @@ import HeroSection from "../components/home/HeroSection";
 import TrustBenefits from "../components/home/TrustBenefits";
 import BestSellersSection from "../components/home/BestSellersSection";
 import SocialProofStrip from "../components/home/SocialProofStrip";
+import CommercialFilm from "../components/home/CommercialFilm";
 import PromotionBanner from "../components/home/PromotionBanner";
 import UserGeneratedContent from "../components/home/UserGeneratedContent";
 import StyleCollections from "../components/home/StyleCollections";
@@ -46,6 +47,7 @@ const HomePage = () => {
       <TrustBenefits />
       <BestSellersSection products={products} source={selectionSource} loading={loading} error={error} onRetry={loadProducts} />
       <SocialProofStrip />
+      <CommercialFilm />
       <PromotionBanner />
       <UserGeneratedContent />
       <StyleCollections />

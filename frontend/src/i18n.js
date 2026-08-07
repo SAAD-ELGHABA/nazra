@@ -11,6 +11,8 @@ import { storeTranslations } from "./locales/storeTranslations";
 import { aboutTranslations } from "./locales/aboutTranslations";
 import { productTranslations } from "./locales/productTranslations";
 import { contactTranslations } from "./locales/contactTranslations";
+import { discoverTranslations } from "./locales/discoverTranslations";
+import { legalTranslations } from "./locales/legalTranslations";
 
 // Configure i18next
 i18n
@@ -18,10 +20,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: { ...enTranslation, home: homeTranslations.en, store: storeTranslations.en, about: aboutTranslations.en, productDetails: productTranslations.en, contactPage: contactTranslations.en } },
-      fr: { translation: { ...frTranslation, home: homeTranslations.fr, store: storeTranslations.fr, about: aboutTranslations.fr, productDetails: productTranslations.fr, contactPage: contactTranslations.fr } },
+      en: { translation: { ...enTranslation, home: homeTranslations.en, store: storeTranslations.en, about: aboutTranslations.en, productDetails: productTranslations.en, contactPage: contactTranslations.en, discover: discoverTranslations.en, legal: legalTranslations.en } },
+      fr: { translation: { ...frTranslation, home: homeTranslations.fr, store: storeTranslations.fr, about: aboutTranslations.fr, productDetails: productTranslations.fr, contactPage: contactTranslations.fr, discover: discoverTranslations.fr, legal: legalTranslations.fr } },
       ar: { 
-        translation: { ...arTranslation, home: homeTranslations.ar, store: storeTranslations.ar, about: aboutTranslations.ar, productDetails: productTranslations.ar, contactPage: contactTranslations.ar },
+        translation: { ...arTranslation, home: homeTranslations.ar, store: storeTranslations.ar, about: aboutTranslations.ar, productDetails: productTranslations.ar, contactPage: contactTranslations.ar, discover: discoverTranslations.ar, legal: legalTranslations.ar },
       }
     },
     lng: localStorage.getItem('i18nextLng') || 'fr',

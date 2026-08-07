@@ -1,6 +1,7 @@
 # Dependencies and generated output
 **/node_modules/
 **/dist/
+**/.next/
 
 # Runtime environment files are local-only. Keep sanitized templates tracked.
 **/.env

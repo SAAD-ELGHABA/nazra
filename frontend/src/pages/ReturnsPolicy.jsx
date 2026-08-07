@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { SITE_CONFIG } from "../config/site";
 
 export default function ReturnsPolicy() {
   const { t, i18n } = useTranslation();
@@ -30,8 +31,18 @@ export default function ReturnsPolicy() {
 
         <div className="mt-6 p-6 border text-black border-gray-700 rounded-lg ">
           <h3 className="text-lg font-semibold mb-2">{t("returnsPolicy.contactTitle")}</h3>
-          <p className=" mb-1">{t("returnsPolicy.contactEmail")}: nazraglasses@gmail.com</p>
-          <p className="">{t("returnsPolicy.contactPhone")}: +212 638 995 117</p>
+          <p className=" mb-1">
+            {t("returnsPolicy.contactEmail")}:{" "}
+            <a href={`mailto:${SITE_CONFIG.email}`} className="underline underline-offset-4" dir="ltr">
+              {SITE_CONFIG.email}
+            </a>
+          </p>
+          <p className="">
+            {t("returnsPolicy.contactPhone")}:{" "}
+            <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`} className="underline underline-offset-4" dir="ltr">
+              {SITE_CONFIG.phone}
+            </a>
+          </p>
         </div>
       </div>
     </section>
