@@ -290,6 +290,16 @@ export const getSingleProduct = async (slug, signal)=>{
     return response;
 }
 
+/** Loads the products a review invitation covers. Public, token-authorised. */
+export const getReviewInvitation = async (token, signal) => {
+  return api.get("/reviews/invitation", { params: { token }, signal });
+};
+
+/** Submits one review. Lands as pending until an admin approves it. */
+export const submitProductReview = async (payload) => {
+  return api.post("/reviews", payload);
+};
+
 export const getProductReviews = async (slug, params = {}, signal) => {
   const response = await api.get(`/products/${slug}/reviews`, { params, signal });
   return response;

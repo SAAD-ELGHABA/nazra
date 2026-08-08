@@ -19,6 +19,10 @@ Disallow: /checkout-card
 Disallow: /favorites
 Disallow: /comming-soon-page
 
+# Personal review invitations. The token in the URL is proof of purchase, so
+# these must never be crawled or indexed. The page also carries `noindex`.
+Disallow: /review/
+
 # Filtered, searched, sorted and paginated catalog permutations are handled by
 # `noindex, follow` on the page itself, NOT by a Disallow rule. Blocking them
 # here would stop Google re-crawling the ones it already indexed, and a URL it

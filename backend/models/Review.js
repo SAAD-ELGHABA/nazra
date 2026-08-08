@@ -7,15 +7,19 @@ const reviewSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  // Optional: `User` holds admin accounts, and reviewers are guests. Proof of
+  // purchase comes from `order` instead, which is what a signed review
+  // invitation names. Kept for reviews written by a signed-in team member.
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    default: null
   },
   order: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order',
-    required: true
+    required: true,
+    index: true
   },
   displayName: { type: String, required: true, trim: true, maxlength: 80 },
   rating: { type: Number, required: true, min: 1, max: 5, validate: Number.isInteger },
@@ -26,6 +30,9 @@ const reviewSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 reviewSchema.index({ product: 1, status: 1, createdAt: -1, _id: -1 });
-reviewSchema.index({ user: 1, product: 1, order: 1 }, { unique: true });
+// One review per product per order. This is what makes a review invitation
+// effectively single-use: replaying the link cannot create a second review.
+// Previously keyed on `user`, which guests never have.
+reviewSchema.index({ order: 1, product: 1 }, { unique: true });
 
 module.exports = mongoose.model('Review', reviewSchema);

@@ -162,6 +162,30 @@
     }
   }
 ,
+  "review": {
+    "eyebrow": "Your review",
+    "pageTitle": "Leave a review",
+    "greeting": "Thank you {{name}}!",
+    "intro": "Your order has arrived. Tell us what you think — a few lines is plenty, and it genuinely helps the next customer.",
+    "ratingLabel": "Your rating",
+    "starLabel": "{{count}} star out of 5",
+    "starLabel_other": "{{count}} stars out of 5",
+    "titleLabel": "Title (optional)",
+    "commentLabel": "Your review",
+    "commentPlaceholder": "Comfort, quality, delivery, fit…",
+    "submit": "Send my review",
+    "submitted": "Thank you, your review has been sent.",
+    "submitError": "Your review could not be sent. Please try again in a moment.",
+    "ratingRequired": "Choose a rating from 1 to 5 stars.",
+    "commentTooShort": "Your review must be at least {{count}} characters.",
+    "moderationNote": "Reviews are read before publication. Only customers who actually received their order can leave one.",
+    "allDoneTitle": "All done",
+    "allDoneCopy": "You have already reviewed this order. Thank you for taking the time.",
+    "linkInvalidTitle": "Link unavailable",
+    "linkInvalid": "This link is no longer valid. It expires 60 days after delivery.",
+    "backToStore": "Browse the collection",
+    "loading": "Loading…"
+  },
   "notFound": {
     "message": "Oops! The page you’re looking for doesn’t exist.",
     "goBack": "Go Back Home"

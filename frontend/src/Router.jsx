@@ -13,6 +13,7 @@ import ShippingInfo from "./pages/ShippingInfo";
 import TermsOfUse from "./pages/TermsOfUse";
 import Privacy from "./pages/Privacy";
 import CookiePolicy from "./pages/CookiePolicy";
+import LeaveReview from "./pages/LeaveReview";
 import WhyChooseUsPage from "./pages/WhyChooseUsPage";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import StoreIntro from "./pages/StoreIntro";
@@ -67,7 +68,7 @@ const AdminChunk = ({ children }) => (
     {children}
   </React.Suspense>
 );
-import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, COOKIEPOLICY, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, COOKIEPOLICY, LEAVEREVIEW, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
 import { getCurrentAdmin } from "./api/api";
 import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
@@ -254,6 +255,10 @@ export const Router = createBrowserRouter([
       {
         path: COOKIEPOLICY,
         element: <CookiePolicy />,
+      },
+      {
+        path: LEAVEREVIEW,
+        element: <LeaveReview />,
       },
       {
         path: TERMSANDCONDITIONS,

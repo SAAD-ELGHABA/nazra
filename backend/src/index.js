@@ -44,6 +44,8 @@ app.use('/api/contact', require('../routes/contactRoutes'));
 app.use('/api/auth', require('../routes/authRoutes'));
 // Signed media upload requests use a strict parser and keep Cloudinary secrets server-side.
 app.use('/api/media', require('../routes/mediaRoutes'));
+// Guest review submission carries its own 8 KiB parser and rate limit.
+app.use('/api/reviews', require('../routes/reviewsRoute'));
 
 // 1 MB is generous for the JSON these routes accept. It used to be 50 MB,
 // which let an unauthenticated caller push 50 MB through the public order and

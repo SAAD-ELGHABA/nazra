@@ -4,6 +4,8 @@ const crypto = require("node:crypto");
 const { sendEmail } = require("../utils/sendEmail");
 const { userOrderEmail } = require("../emails/userOrderEmail");
 const { adminOrderEmail } = require("../emails/adminOrderEmail");
+const { reviewInviteEmail } = require("../emails/reviewInviteEmail");
+const { createReviewToken } = require("../utils/reviewToken");
 const {
   NON_CANCELLED_STATUSES,
   SALES_STATUSES,
@@ -413,6 +415,36 @@ const buildOrderCreation = async ({ validated, idempotencyKeyHash, session }) =>
   }
 };
 
+/**
+ * Emails the customer a signed link to review what they just received.
+ *
+ * Best effort in every direction: no email address, no FRONTEND_URL, or a
+ * failed send must never turn a successful status change into an error. The
+ * order is already delivered; a missing review request is not worth a 500.
+ */
+const sendReviewInvitation = async (order) => {
+  try {
+    if (!order?.email) return;
+
+    const siteUrl = String(process.env.FRONTEND_URL || "").trim().replace(/\/+$/, "");
+    if (!siteUrl) {
+      console.error("Cannot send a review invitation: FRONTEND_URL is not configured");
+      return;
+    }
+
+    const token = createReviewToken(order._id);
+    const reviewUrl = `${siteUrl}/review/${encodeURIComponent(token)}`;
+
+    await sendEmail({
+      to: order.email,
+      subject: "Votre avis sur votre commande NAZRA",
+      html: reviewInviteEmail(order, { fullName: order.fullName }, reviewUrl)
+    });
+  } catch (error) {
+    console.error("Review invitation delivery failed:", error);
+  }
+};
+
 const canUseTransactions = () => {
   const topologyType = Order.db?.client?.topology?.description?.type;
   return topologyType && topologyType !== "Single";
@@ -652,6 +684,14 @@ exports.updateOrderStatus = async (req, res) => {
       );
       if (!order) return res.status(409).json({ success: false, message: "Order status changed concurrently" });
     }
+
+    // Delivery is the only moment a review invitation is honest: the customer
+    // now has the product. Sent once, on the transition, and never retried —
+    // the transition itself is guarded above so this cannot fire twice.
+    if (status === "delivered") {
+      await sendReviewInvitation(order);
+    }
+
     return res.status(200).json({
       success: true,
       message: `Order status updated to ${status}`,
