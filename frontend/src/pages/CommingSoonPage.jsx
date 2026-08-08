@@ -1,9 +1,13 @@
 import React from "react";
 import { Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNoIndex } from "../hooks/usePageSeo";
 
 function ComingSoonPage() {
   const { t, i18n } = useTranslation();
+
+  // Placeholder page with no content of its own.
+  useNoIndex(t("comingSoon.title"));
 
   // Change language dynamically
   const changeLanguage = (lng) => {

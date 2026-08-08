@@ -122,8 +122,16 @@ export const legalEn = {
         bullets: [
           "Your cart and favourites, so you find them again on your next visit.",
           "Your preferred display language.",
-          "A random, non-identifying visit identifier used for audience measurement.",
+          "Your cookie choice, along with its date, so you are not asked again on every visit.",
           "A session token, only for team members signed in to the administration area.",
+        ],
+      },
+      {
+        id: "cookies-choix",
+        heading: "Your choices about trackers",
+        paragraphs: [
+          "Audience measurement relies on a random, non-identifying visit identifier. It is not essential: it is only enabled if you accept it, and the identifier is created only at that moment. If you refuse, it does not exist; if you withdraw your agreement, it is deleted from your browser.",
+          "You can change or withdraw your consent at any time through the \"Cookie preferences\" link at the bottom of every page. Each tracker is described in detail in our cookie policy.",
         ],
       },
       {
@@ -340,6 +348,80 @@ export const legalEn = {
         heading: "Governing law and disputes",
         paragraphs: [
           "These terms are subject to Moroccan law. If a difficulty arises, contact us first: the vast majority of situations are settled directly. Failing an amicable solution, the dispute falls to the competent Moroccan courts.",
+        ],
+      },
+    ],
+  },
+
+  /* ────────────────────────── COOKIE POLICY ────────────────────────── */
+  cookiePolicy: {
+    seoTitle: "Cookie policy | {{brand}}",
+    seoDescription:
+      "Which cookies and local storage {{brand}} uses, what they are for, how long they are kept and how to change your choices at any time.",
+    title: "Cookie policy",
+    intro:
+      "This page details the trackers used on {{site}}: what they do, why they exist and how to refuse or withdraw your consent. It complements our privacy policy and sits within the framework of Law no. 09-08.",
+    sections: [
+      {
+        id: "principe",
+        heading: "Our principle",
+        paragraphs: [
+          "Nothing that is not strictly necessary is stored before you agree. Until you choose, only the functions the shop cannot work without are active.",
+          "Refusing is as easy as accepting: both buttons are presented side by side, and you can change your decision at any time.",
+          "{{brand}} mainly uses your browser's local storage rather than cookies in the strict sense. The principle is the same and we hold them to the same requirements.",
+        ],
+      },
+      {
+        id: "necessaires",
+        heading: "Necessary trackers",
+        paragraphs: [
+          "These cannot be turned off: without them the shop stops working. They serve neither advertising nor profiling, and are never passed to a third party.",
+        ],
+        bullets: [
+          "Cart: keeps the items you selected from page to page and until your next visit.",
+          "Favourites: keeps the models you set aside.",
+          "Display language: remembers whether you browse in French, English or Arabic.",
+          "Cookie choice: remembers your decision on this page, along with its date, so you are not asked again on every visit.",
+          "Admin session: only for {{brand}} team members signed in to the management area. No customer is concerned.",
+        ],
+      },
+      {
+        id: "mesure",
+        heading: "Audience measurement",
+        paragraphs: [
+          "Stored only if you accept it. It relies on a random visit identifier, generated at the moment you agree, which contains neither your name, nor your email, nor your phone number, and cannot identify you.",
+          "We use it to know how many people visit the shop and which models are viewed, so we can improve the catalogue. If you refuse, that identifier is never created; if you withdraw your agreement, it is deleted from your browser.",
+        ],
+      },
+      {
+        id: "marketing",
+        heading: "Marketing",
+        paragraphs: [
+          "This category covers tools that measure how well our advertising performs on social networks and search engines.",
+          "As of today, no third-party advertising tool is loaded on {{site}}. If we add one, it will only fire after you accept this category, and this page will be updated beforehand.",
+        ],
+      },
+      {
+        id: "duree",
+        heading: "Retention",
+        paragraphs: [
+          "Local storage has no automatic expiry date: it stays in your browser until you delete it, or until you withdraw your consent for the categories concerned.",
+          "Your cookie choice is kept along with its date. If we add a new tracker, your previous consent stops being valid and you are asked again.",
+        ],
+      },
+      {
+        id: "gerer",
+        heading: "Changing your choices",
+        paragraphs: [
+          "The \"Cookie preferences\" link at the bottom of every page reopens the choice panel. Your changes take effect immediately.",
+          "You can also clear local storage and cookies from your browser settings. In that case your cart, your favourites and your language choice are cleared too, and the consent request reappears.",
+        ],
+      },
+      {
+        id: "contact-cookies",
+        heading: "Contacting us",
+        paragraphs: [
+          "For any question about this policy or about the use of your data, write to us at {{email}}. You may also refer the matter to the National Commission for the Control of Personal Data Protection (CNDP).",
         ],
       },
     ],

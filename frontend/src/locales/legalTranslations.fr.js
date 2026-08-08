@@ -133,8 +133,16 @@ export const legalFr = {
         bullets: [
           "Le contenu de votre panier et de vos favoris, afin de les retrouver d'une visite à l'autre.",
           "Votre langue d'affichage préférée.",
-          "Un identifiant de visite aléatoire, non nominatif, utilisé pour la mesure d'audience.",
+          "Votre choix en matière de cookies, ainsi que sa date, afin de ne pas vous le redemander à chaque visite.",
           "Un jeton de session, uniquement pour les membres de l'équipe connectés à l'administration.",
+        ],
+      },
+      {
+        id: "cookies-choix",
+        heading: "Vos choix en matière de traceurs",
+        paragraphs: [
+          "La mesure d'audience repose sur un identifiant de visite aléatoire et non nominatif. Elle n'est pas essentielle : elle n'est activée que si vous l'acceptez, et l'identifiant n'est créé qu'à ce moment-là. Si vous refusez, il n'existe pas ; si vous retirez votre accord, il est supprimé de votre navigateur.",
+          "Vous pouvez modifier ou retirer votre consentement à tout moment via le lien « Préférences cookies » présent en bas de chaque page. Le détail de chaque traceur figure dans notre politique de cookies.",
         ],
       },
       {
@@ -353,6 +361,80 @@ export const legalFr = {
         heading: "Droit applicable et différends",
         paragraphs: [
           "Les présentes conditions sont soumises au droit marocain. En cas de difficulté, contactez-nous d'abord : la grande majorité des situations se règle directement. À défaut de solution amiable, le litige relève des juridictions marocaines compétentes.",
+        ],
+      },
+    ],
+  },
+
+  /* ──────────────────────── POLITIQUE DE COOKIES ──────────────────────── */
+  cookiePolicy: {
+    seoTitle: "Politique de cookies | {{brand}}",
+    seoDescription:
+      "Quels cookies et quel stockage local {{brand}} utilise, à quoi ils servent, combien de temps ils sont conservés et comment modifier vos choix à tout moment.",
+    title: "Politique de cookies",
+    intro:
+      "Cette page détaille les traceurs utilisés sur {{site}} : ce qu'ils font, pourquoi ils existent et comment refuser ou retirer votre consentement. Elle complète notre politique de confidentialité et s'inscrit dans le cadre de la loi n° 09-08.",
+    sections: [
+      {
+        id: "principe",
+        heading: "Notre principe",
+        paragraphs: [
+          "Rien qui ne soit strictement nécessaire n'est déposé avant votre accord. Tant que vous n'avez pas choisi, seules les fonctions indispensables au fonctionnement de la boutique sont actives.",
+          "Refuser est aussi simple qu'accepter : les deux boutons sont présentés côte à côte, et vous pouvez revenir sur votre décision à tout moment.",
+          "{{brand}} utilise principalement le stockage local de votre navigateur plutôt que des cookies au sens strict. Le principe reste le même et nous les traitons avec les mêmes exigences.",
+        ],
+      },
+      {
+        id: "necessaires",
+        heading: "Traceurs nécessaires",
+        paragraphs: [
+          "Ils ne peuvent pas être désactivés : sans eux, la boutique ne fonctionne plus. Ils ne servent ni à la publicité, ni au profilage, et ne sont jamais transmis à un tiers.",
+        ],
+        bullets: [
+          "Panier : conserve les articles sélectionnés d'une page à l'autre et jusqu'à votre prochaine visite.",
+          "Favoris : conserve les modèles que vous avez mis de côté.",
+          "Langue d'affichage : mémorise si vous naviguez en français, en anglais ou en arabe.",
+          "Choix de cookies : mémorise votre décision sur cette page, ainsi que sa date, afin de ne pas vous la redemander à chaque visite.",
+          "Session d'administration : uniquement pour les membres de l'équipe {{brand}} connectés à l'espace de gestion. Aucun client n'est concerné.",
+        ],
+      },
+      {
+        id: "mesure",
+        heading: "Mesure d'audience",
+        paragraphs: [
+          "Déposée uniquement si vous l'acceptez. Elle repose sur un identifiant de visite aléatoire, généré au moment de votre accord, qui ne contient ni votre nom, ni votre e-mail, ni votre téléphone et ne permet pas de vous identifier.",
+          "Elle nous sert à savoir combien de personnes visitent la boutique et quels modèles sont consultés, afin d'améliorer le catalogue. Si vous refusez, cet identifiant n'est jamais créé ; si vous retirez votre accord, il est supprimé de votre navigateur.",
+        ],
+      },
+      {
+        id: "marketing",
+        heading: "Marketing",
+        paragraphs: [
+          "Cette catégorie couvre les outils qui mesurent l'efficacité de nos publicités sur les réseaux sociaux et les moteurs de recherche.",
+          "À ce jour, aucun outil publicitaire tiers n'est chargé sur {{site}}. Si nous en ajoutons un, il ne se déclenchera qu'après votre acceptation de cette catégorie, et cette page sera mise à jour au préalable.",
+        ],
+      },
+      {
+        id: "duree",
+        heading: "Durée de conservation",
+        paragraphs: [
+          "Le stockage local n'a pas de date d'expiration automatique : il reste dans votre navigateur jusqu'à ce que vous le supprimiez, ou que vous retiriez votre consentement pour les catégories concernées.",
+          "Votre choix de cookies est conservé avec sa date. Si nous ajoutons un nouveau traceur, votre consentement précédent cesse d'être valable et la demande vous est présentée à nouveau.",
+        ],
+      },
+      {
+        id: "gerer",
+        heading: "Modifier vos choix",
+        paragraphs: [
+          "Le lien « Préférences cookies », présent en bas de chaque page, rouvre le panneau de choix. Vos modifications prennent effet immédiatement.",
+          "Vous pouvez également vider le stockage local et les cookies depuis les réglages de votre navigateur. Dans ce cas, votre panier, vos favoris et votre choix de langue seront également effacés, et la demande de consentement réapparaîtra.",
+        ],
+      },
+      {
+        id: "contact-cookies",
+        heading: "Nous contacter",
+        paragraphs: [
+          "Pour toute question sur cette politique ou sur l'usage de vos données, écrivez-nous à {{email}}. Vous pouvez également saisir la Commission Nationale de contrôle de la protection des Données à caractère Personnel (CNDP).",
         ],
       },
     ],

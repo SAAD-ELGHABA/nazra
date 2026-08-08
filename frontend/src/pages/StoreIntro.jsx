@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import LuxurySlider from '../components/store/LuxurySlider'
 import { Link } from 'react-router-dom'
 import { HatGlasses, Sun, Palette } from 'lucide-react'
-import ReviewSection from '../components/store/ClientReview'
 import LuxuryCTA from '../components/store/LuxuryCTA'
 import FAQs from '../components/FAQs'
 import ProductsShortCut from '../components/home/ProductsShortCut'
@@ -11,23 +10,8 @@ import ProductsShortCut from '../components/home/ProductsShortCut'
 
 
 
-const items = [
-  {
-    name: "wayfar black",
-    image: "/Classic-Black-Sunglasses.png",
-    price: 49.99
-  },
-  {
-    name: "master class",
-    image: "/Modern-Stylish-Sunglasses.png",
-    price: 119.89
-  },
-  {
-    name: "tiger round",
-    image: "/Stylish-Tortoiseshell-Glasses.png",
-    price: 149.99
-  }
-]
+// Removed: an unrendered array of three invented products with hardcoded
+// prices, one of which pointed at an image that does not exist on disk.
 
 const StoreIntro = () => {
   useEffect(()=>{
@@ -59,19 +43,14 @@ const StoreIntro = () => {
           <h2 className='w-1/2 text-center mx-auto text-xs md:text-2xl'>Modern & Timeless Designs</h2>
         </div>
       </div>
-      <ReviewSection />
+      {/* ReviewSection removed: hardcoded English testimonials under invented
+          names ("Sarah Johnson", "Michael Chen", "Emma Rodriguez") shown to
+          French-speaking Moroccan traffic. */}
       <LuxuryCTA />
       <FAQs />
     </div>
   )
 }
-
-
-const itemCard = ({ item }) => (
-  <div className='flex flex-col '>
-    <img src={item.image} alt={item.name} />
-  </div>
-)
 
 
 

@@ -1,6 +1,30 @@
 import React, { useEffect } from "react";
 import { getProductsShortCut } from "../../api/api";
 import { Link } from "react-router-dom";
+
+/**
+ * Price display.
+ *
+ * This component previously synthesised the "was" price as
+ * `2 x sale_price - original_price`, which invented a reference price that had
+ * never been charged (and rendered the literal string "NaN.00" when
+ * original_price was missing). These helpers mirror the guarded pattern used by
+ * StoreProductCard and productUtils: a struck-through price is shown only when
+ * a real, higher reference price exists.
+ */
+const toPrice = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+};
+
+const salePrice = (product) => toPrice(product?.sale_price) ?? 0;
+const referencePrice = (product) => toPrice(product?.compareAtPrice) ?? toPrice(product?.original_price);
+const hasDiscount = (product) => {
+  const reference = referencePrice(product);
+  return reference !== null && reference > salePrice(product);
+};
+const formatAmount = (value) => Number(value || 0).toFixed(2);
+
 function ProductsShortCut() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [products, setProducts] = React.useState([]);
@@ -86,14 +110,13 @@ function ProductsShortCut() {
                         : product.name}
                     </h2>
                       <div className="flex gap-2 items-center">
-                        <h5 className="text-xs md:text-sm font-light line-through text-red-500">
-                          {product?.sale_price -
-                            product?.original_price +
-                            product?.sale_price +
-                            ".00"}
-                        </h5>
+                        {hasDiscount(product) && (
+                          <h5 className="text-xs md:text-sm font-light line-through text-red-500">
+                            {formatAmount(referencePrice(product))}
+                          </h5>
+                        )}
                         <h2 className="font-semibold text-sm md:text-xl">
-                          {product?.sale_price + ".00 MAD"}
+                          {formatAmount(salePrice(product))} MAD
                         </h2>
                       </div>
 
@@ -152,14 +175,13 @@ function ProductsShortCut() {
                         : product.name}
                     </h2>
                       <div className="flex gap-2 items-center">
-                        <h5 className="text-xs md:text-sm font-light line-through text-red-500">
-                          {product?.sale_price -
-                            product?.original_price +
-                            product?.sale_price +
-                            ".00"}
-                        </h5>
+                        {hasDiscount(product) && (
+                          <h5 className="text-xs md:text-sm font-light line-through text-red-500">
+                            {formatAmount(referencePrice(product))}
+                          </h5>
+                        )}
                         <h2 className="font-semibold text-sm md:text-xl">
-                          {product?.sale_price + ".00 MAD"}
+                          {formatAmount(salePrice(product))} MAD
                         </h2>
                       </div>
 

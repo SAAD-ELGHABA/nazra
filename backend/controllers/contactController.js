@@ -1,6 +1,7 @@
 const validator = require("validator");
 const { CONTACT_SUBJECTS } = require("../models/ContactMessage");
 const { submitContactMessage } = require("../services/contactService");
+const { normalizePhone } = require("../utils/moroccanPhone");
 
 const ALLOWED_FIELDS = new Set(["name", "email", "phone", "subject", "message", "website"]);
 const SUBJECT_SET = new Set(CONTACT_SUBJECTS);
@@ -27,14 +28,6 @@ const isPlainObject = (value) => Boolean(
 
 const normalizeSingleLine = (value) => value.normalize("NFKC").trim().replace(/\s+/g, " ");
 const normalizeMessage = (value) => value.normalize("NFKC").replace(/\r\n?/g, "\n").trim();
-
-const normalizePhone = (value) => {
-  const compact = value.normalize("NFKC").trim().replace(/[\s().-]/g, "");
-  if (compact.startsWith("00")) return `+${compact.slice(2)}`;
-  if (/^212[5-8]\d{8}$/.test(compact)) return `+${compact}`;
-  if (/^0[5-8]\d{8}$/.test(compact)) return `+212${compact.slice(1)}`;
-  return compact;
-};
 
 const validateContactPayload = (body) => {
   if (!isPlainObject(body)) {

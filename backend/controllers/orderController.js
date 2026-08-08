@@ -10,9 +10,27 @@ const {
   calculateOrderTotal,
   serializeOrder
 } = require("../utils/orderTotals");
+const { calculateDeliveryFee } = require("../config/delivery");
+const { parsePhone } = require("../utils/moroccanPhone");
 
 const MAX_ORDER_ITEMS = 50;
 const MAX_ITEM_QUANTITY = 100;
+
+/**
+ * Short customer-facing reference, e.g. `NZ-6QK4-8H2D`.
+ *
+ * Random rather than sequential: a guessable counter would leak how many
+ * orders the shop has taken. Collisions are caught by the unique sparse index
+ * on `orderNumber`, and the ObjectId remains the real primary key.
+ * Excludes I, O, 0 and 1, which are misread when spelled out over the phone.
+ */
+const ORDER_NUMBER_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const generateOrderNumber = () => {
+  const pick = () => Array.from(crypto.randomBytes(4))
+    .map((byte) => ORDER_NUMBER_ALPHABET[byte % ORDER_NUMBER_ALPHABET.length])
+    .join("");
+  return `NZ-${pick()}-${pick()}`;
+};
 const ORDER_PRODUCT_FIELDS = [
   "name slug sale_price stockStatus inStock",
   "colors._id colors.name colors.value colors.sku colors.price colors.stock colors.active colors.images.url",
@@ -106,15 +124,28 @@ const validateOrderRequest = (body) => {
     };
   });
 
-  const customer = {
-    fullName: readRequiredString(body.customer.fullName, "customer.fullName", 150),
-    email: readRequiredString(body.customer.email, "customer.email", 254).toLowerCase(),
-    phone: readRequiredString(body.customer.phone, "customer.phone", 50),
-    adresse: readRequiredString(body.customer.adresse, "customer.adresse", 500)
-  };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
+  // Phone is canonicalised to E.164 here so every downstream consumer — the
+  // courier export, the admin search, a future WhatsApp follow-up — sees one
+  // format regardless of how the customer typed it.
+  const phone = parsePhone(readRequiredString(body.customer.phone, "customer.phone", 50));
+  if (!phone) {
+    throw new OrderInputValidationError("customer.phone must be a valid Moroccan or international phone number");
+  }
+
+  // Email is optional: cash on delivery is settled by phone, and demanding an
+  // address the customer may not have is friction that costs orders.
+  const email = readOptionalString(body.customer.email, "customer.email", 254)?.toLowerCase() ?? null;
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new OrderInputValidationError("customer.email must be a valid email address");
   }
+
+  const customer = {
+    fullName: readRequiredString(body.customer.fullName, "customer.fullName", 150),
+    email,
+    phone,
+    adresse: readRequiredString(body.customer.adresse, "customer.adresse", 500),
+    city: readRequiredString(body.customer.city, "customer.city", 120)
+  };
 
   return { products, customer };
 };
@@ -353,12 +384,19 @@ const buildOrderCreation = async ({ validated, idempotencyKeyHash, session }) =>
   const { orderItems, reservations } = buildValidatedOrderSelection(validated.products, availableProducts);
   const completedReservations = await reserveInventory(reservations, Product, session);
 
+  // Delivery is priced from the server-derived subtotal, never from anything
+  // the client sent, and snapshotted so a later fee change cannot rewrite it.
+  const subtotal = orderItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+
   const order = new Order({
     products: orderItems,
+    orderNumber: generateOrderNumber(),
+    deliveryFee: calculateDeliveryFee(subtotal),
     fullName: validated.customer.fullName,
     email: validated.customer.email,
     phone: validated.customer.phone,
     adresse: validated.customer.adresse,
+    city: validated.customer.city,
     ...(idempotencyKeyHash ? { idempotencyKeyHash } : {})
   });
 
@@ -420,23 +458,51 @@ exports.createOrder = async (req, res) => {
       console.error("Order created but product population failed");
     }
 
-    let emailsSent = true;
+    // Settled independently: a missing ADMIN_EMAIL used to reject the whole
+    // Promise.all and take the customer's confirmation down with it. The
+    // customer email is also skipped entirely when no address was given, which
+    // is now a normal case.
+    const deliveries = await Promise.allSettled([
+      validated.customer.email
+        ? sendEmail({
+            to: validated.customer.email,
+            subject: "Your Order Confirmation",
+            html: userOrderEmail(order, validated.customer)
+          })
+        : Promise.resolve(null),
+      process.env.ADMIN_EMAIL
+        ? sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            subject: "New Order Received",
+            html: adminOrderEmail(order, validated.customer)
+          })
+        : Promise.reject(new Error("ADMIN_EMAIL is not configured"))
+    ]);
+
+    const [customerDelivery, adminDelivery] = deliveries;
+    const emailsSent = deliveries.every((entry) => entry.status === "fulfilled");
+    if (customerDelivery.status === "rejected") {
+      console.error("Order customer email delivery failed:", customerDelivery.reason);
+    }
+    // An admin who never learns an order arrived cannot fulfil it, so this is
+    // the more urgent of the two failures.
+    if (adminDelivery.status === "rejected") {
+      console.error("Order admin notification failed:", adminDelivery.reason);
+    }
+
+    // Recorded on the order so a failure is visible in the dashboard instead of
+    // living only in a log line nobody reads. Best-effort: the order itself is
+    // already committed and must not be rolled back over an email.
     try {
-      await Promise.all([
-        sendEmail({
-          to: validated.customer.email,
-          subject: "Your Order Confirmation",
-          html: userOrderEmail(order, validated.customer)
-        }),
-        sendEmail({
-          to: process.env.ADMIN_EMAIL,
-          subject: "New Order Received",
-          html: adminOrderEmail(order, validated.customer)
-        })
-      ]);
-    } catch (emailError) {
-      emailsSent = false;
-      console.error("Order email delivery failed");
+      order.emailStatus = {
+        customer: !validated.customer.email
+          ? "skipped"
+          : customerDelivery.status === "fulfilled" ? "sent" : "failed",
+        admin: adminDelivery.status === "fulfilled" ? "sent" : "failed"
+      };
+      await order.save();
+    } catch (statusError) {
+      console.error("Could not record order email status:", statusError);
     }
 
     return res.status(201).json({
@@ -454,10 +520,55 @@ exports.createOrder = async (req, res) => {
 };
 
 // Get all orders
+// The admin dashboards (OrderStats, TopProducts, RecentOrders) still aggregate
+// client-side over this list, so the default is set high enough not to skew
+// their numbers for a young store. They should move to the server-side
+// /api/admin/dashboard/summary metrics before order volume approaches this.
+const ORDERS_DEFAULT_LIMIT = 500;
+const ORDERS_MAX_LIMIT = 1000;
+
+const readListLimit = (value) => {
+  if (value === undefined) return ORDERS_DEFAULT_LIMIT;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 1) return null;
+  return Math.min(parsed, ORDERS_MAX_LIMIT);
+};
+
+/**
+ * Paginated. This previously returned every order ever placed, fully
+ * populated, with each customer's name, phone and address in one response —
+ * unbounded in both payload size and PII exposure.
+ */
 exports.getOrders = async (req, res) => {
+  const limit = readListLimit(req.query.limit);
+  const page = req.query.page === undefined ? 1 : Number(req.query.page);
+
+  if (limit === null || !Number.isSafeInteger(page) || page < 1) {
+    return res.status(400).json({ success: false, message: "page and limit must be positive integers" });
+  }
+
   try {
-    const orders = await Order.find().populate("products.product", ORDER_PRODUCT_FIELDS);
-    return res.status(200).json({ success: true, orders: orders.map(attachOrderComputedFields) });
+    const [orders, total] = await Promise.all([
+      Order.find()
+        .sort({ createdAt: -1, _id: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate("products.product", ORDER_PRODUCT_FIELDS),
+      Order.estimatedDocumentCount()
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      orders: orders.map(attachOrderComputedFields),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page * limit < total,
+        hasPrev: page > 1
+      }
+    });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return res.status(500).json({ success: false, message: "Server error while fetching orders" });

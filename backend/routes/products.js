@@ -14,6 +14,7 @@ const {
   getProductDetailsBySlug,
   listProductReviews
 } = require('../services/productDetailsService');
+const { buildSitemap, clearSitemapCache } = require('../services/sitemapService');
 
 const HOMEPAGE_DEFAULT_LIMIT = 4;
 const HOMEPAGE_MAX_LIMIT = 12;
@@ -297,6 +298,7 @@ router.post('/create', auth, requirePermission("products.manage"), async (req, r
     // Save product to database
     await product.save();
     homepageSelectionCache.clear();
+    clearSitemapCache();
 
     res.status(201).json({
       success: true,
@@ -469,6 +471,22 @@ router.get("/products-shortcut", async (req, res) => {
 });
 
 
+// Public XML sitemap of active products and indexable storefront pages.
+// Declared before `/:slug` so the literal path can never be read as a slug.
+// The frontend proxies this at https://nazra.store/sitemap.xml so the sitemap
+// stays same-origin with the URLs it lists.
+router.get('/sitemap.xml', async (req, res) => {
+  try {
+    const xml = await buildSitemap();
+    res.set('Content-Type', 'application/xml; charset=utf-8');
+    res.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=3600');
+    return res.status(200).send(xml);
+  } catch (error) {
+    console.error('Error building sitemap:', error);
+    return res.status(500).json({ success: false, message: 'Server error while building sitemap' });
+  }
+});
+
 // Admin route to get all products
 router.get("/admin/all", auth, requirePermission("products.read"), async (req, res) => {
   try {
@@ -594,6 +612,7 @@ router.put('/:id', auth, requirePermission("products.manage"), async (req, res) 
 
     await product.save();
     homepageSelectionCache.clear();
+    clearSitemapCache();
 
     res.status(200).json({
       success: true,
@@ -639,6 +658,7 @@ router.delete('/:id', auth, requirePermission("products.manage"), async (req, re
     product.isActive = false;
     await product.save();
     homepageSelectionCache.clear();
+    clearSitemapCache();
 
     res.status(200).json({
       success: true,

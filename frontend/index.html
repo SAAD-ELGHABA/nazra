@@ -1,22 +1,77 @@
 <!doctype html>
 <html lang="fr">
 <head> 
-  <meta charset="UTF-8" /> 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--
+    Google Consent Mode v2 defaults. This must be the first script on the page:
+    the defaults have to be in the dataLayer before any measurement tag loads,
+    otherwise that tag starts out with implicit permission.
+
+    Everything optional starts denied. A previously stored decision is read
+    synchronously and re-applied here so a returning visitor who consented is
+    not held at "denied" until React has mounted. Kept in plain ES5 with no
+    dependency on the bundle, and mirrors src/utils/consent.js.
+  -->
+  <script>
+    (function () {
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = window.gtag || gtag;
+
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'granted'
+      });
+
+      try {
+        var stored = JSON.parse(localStorage.getItem('nazra_consent'));
+        // Keep this version in step with CONSENT_VERSION in src/utils/consent.js.
+        if (stored && stored.version === 1 && stored.categories) {
+          gtag('consent', 'update', {
+            ad_storage: stored.categories.marketing ? 'granted' : 'denied',
+            ad_user_data: stored.categories.marketing ? 'granted' : 'denied',
+            ad_personalization: stored.categories.marketing ? 'granted' : 'denied',
+            analytics_storage: stored.categories.analytics ? 'granted' : 'denied'
+          });
+        }
+      } catch (error) {
+        /* No stored decision, or storage unavailable: stay denied. */
+      }
+    })();
+  </script>
 
 <link rel="icon" type="image/png" href="/favicon.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
   <title>NAZRA | Lunettes de Soleil Homme &amp; Femme au Maroc</title>
-  <meta name="description" content="Découvrez les lunettes de soleil NAZRA au Maroc. Designs modernes, protection UV400, paiement à la livraison et livraison partout au Maroc." />
+  <!--
+    Site-wide description. It must only carry claims that are true of the whole
+    catalogue and of the business. Per-product attributes (UV400, polarised,
+    materials) belong on the product page, where the product record proves them.
+  -->
+  <meta name="description" content="Lunettes de soleil NAZRA au Maroc : designs modernes pour homme et femme, paiement à la livraison et livraison partout au Maroc." />
+  <meta name="robots" content="index, follow" />
   <meta name="author" content="NAZRA" />
   <meta name="theme-color" content="#111111" />
   <link rel="preload" as="image" href="/assets/images/home/hero-nazra.webp" type="image/webp" fetchpriority="high" />
 
+  <!-- Fonts start downloading in parallel with the stylesheet rather than
+       after it, which is what a CSS @import forced. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" />
+
   <meta property="og:title" content="NAZRA | Lunettes de Soleil au Maroc" />
   <meta property="og:description" content="Lunettes de soleil modernes inspirées par le Maroc, avec paiement à la livraison." />
   <meta property="og:image" content="https://nazra.store/assets/images/home/hero-nazra.webp" />
-  <meta property="og:url" content="https://nazra.store" />
+  <meta property="og:url" content="https://nazra.store/" />
   <meta property="og:type" content="website" />
 
   <meta name="twitter:card" content="summary_large_image" />
@@ -24,7 +79,8 @@
   <meta name="twitter:description" content="Lunettes de soleil modernes inspirées par le Maroc." />
   <meta name="twitter:image" content="https://nazra.store/assets/images/home/hero-nazra.webp" />
   <meta name="google-site-verification" content="hjTT93aqYfI8iR8wD8x9Suc6aKSrACjhWSMkCBxoOW4" />
-  <link rel="canonical" href="https://nazra.store" />
+  <!-- Canonical host is the apex domain. Never emit a www. URL here. -->
+  <link rel="canonical" href="https://nazra.store/" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -48,7 +104,7 @@
       "@id": "https://nazra.store/#website",
       "url": "https://nazra.store",
       "name": "NAZRA",
-      "inLanguage": ["fr", "ar", "en"],
+      "inLanguage": "fr",
       "publisher": { "@id": "https://nazra.store/#organization" }
     }]
     }

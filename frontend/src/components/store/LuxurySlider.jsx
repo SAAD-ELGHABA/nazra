@@ -13,29 +13,21 @@ import {
   Circle,
   CircleOutlined,
 } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
-import Eng from "../../locales/en/translation.json";
-import fr from "../../locales/fr/translation.json";
-import ar from "../../locales/ar/translation.json";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 const LuxurySlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const navigate = useNavigate();
-  // Sample slides - replace with your actual brand content
   const { t, i18n } = useTranslation();
 
-  const [slides, setSlides] = useState([]);
-  useEffect(() => {
-    {
-      i18n.language === "en"
-        ? setSlides(Eng?.LuxurySlider)
-        : i18n.language === "fr"
-        ? setSlides(fr?.LuxurySlider)
-        : setSlides(ar?.LuxurySlider);
-    }
-  }, [i18n.language, slides]);
+  // Read through i18next rather than importing all three translation.json
+  // files a second time — they are already bundled once via src/i18n.js.
+  const slides = React.useMemo(() => {
+    const value = t("LuxurySlider", { returnObjects: true });
+    return Array.isArray(value) ? value : [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t, i18n.resolvedLanguage]);
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));

@@ -29,6 +29,7 @@ export const EXPLORE = "/explore";
 export const COMMINGSOON = "/comming-soon-page";
 export const TERMSANDCONDITIONS = "/terms-and-conditions";
 export const PRIVACYANDPOLICY = "/privacy-policy";
+export const COOKIEPOLICY = "/cookie-policy";
 export const TERMSOFUSE = "/terms-of-use";
 export const SHIPPINGINFO = "/shipping-info";
 export const RETURNPOLICY = "/returns-policy";

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { getSingleProduct, trackVisitPerProduct } from "../api/api";
 import { useCard } from "../context/CardContext";
 import { useFavorites } from "../context/FavoritesContext";
-import { SITE_CONFIG } from "../config/site";
+import { useConsent } from "../context/ConsentContext";
 import ProductBreadcrumbs from "../components/ProductDetails/ProductBreadcrumbs";
 import ProductGallery from "../components/ProductDetails/ProductGallery";
 import ProductInfo from "../components/ProductDetails/ProductInfo";
@@ -16,19 +16,9 @@ import ProductReviews from "../components/ProductDetails/ProductReviews";
 import RelatedProducts from "../components/ProductDetails/RelatedProducts";
 import ProductWhatsAppCTA from "../components/ProductDetails/ProductWhatsAppCTA";
 import { getGalleryImages, getInitialColor, getInitialLens, getLocalizedText, resolveVariant, toCartProduct } from "../components/ProductDetails/productUtils";
-
-const setMeta = (attribute, value, content) => {
-  let tag = document.head.querySelector(`meta[${attribute}="${value}"]`);
-  const created = !tag;
-  if (!tag) {
-    tag = document.createElement("meta");
-    tag.setAttribute(attribute, value);
-    document.head.appendChild(tag);
-  }
-  const previousContent = tag.getAttribute("content");
-  tag.setAttribute("content", content);
-  return { tag, created, previousContent };
-};
+import { buildProductJsonLd, productCanonicalUrl, productSeoImage } from "../components/ProductDetails/productSeo";
+import usePageSeo, { ROBOTS_NOINDEX } from "../hooks/usePageSeo";
+import { track } from "../utils/tagLoader";
 
 const ProductSkeleton = ({ label }) => <main className="nazra-container py-8" aria-busy="true" aria-label={label}><span className="sr-only">{label}</span><div className="grid animate-pulse gap-8 lg:grid-cols-[1.45fr_.75fr]"><div className="grid gap-3 sm:grid-cols-[76px_1fr]"><div className="hidden space-y-3 sm:block">{[1, 2, 3, 4].map((value) => <div key={value} className="h-20 rounded bg-stone-200" />)}</div><div className="aspect-[1.25] rounded bg-stone-200" /></div><div><div className="h-14 w-2/3 bg-stone-200" /><div className="mt-5 h-5 w-1/2 bg-stone-200" /><div className="mt-5 h-20 bg-stone-100" /><div className="mt-8 h-12 bg-stone-200" /></div></div></main>;
 
@@ -38,11 +28,19 @@ export default function ProductPage() {
   const { t, i18n } = useTranslation();
   const { addToCard } = useCard();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { categories } = useConsent();
   const reviewsRef = useRef(null);
   const [state, setState] = useState({ status: "loading", product: null });
   const [color, setColor] = useState(null);
   const [lens, setLens] = useState(null);
   const language = i18n.resolvedLanguage || i18n.language;
+
+  // Held in a ref so a consent change never re-triggers the product fetch; the
+  // value is read at the moment the view would be recorded.
+  const analyticsConsent = useRef(categories.analytics);
+  useEffect(() => {
+    analyticsConsent.current = categories.analytics;
+  }, [categories.analytics]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -59,7 +57,7 @@ export default function ProductPage() {
         setColor(initialColor);
         setLens(getInitialLens(initialColor));
         setState({ status: "success", product });
-        if (product._id) trackVisitPerProduct(product._id).catch(() => {});
+        if (product._id && analyticsConsent.current) trackVisitPerProduct(product._id).catch(() => {});
       })
       .catch((error) => {
         if (error?.code === "ERR_CANCELED") return;
@@ -76,64 +74,63 @@ export default function ProductPage() {
   const variant = useMemo(() => resolveVariant(product, color, lens), [product, color, lens]);
   const images = useMemo(() => getGalleryImages(product, color, variant), [product, color, variant]);
 
+  // A product only becomes indexable once the API has confirmed it exists. The
+  // loading, error and 404 states stay `noindex` so a missing product never
+  // publishes a canonical URL or Product markup.
+  const seo = useMemo(() => {
+    const canonical = product ? productCanonicalUrl(product.slug) : null;
+    if (!product || !canonical) {
+      const failed = state.status === "notfound" || state.status === "error";
+      return {
+        // While the request is still in flight the document keeps its title;
+        // only a resolved failure renames the page.
+        ...(failed
+          ? { title: `${t(state.status === "notfound" ? "productDetails.notFoundTitle" : "productDetails.errorTitle")} | NAZRA` }
+          : {}),
+        robots: ROBOTS_NOINDEX,
+      };
+    }
+
+    const description = product.shortDescriptionText
+      || product.descriptionText?.slice(0, 300)
+      || t("productDetails.shareDescription", { name: product.name });
+
+    return {
+      title: `${product.name} | NAZRA`,
+      description,
+      canonical,
+      image: productSeoImage(images, product),
+      type: "product",
+      jsonLd: buildProductJsonLd({
+        product,
+        variant,
+        images,
+        description,
+        homeLabel: t("productDetails.home"),
+        catalogLabel: product.gender || product.category || t("productDetails.catalog"),
+      }),
+    };
+  }, [product, variant, images, state.status, t]);
+
+  usePageSeo(seo);
+
+  // Fires once per product, after the API confirms it exists. Keyed on the id
+  // rather than the object so re-renders and variant switches do not re-report
+  // the same view.
   useEffect(() => {
-    if (!product) return undefined;
-    const previousTitle = document.title;
-    const canonicalUrl = `${SITE_CONFIG.url}/product/${encodeURIComponent(product.slug)}`;
-    const description = product.shortDescriptionText || t("productDetails.shareDescription", { name: product.name });
-    const image = images[0]?.url || product.seo?.image || "";
-    document.title = `${product.name} | NAZRA`;
-    const metaUpdates = [
-      setMeta("name", "description", description),
-      setMeta("property", "og:type", "product"),
-      setMeta("property", "og:title", `${product.name} | NAZRA`),
-      setMeta("property", "og:description", description),
-      setMeta("property", "og:url", canonicalUrl),
-      ...(image ? [setMeta("property", "og:image", image)] : []),
-      setMeta("name", "twitter:card", "summary_large_image"),
-      setMeta("name", "twitter:title", `${product.name} | NAZRA`),
-      setMeta("name", "twitter:description", description),
-      ...(image ? [setMeta("name", "twitter:image", image)] : []),
-    ];
-    let canonical = document.head.querySelector('link[rel="canonical"]');
-    const canonicalCreated = !canonical;
-    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    const previousCanonical = canonical.getAttribute("href");
-    canonical.href = canonicalUrl;
-    const price = Number(variant?.price ?? product.prices?.current ?? product.sale_price ?? 0);
-    const schema = {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Product", name: product.name, description, image: images.map((item) => item.url), ...(variant?.sku || product.references ? { sku: variant?.sku || product.references } : {}), brand: { "@type": "Brand", name: SITE_CONFIG.name }, offers: { "@type": "Offer", url: canonicalUrl, priceCurrency: "MAD", price, availability: variant?.available === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock", itemCondition: "https://schema.org/NewCondition" }, ...(product.rating?.count > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating.average, reviewCount: product.rating.count } } : {})
-        },
-        {
-          "@type": "BreadcrumbList", itemListElement: [
-            { "@type": "ListItem", position: 1, name: t("productDetails.home"), item: SITE_CONFIG.url },
-            { "@type": "ListItem", position: 2, name: product.gender || product.category || t("productDetails.catalog"), item: `${SITE_CONFIG.url}/store/products` },
-            { "@type": "ListItem", position: 3, name: product.name, item: canonicalUrl }
-          ]
-        }
-      ]
-    };
-    const jsonLd = document.createElement("script");
-    jsonLd.type = "application/ld+json";
-    jsonLd.dataset.nazraProduct = "true";
-    jsonLd.text = JSON.stringify(schema);
-    document.head.appendChild(jsonLd);
-    return () => {
-      document.title = previousTitle;
-      metaUpdates.forEach(({ tag, created, previousContent }) => {
-        if (created) tag.remove();
-        else if (previousContent === null) tag.removeAttribute("content");
-        else tag.setAttribute("content", previousContent);
-      });
-      if (canonicalCreated) canonical.remove();
-      else if (previousCanonical === null) canonical.removeAttribute("href");
-      else canonical.setAttribute("href", previousCanonical);
-      jsonLd.remove();
-    };
-  }, [product, variant, images, t]);
+    if (state.status !== "success" || !product?._id) return;
+    track("view_item", {
+      currency: "MAD",
+      value: Number(product.prices?.current ?? product.sale_price ?? 0),
+      items: [{
+        item_id: product._id,
+        item_name: product.name,
+        price: Number(product.prices?.current ?? product.sale_price ?? 0),
+        quantity: 1,
+      }],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status, product?._id]);
 
   const changeColor = (nextColor) => {
     setColor(nextColor);
@@ -147,14 +144,29 @@ export default function ProductPage() {
     }
     return true;
   };
+  /** Ecommerce event payload for the current selection. */
+  const trackingPayload = (quantity) => ({
+    currency: "MAD",
+    value: Number(variant?.price ?? product?.prices?.current ?? product?.sale_price ?? 0) * quantity,
+    items: [{
+      item_id: variant?.sku || product?._id,
+      item_name: product?.name,
+      item_variant: color?.name,
+      price: Number(variant?.price ?? product?.prices?.current ?? product?.sale_price ?? 0),
+      quantity,
+    }],
+  });
+
   const add = (quantity) => {
     if (!validateSelection()) return;
     addToCard(cartProduct(quantity));
+    track("add_to_cart", trackingPayload(quantity));
     toast.success(t("productDetails.added", { name: product.name }));
   };
   const buyNow = (quantity) => {
     if (!validateSelection()) return;
     addToCard(cartProduct(quantity), { showConfirmation: false });
+    track("add_to_cart", trackingPayload(quantity));
     navigate("/checkout-card");
   };
   const toggleFavorite = () => {

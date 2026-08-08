@@ -13,6 +13,7 @@ import { productTranslations } from "./locales/productTranslations";
 import { contactTranslations } from "./locales/contactTranslations";
 import { discoverTranslations } from "./locales/discoverTranslations";
 import { legalTranslations } from "./locales/legalTranslations";
+import { cookieTranslations } from "./locales/cookieTranslations";
 
 // Configure i18next
 i18n
@@ -20,10 +21,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: { ...enTranslation, home: homeTranslations.en, store: storeTranslations.en, about: aboutTranslations.en, productDetails: productTranslations.en, contactPage: contactTranslations.en, discover: discoverTranslations.en, legal: legalTranslations.en } },
-      fr: { translation: { ...frTranslation, home: homeTranslations.fr, store: storeTranslations.fr, about: aboutTranslations.fr, productDetails: productTranslations.fr, contactPage: contactTranslations.fr, discover: discoverTranslations.fr, legal: legalTranslations.fr } },
-      ar: { 
-        translation: { ...arTranslation, home: homeTranslations.ar, store: storeTranslations.ar, about: aboutTranslations.ar, productDetails: productTranslations.ar, contactPage: contactTranslations.ar, discover: discoverTranslations.ar, legal: legalTranslations.ar },
+      en: { translation: { ...enTranslation, home: homeTranslations.en, store: storeTranslations.en, about: aboutTranslations.en, productDetails: productTranslations.en, contactPage: contactTranslations.en, discover: discoverTranslations.en, legal: legalTranslations.en, cookies: cookieTranslations.en } },
+      fr: { translation: { ...frTranslation, home: homeTranslations.fr, store: storeTranslations.fr, about: aboutTranslations.fr, productDetails: productTranslations.fr, contactPage: contactTranslations.fr, discover: discoverTranslations.fr, legal: legalTranslations.fr, cookies: cookieTranslations.fr } },
+      ar: {
+        translation: { ...arTranslation, home: homeTranslations.ar, store: storeTranslations.ar, about: aboutTranslations.ar, productDetails: productTranslations.ar, contactPage: contactTranslations.ar, discover: discoverTranslations.ar, legal: legalTranslations.ar, cookies: cookieTranslations.ar },
       }
     },
     lng: localStorage.getItem('i18nextLng') || 'fr',

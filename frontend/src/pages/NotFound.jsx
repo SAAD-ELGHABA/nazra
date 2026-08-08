@@ -1,12 +1,16 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useNoIndex } from "../hooks/usePageSeo";
 
 function NotFound() {
   const { t } = useTranslation();
 
+  // The SPA answers unknown paths with HTTP 200, so this meta tag is the only
+  // signal telling Google the URL carries no content worth indexing.
+  useNoIndex("Page Not Found - Nazra");
+
   useEffect(() => {
-    document.title = "Page Not Found - Nazra";
     window.scrollTo({
       top: 0,
       behavior: "smooth",

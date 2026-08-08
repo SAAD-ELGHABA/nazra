@@ -26,6 +26,10 @@ if (import.meta.env.DEV) {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  // Without this a hung backend leaves every loading skeleton spinning
+  // forever and the error states never render. 20s is generous enough for a
+  // serverless cold start plus a MongoDB connection.
+  timeout: 20000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -325,8 +329,11 @@ export const createMyOrder = async (formData, idempotencyKey)=>{
 }
 
 
-export const getOrders = async()=>{
-    const response = await api.get('/orders', getBearerConfig())
+// The endpoint is paginated (`response.data.pagination`). Callers that
+// aggregate over the result should move to /admin/dashboard/summary, which
+// computes its metrics server-side over every order.
+export const getOrders = async (params = {}) => {
+    const response = await api.get('/orders', { ...getBearerConfig(), params })
     return response;
 }
 

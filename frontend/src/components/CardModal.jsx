@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCard } from "../context/CardContext";
+import { estimateDeliveryFee } from "../config/delivery";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -128,6 +129,8 @@ function CardModal({ isOpen, onClose }) {
     () => cardItems.reduce((sum, item) => sum + (Number(item?.sale_price) || 0) * (Number(item?.quantity) || 1), 0),
     [cardItems],
   );
+  // Display only; the server prices delivery on the real order.
+  const deliveryFee = estimateDeliveryFee(total);
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -179,10 +182,21 @@ function CardModal({ isOpen, onClose }) {
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className="text-stone-500">{t("cart.subtotal")}</span>
-                <strong className="text-lg">{formatPrice(total, i18n.language)}</strong>
+                <span>{formatPrice(total, i18n.language)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="text-stone-500">{t("checkoutPage.delivery")}</span>
+                {deliveryFee > 0 ? (
+                  <span>{formatPrice(deliveryFee, i18n.language)}</span>
+                ) : (
+                  <span className="font-semibold text-emerald-700">{t("checkoutPage.deliveryFree")}</span>
+                )}
               </div>
               <Separator />
-              <p className="text-xs leading-5 text-stone-500">{t("cart.shippingNote")}</p>
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="font-semibold text-stone-700">{t("checkoutPage.totalToPay")}</span>
+                <strong className="text-lg">{formatPrice(total + deliveryFee, i18n.language)}</strong>
+              </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <Button asChild variant="outline" className="min-h-11 rounded-sm">

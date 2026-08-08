@@ -15,6 +15,7 @@ import WhatsAppGlyph from "../common/WhatsAppGlyph";
 
 const RELATED = [
   ["privacy", "/privacy-policy"],
+  ["cookiePolicy", "/cookie-policy"],
   ["termsOfUse", "/terms-of-use"],
   ["terms", "/terms-and-conditions"],
 ];

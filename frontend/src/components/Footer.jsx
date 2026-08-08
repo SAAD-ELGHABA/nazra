@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { storeEmail } from "../api/api";
 import { createWhatsAppLink, SITE_CONFIG } from "../config/site";
+import { useConsent } from "../context/ConsentContext";
 import BrandLogo from "./BrandLogo";
 import WhatsAppGlyph from "./common/WhatsAppGlyph";
 
@@ -18,6 +19,7 @@ const LEGAL_LINKS = [
   ["legal.terms.title", "/terms-and-conditions"],
   ["legal.termsOfUse.title", "/terms-of-use"],
   ["legal.privacy.title", "/privacy-policy"],
+  ["legal.cookiePolicy.title", "/cookie-policy"],
   ["home.footer.returns", "/returns-policy"],
   ["home.footer.shipping", "/shipping-info"],
 ];
@@ -58,6 +60,7 @@ function Newsletter() {
 
 export default function Footer() {
   const { t } = useTranslation();
+  const { openPreferences } = useConsent();
   const year = new Date().getFullYear();
   return (
     <footer className="bg-[#101413] text-white">
@@ -81,6 +84,19 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              {/* Consent has to be withdrawable, so the panel needs an entry
+                  point on every page. A button, not a Link — it opens a dialog
+                  rather than navigating. */}
+              <li className="flex items-center gap-x-3">
+                <span aria-hidden="true" className="h-3 w-px bg-white/20" />
+                <button
+                  type="button"
+                  onClick={openPreferences}
+                  className="text-white/55 transition hover:text-white hover:underline underline-offset-4"
+                >
+                  {t("cookies.footer.preferences")}
+                </button>
+              </li>
             </ul>
           </nav>
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle, Clipboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getProducts } from "../api/api";
@@ -10,17 +9,10 @@ const getProductKey = (product) => product?._id || product?.id || product?.slug;
 const getProductPath = (product) => product?.slug ? `/product/${product.slug}` : "/store/products";
 const getProductImage = (product) => getProductImages(product)[0] || product?.imageUrl || "/fall-back-sunglasses-image.webp";
 
-function OrderConfirmationUpsell({ orderId }) {
+function OrderConfirmationUpsell() {
   const { t, i18n } = useTranslation();
-  const [copied, setCopied] = useState(false);
   const [products, setProducts] = useState([]);
 
-  const COUPON_CODE = `NAZRA-${orderId || "THANKYOU"}-10`;
-  const handleCopy = () => {
-    navigator.clipboard.writeText(COUPON_CODE);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
-  };
   useEffect( () => {getRandomProducts()}, []);
 
   const getRandomProducts = async () => {
@@ -34,50 +26,12 @@ function OrderConfirmationUpsell({ orderId }) {
 
   return (
     <div className="mt-12 p-6 bg-white rounded-xl shadow-2xl border-t-4 border-black max-w-5xl mx-auto">
-      {/* 1. Future Purchase Incentive (High Visibility) */}
-      <div className="text-center mb-10 pb-6 border-b border-gray-100">
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">
-          {t("checkoutPage.upsellTitle")}
-        </h2>
-        <p className="text-indigo-600 text-xl font-semibold mb-6">
-          {t("checkoutPage.upsellSubtitle")}
-        </p>
+      {/* The discount coupon that used to sit here (NAZRA-<orderId>-10) had no
+          backend: no model, no route, no redemption. Every customer was handed
+          a code that would fail at checkout. Restore it only alongside a real
+          coupon implementation. */}
 
-        <div className="inline-flex items-center justify-center p-3 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg shadow-inner">
-          <span className="text-2xl font-mono font-bold tracking-widest text-gray-800">
-            {COUPON_CODE}
-          </span>
-          <button
-            onClick={handleCopy}
-            className={`ml-4 p-2 rounded-lg transition duration-200 
-                    ${
-                      copied
-                        ? "bg-green-500 text-white"
-                        : "bg-white text-gray-700 hover:bg-gray-200"
-                    } 
-                    flex items-center gap-1 shadow-md`}
-            aria-label={copied ? "Copied!" : "Copy coupon code"}
-          >
-            {copied ? (
-              <>
-                <CheckCircle className="h-4 w-4" />
-                <span>{t("checkoutPage.couponCopied")}</span>
-              </>
-            ) : (
-              <>
-                <Clipboard className="h-4 w-4" />
-                <span>{t("checkoutPage.couponCopy")}</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        <p className="mt-4 text-sm text-gray-600 font-medium">
-          {t("checkoutPage.couponDetails")}
-        </p>
-      </div>
-
-      {/* 2. Immediate Cross-Sell (Complementary Accessories) */}
+      {/* Cross-sell from the live catalogue */}
       <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         {t("checkoutPage.recommendedTitle")}
       </h3>

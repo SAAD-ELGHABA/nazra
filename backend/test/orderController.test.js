@@ -13,7 +13,8 @@ const validBody = () => ({
     fullName: ' Test Customer ',
     email: 'TEST@example.com',
     phone: '+212600000000',
-    adresse: 'Casablanca'
+    adresse: '12 rue des Lunettes',
+    city: 'Casablanca'
   }
 });
 
@@ -31,6 +32,43 @@ test('normalizes valid order input before database access', () => {
   assert.equal(result.products[0].quantity, 2);
   assert.equal(result.customer.fullName, 'Test Customer');
   assert.equal(result.customer.email, 'test@example.com');
+  assert.equal(result.customer.city, 'Casablanca');
+});
+
+test('requires a city so the order can actually be delivered', () => {
+  const body = validBody();
+  delete body.customer.city;
+  assert.throws(() => _test.validateOrderRequest(body), /customer\.city/);
+  assert.throws(
+    () => _test.validateOrderRequest({ ...validBody(), customer: { ...validBody().customer, city: '   ' } }),
+    /customer\.city/
+  );
+});
+
+test('canonicalizes Moroccan phone numbers and rejects unusable ones', () => {
+  const withPhone = (phone) => ({ ...validBody(), customer: { ...validBody().customer, phone } });
+
+  assert.equal(_test.validateOrderRequest(withPhone('0612345678')).customer.phone, '+212612345678');
+  assert.equal(_test.validateOrderRequest(withPhone('06 12 34 56 78')).customer.phone, '+212612345678');
+  assert.equal(_test.validateOrderRequest(withPhone('00212612345678')).customer.phone, '+212612345678');
+
+  // A courier cannot deliver to any of these.
+  ['a', '06123', '0412345678', '12345'].forEach((phone) => {
+    assert.throws(() => _test.validateOrderRequest(withPhone(phone)), /customer\.phone/);
+  });
+});
+
+test('accepts an order without an email but still rejects a malformed one', () => {
+  const withEmail = (email) => {
+    const body = validBody();
+    if (email === undefined) delete body.customer.email;
+    else body.customer.email = email;
+    return body;
+  };
+
+  assert.equal(_test.validateOrderRequest(withEmail(undefined)).customer.email, null);
+  assert.equal(_test.validateOrderRequest(withEmail('')).customer.email, null);
+  assert.throws(() => _test.validateOrderRequest(withEmail('not-an-email')), /customer\.email/);
 });
 
 test('rejects empty carts, malformed ids and unbounded quantities', () => {
@@ -88,7 +126,8 @@ test('order schema requires a bounded quantity and server price snapshot', () =>
     fullName: 'Test Customer',
     email: 'test@example.com',
     phone: '+212600000000',
-    adresse: 'Casablanca',
+    adresse: '12 rue des Lunettes',
+    city: 'Casablanca',
     products: [{ product: PRODUCT_ID, quantity: 1, color: 'Black', unitPrice: 349.5 }]
   };
 

@@ -8,8 +8,13 @@ import {
 } from "@/components/ui/card";
 import { HOME } from "@/constant/routerConstants";
 import BrandLogo from "@/components/BrandLogo";
+import { useNoIndex } from "@/hooks/usePageSeo";
 
 export default function AuthShell({ title, description, children, footer }) {
+  // Covers /login, /forgot-password and /reset-password in one place. These are
+  // staff sign-in surfaces, never search results.
+  useNoIndex(title ? `${title} | NAZRA` : undefined);
+
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f4ef] px-4 py-10">
       <div

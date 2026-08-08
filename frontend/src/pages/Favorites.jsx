@@ -7,16 +7,19 @@ import { useFavorites } from "../context/FavoritesContext";
 import { useCard } from "../context/CardContext";
 import StoreProductCard from "../components/store/StoreProductCard";
 import { getFirstPurchasableCartProduct } from "../components/ProductDetails/productUtils";
+import { useNoIndex } from "../hooks/usePageSeo";
 
 function Favorites() {
   const { t } = useTranslation();
   const { addToCard } = useCard();
   const { favorites, removeFavorite, addFavorite, isFavorite } = useFavorites();
 
+  // A wishlist is per-visitor local state — there is nothing stable to index.
+  useNoIndex(`${t("wishlist.title")} - Nazra`);
+
   useEffect(() => {
-    document.title = `${t("wishlist.title")} - Nazra`;
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [t]);
+  }, []);
 
   const toggleFavorite = (product) => {
     const productId = product?._id || product?.id;

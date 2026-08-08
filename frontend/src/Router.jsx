@@ -5,14 +5,6 @@ import React from "react";
 import NotFound from "./pages/NotFound";
 import AboutPage from "./pages/AboutPage";
 import StorePage from "./pages/StorePage";
-import DashboardLayout from "./DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import DashboardProducts from "./pages/DashboardProducts";
-import AddProducts from "./pages/AddProducts";
-import OrderManagementPage from "./pages/DashboardOrders";
-import LoginPage from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import CheckoutCard from "./pages/CheckoutCard";
 import ContactUs from "./pages/ContactUs";
 import HelpCenter from "./pages/HelpCenter";
@@ -20,6 +12,7 @@ import ReturnsPolicy from "./pages/ReturnsPolicy";
 import ShippingInfo from "./pages/ShippingInfo";
 import TermsOfUse from "./pages/TermsOfUse";
 import Privacy from "./pages/Privacy";
+import CookiePolicy from "./pages/CookiePolicy";
 import WhyChooseUsPage from "./pages/WhyChooseUsPage";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import StoreIntro from "./pages/StoreIntro";
@@ -30,19 +23,51 @@ import ProductPage from "./pages/ProductPage";
 import Favorites from "./pages/Favorites";
 import NazraIcon from "./pages/NazraIcon";
 import UVProtectionPage from "./pages/UVProtectionPage";
-import AdminsPage from "./pages/AdminsPage";
-import BlogPage from './Dashboard/BlogPage'
-import DashboardAnalytics from "./pages/DashboardAnalytics";
-import DashboardSubscribers from "./pages/DashboardSubscribers";
-import DashboardActivity from "./pages/DashboardActivity";
-import DashboardContacts from "./pages/DashboardContacts";
-import DashboardCustomers from "./pages/DashboardCustomers";
-import DashboardExports from "./pages/DashboardExports";
-import DashboardInventory from "./pages/DashboardInventory";
-import DashboardReviews from "./pages/DashboardReviews";
-import DashboardSettings from "./pages/DashboardSettings";
-import Forbidden from "./pages/Forbidden";
-import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+
+/**
+ * The back office is lazy-loaded.
+ *
+ * These 20 modules pull in recharts, xlsx and react-quill. Statically imported,
+ * every shopper downloaded the entire admin dashboard before seeing a product.
+ * Now they are fetched only when an admin actually opens one.
+ *
+ * The storefront routes above stay eager: they are what the shopper came for,
+ * and splitting them would only add a round trip.
+ */
+const DashboardLayout = React.lazy(() => import("./DashboardLayout"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const DashboardProducts = React.lazy(() => import("./pages/DashboardProducts"));
+const AddProducts = React.lazy(() => import("./pages/AddProducts"));
+const OrderManagementPage = React.lazy(() => import("./pages/DashboardOrders"));
+const LoginPage = React.lazy(() => import("./pages/Login"));
+const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
+const AdminsPage = React.lazy(() => import("./pages/AdminsPage"));
+const BlogPage = React.lazy(() => import("./Dashboard/BlogPage"));
+const DashboardAnalytics = React.lazy(() => import("./pages/DashboardAnalytics"));
+const DashboardSubscribers = React.lazy(() => import("./pages/DashboardSubscribers"));
+const DashboardActivity = React.lazy(() => import("./pages/DashboardActivity"));
+const DashboardContacts = React.lazy(() => import("./pages/DashboardContacts"));
+const DashboardCustomers = React.lazy(() => import("./pages/DashboardCustomers"));
+const DashboardExports = React.lazy(() => import("./pages/DashboardExports"));
+const DashboardInventory = React.lazy(() => import("./pages/DashboardInventory"));
+const DashboardReviews = React.lazy(() => import("./pages/DashboardReviews"));
+const DashboardSettings = React.lazy(() => import("./pages/DashboardSettings"));
+const Forbidden = React.lazy(() => import("./pages/Forbidden"));
+
+/** Lazy routes need a Suspense boundary between them and the router. */
+const AdminChunk = ({ children }) => (
+  <React.Suspense
+    fallback={
+      <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">
+        Loading…
+      </div>
+    }
+  >
+    {children}
+  </React.Suspense>
+);
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, COOKIEPOLICY, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
 import { getCurrentAdmin } from "./api/api";
 import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
@@ -227,6 +252,10 @@ export const Router = createBrowserRouter([
         element: <Privacy />,
       },
       {
+        path: COOKIEPOLICY,
+        element: <CookiePolicy />,
+      },
+      {
         path: TERMSANDCONDITIONS,
         element: <TermsAndConditions />,
       },
@@ -241,10 +270,14 @@ export const Router = createBrowserRouter([
     ],
   },
   {
+    // One boundary for the whole back office: child routes render into
+    // DashboardLayout's Outlet, so they resolve inside this Suspense too.
     element: (
-      <ProtectedRoutes>
-        <DashboardLayout />
-      </ProtectedRoutes>
+      <AdminChunk>
+        <ProtectedRoutes>
+          <DashboardLayout />
+        </ProtectedRoutes>
+      </AdminChunk>
     ),
     children: [
       {
@@ -379,15 +412,15 @@ export const Router = createBrowserRouter([
   },
   {
     path: LOGIN,
-    element: <LoginPage />,
+    element: <AdminChunk><LoginPage /></AdminChunk>,
   },
   {
     path: FORGOT_PASSWORD,
-    element: <ForgotPassword />,
+    element: <AdminChunk><ForgotPassword /></AdminChunk>,
   },
   {
     path: RESET_PASSWORD,
-    element: <ResetPassword />,
+    element: <AdminChunk><ResetPassword /></AdminChunk>,
   },
   {
     path: "*",

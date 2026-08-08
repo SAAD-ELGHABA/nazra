@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+/* Fonts are loaded from index.html with preconnect. A CSS @import here made
+   the font request wait for this stylesheet to download and parse first,
+   delaying text rendering by a full round trip on mobile. */
 
 @custom-variant dark (&:is(.dark *));
 

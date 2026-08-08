@@ -1,0 +1,30 @@
+# https://nazra.store — public storefront crawl rules.
+# Served as a real static file: Vercel resolves the filesystem before the SPA
+# catch-all rewrite, so this is never replaced by index.html.
+#
+# Disallow is a crawl directive, not an access control. Admin, checkout and
+# account routes stay protected by their own authentication regardless.
+
+User-agent: *
+Allow: /
+
+# Private and internal areas.
+Disallow: /admins/
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Transactional and per-visitor pages with no search value.
+Disallow: /checkout-card
+Disallow: /favorites
+Disallow: /comming-soon-page
+
+# Filtered, searched, sorted and paginated catalog permutations are handled by
+# `noindex, follow` on the page itself, NOT by a Disallow rule. Blocking them
+# here would stop Google re-crawling the ones it already indexed, and a URL it
+# cannot fetch is a URL whose noindex it can never read.
+
+# The API is not a set of landing pages.
+Disallow: /api/
+
+Sitemap: https://nazra.store/sitemap.xml

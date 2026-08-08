@@ -282,6 +282,8 @@
     "email": "Email",
     "phone": "Telephone",
     "address": "Address",
+    "city": "City",
+    "emailOptional": "Email (optional)",
     "submit": "Place Order",
     "formSubmitted": "Your order has been submitted!"
   }
@@ -461,6 +463,13 @@
     "missingConfirmation": "The order was created without a confirmation number.",
     "submitError": "Unable to place your order right now.",
     "selectAtLeastMsg":"Please select at least one item to checkout.",
+    "delivery": "Delivery",
+    "deliveryFree": "FREE",
+    "totalToPay": "Total to pay on delivery",
+    "cityPlaceholder": "e.g. Casablanca",
+    "invalidPhone": "Enter a valid Moroccan phone number (e.g. 0612345678).",
+    "invalidEmail": "Enter a valid email address or leave the field empty.",
+    "requiredField": "This field is required.",
     "upsellTitle": "Thank you for choosing NAZRA",
     "upsellSubtitle": "A gift for your next order",
     "couponCopy": "Copy",
@@ -493,7 +502,7 @@
     },
     {
       "title": "Exceptional Craftsmanship",
-      "subtitle": "Since 1995",
+      "subtitle": "An eye for detail",
       "description": "Each piece tells a story of dedication and attention to detail",
       "image": "/Elegant-Red-Glasses.png",
       "cta": "Our Story",

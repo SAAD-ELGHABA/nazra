@@ -1,8 +1,14 @@
 import { Ban } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useNoIndex } from "../hooks/usePageSeo";
+
 export default function ProductNotAvailable() {
   const { t } = useTranslation();
+
+  // An unavailable product must not keep an indexable URL.
+  useNoIndex(t("product.notFoundMsg"));
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="bg-white shadow-lg rounded-2xl p-10 text-center max-w-md w-full">

@@ -20,6 +20,9 @@ import {
 } from "../components/store/storeUtils";
 import { useCard } from "../context/CardContext";
 import { useFavorites } from "../context/FavoritesContext";
+import { SITE_CONFIG } from "../config/site";
+import { STOREPRODUCTS } from "../constant/routerConstants";
+import usePageSeo, { canonicalUrl, ROBOTS_NOINDEX } from "../hooks/usePageSeo";
 
 const FILTER_PARAM_KEYS = [
   "gender", "genders", "category", "categories", "collection", "collections",
@@ -69,7 +72,7 @@ function ActiveFilters({ search, filters, onSearch, onFilters, onClear }) {
 }
 
 function StorePage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryString = searchParams.toString();
   const catalog = useMemo(() => catalogStateFromSearchParams(new URLSearchParams(queryString)), [queryString]);
@@ -180,24 +183,18 @@ function StorePage() {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
-  useEffect(() => {
-    const previousTitle = document.title;
-    const updates = [
-      [document.querySelector('meta[name="description"]'), "content", t("store.seoDescription")],
-      [document.querySelector('meta[property="og:title"]'), "content", t("store.seoTitle")],
-      [document.querySelector('meta[property="og:description"]'), "content", t("store.seoDescription")],
-      [document.querySelector('meta[property="og:url"]'), "content", "https://nazra.store/store/products"],
-      [document.querySelector('meta[property="og:image"]'), "content", "https://nazra.store/assets/images/store/store-hero-desktop.webp"],
-      [document.querySelector('link[rel="canonical"]'), "href", "https://nazra.store/store/products"],
-    ].filter(([element]) => element);
-    const previous = updates.map(([element, attribute]) => [element, attribute, element.getAttribute(attribute)]);
-    document.title = t("store.seoTitle");
-    updates.forEach(([element, attribute, value]) => element.setAttribute(attribute, value));
-    return () => {
-      document.title = previousTitle;
-      previous.forEach(([element, attribute, value]) => element.setAttribute(attribute, value || ""));
-    };
-  }, [i18n.resolvedLanguage, t]);
+  // One canonical catalog URL. Filter, search, sort, view and pagination
+  // permutations are the same collection re-sliced, so they are marked
+  // `noindex, follow`: Google still crawls through to the product pages, but
+  // the thin variants never compete with /store/products in the index.
+  const isFilteredView = queryString.length > 0;
+  usePageSeo({
+    title: t("store.seoTitle"),
+    description: t("store.seoDescription"),
+    canonical: canonicalUrl(STOREPRODUCTS),
+    image: `${SITE_CONFIG.url}/assets/images/store/store-hero-desktop.webp`,
+    robots: isFilteredView ? ROBOTS_NOINDEX : undefined,
+  });
 
   const toggleFavorite = (product) => {
     if (isFavorite(product?._id)) {
