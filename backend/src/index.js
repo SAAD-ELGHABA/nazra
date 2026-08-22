@@ -83,6 +83,9 @@ app.use('/api/orders',require('../routes/ordersRoute'))
 app.use('/api/visitors',require('../routes/visitorsRoute'))
 app.use("/api/emails",require('../routes/emailsRoutes'))
 app.use("/api/blog",require('../routes/blogRoutes'))
+// Mounted before /api/admin: Express matches prefixes in order, so the more
+// specific media router has to be registered first.
+app.use("/api/admin/media", require("../routes/adminMediaRoutes"))
 app.use("/api/admin", require("../routes/adminRoutes"))
 
 // Error handling middleware

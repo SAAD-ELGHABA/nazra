@@ -60,10 +60,30 @@ const deleteMultipleFromCloudinary = async (publicIds) => {
   }
 };
 
+// Read the authoritative metadata Cloudinary holds for an asset. Used by the
+// media library, where the browser uploads directly and the server never sees
+// the bytes, so every dimension the client reports would otherwise be a claim.
+const getCloudinaryResource = async (publicId) => cloudinary.api.resource(publicId, {
+  resource_type: 'image'
+});
+
+// deleteFromCloudinary only throws on transport errors: destroying a missing
+// asset returns 200 with { result: 'not found' }, so a bare try/catch around it
+// reports success for outcomes that are not one. This inspects the result.
+const destroyCloudinaryImage = async (publicId) => {
+  const result = await cloudinary.uploader.destroy(publicId, {
+    resource_type: 'image',
+    invalidate: true
+  });
+  return result?.result === 'ok' || result?.result === 'not found';
+};
+
 module.exports = {
   cloudinary,
   uploadToCloudinary,
   uploadMultipleToCloudinary,
   deleteFromCloudinary,
-  deleteMultipleFromCloudinary
+  deleteMultipleFromCloudinary,
+  getCloudinaryResource,
+  destroyCloudinaryImage
 };

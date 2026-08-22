@@ -9,6 +9,10 @@ const UPLOAD_PURPOSES = Object.freeze({
   blog: Object.freeze({
     folder: "blog-images",
     permission: "blog.manage"
+  }),
+  library: Object.freeze({
+    folder: "media-library",
+    permission: "media.manage"
   })
 });
 
@@ -33,7 +37,9 @@ const parseUploadPurpose = (body) => {
   }
 
   if (typeof body.purpose !== "string" || !UPLOAD_PURPOSES[body.purpose]) {
-    throw new MediaUploadValidationError("purpose must be either product or blog.");
+    throw new MediaUploadValidationError(
+      `purpose must be one of: ${Object.keys(UPLOAD_PURPOSES).join(", ")}.`
+    );
   }
 
   return body.purpose;
