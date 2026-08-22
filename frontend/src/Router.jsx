@@ -53,6 +53,7 @@ const DashboardCustomers = React.lazy(() => import("./pages/DashboardCustomers")
 const DashboardExports = React.lazy(() => import("./pages/DashboardExports"));
 const DashboardInventory = React.lazy(() => import("./pages/DashboardInventory"));
 const DashboardReviews = React.lazy(() => import("./pages/DashboardReviews"));
+const DashboardMedia = React.lazy(() => import("./pages/DashboardMedia"));
 const DashboardSettings = React.lazy(() => import("./pages/DashboardSettings"));
 const Forbidden = React.lazy(() => import("./pages/Forbidden"));
 
@@ -68,7 +69,7 @@ const AdminChunk = ({ children }) => (
     {children}
   </React.Suspense>
 );
-import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, COOKIEPOLICY, LEAVEREVIEW, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
+import { ABOUT, CHECKOUTCARD, COMMINGSOON, CONTACTUS, COOKIEPOLICY, LEAVEREVIEW, DASHBOARDADMINS, DASHBOARDACTIVITY, DASHBOARDANALYTICS, DASHBOARDBLOG, DASHBOARDCONTACTS, DASHBOARDCUSTOMERS, DASHBOARDEXPORTS, DASHBOARDHOME, DASHBOARDINVENTORY, DASHBOARDMEDIA, DASHBOARDORDERS, DASHBOARDPRODUCTS, DASHBOARDPRODUCTSNEW, DASHBOARDREVIEWS, DASHBOARDSETTINGS, DASHBOARDSUBSCRIBERS, DISCOVER, EXPLORE, FAVORITES, FORGOT_PASSWORD, HELPCENTER, HOME, LOGIN, PRIVACYANDPOLICY, PRODUCTDETAILS, RESET_PASSWORD, RETURNPOLICY, SHIPPINGINFO, STORE, STOREPRODUCTS, TERMSANDCONDITIONS, TERMSOFUSE } from "./constant/routerConstants";
 import { clearAuthStorage, hasStoredAuthSession } from "./utils/auth";
 import { getCurrentAdmin } from "./api/api";
 import { AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
@@ -402,6 +403,14 @@ export const Router = createBrowserRouter([
         element: (
           <CapabilityRoute capability="orders.export">
             <DashboardExports />
+          </CapabilityRoute>
+        ),
+      },
+      {
+        path: DASHBOARDMEDIA,
+        element: (
+          <CapabilityRoute capability="media.manage">
+            <DashboardMedia />
           </CapabilityRoute>
         ),
       },

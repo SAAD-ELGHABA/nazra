@@ -13,6 +13,7 @@ export const DASHBOARDCONTACTS = "/admins/dashboard/contacts";
 export const DASHBOARDREVIEWS = "/admins/dashboard/reviews";
 export const DASHBOARDACTIVITY = "/admins/dashboard/activity";
 export const DASHBOARDEXPORTS = "/admins/dashboard/exports";
+export const DASHBOARDMEDIA = "/admins/dashboard/media";
 export const DASHBOARDSETTINGS =  "/admins/dashboard/settings";
 export const LOGIN = "/login";
 export const FORGOT_PASSWORD = "/forgot-password";

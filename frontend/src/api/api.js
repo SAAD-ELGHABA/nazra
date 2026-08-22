@@ -92,6 +92,38 @@ export const requestCloudinaryUploadSignature = async (purpose) => {
   );
 };
 
+export const getAdminMedia = async (params = {}, signal) => {
+  return api.get("/admin/media", { ...getBearerConfig(), params, signal });
+};
+
+export const getAdminMediaFolders = async (signal) => {
+  return api.get("/admin/media/folders", { ...getBearerConfig(), signal });
+};
+
+export const getAdminMediaTags = async (signal) => {
+  return api.get("/admin/media/tags", { ...getBearerConfig(), signal });
+};
+
+export const registerAdminMedia = async (payload) => {
+  return api.post("/admin/media", payload, getBearerConfig());
+};
+
+export const updateAdminMedia = async (id, payload) => {
+  return api.patch(`/admin/media/${id}`, payload, getBearerConfig());
+};
+
+export const deleteAdminMedia = async (id) => {
+  return api.delete(`/admin/media/${id}`, getBearerConfig());
+};
+
+export const bulkDeleteAdminMedia = async (ids) => {
+  return api.post("/admin/media/bulk-delete", { ids }, getBearerConfig());
+};
+
+export const renameAdminMediaFolder = async (payload) => {
+  return api.patch("/admin/media/folders", payload, getBearerConfig());
+};
+
 export const getAdminDashboardSummary = async (params = {}, signal) => {
   return api.get("/admin/dashboard/summary", {
     ...getBearerConfig(),

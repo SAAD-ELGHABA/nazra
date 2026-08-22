@@ -1,7 +1,7 @@
 import { requestCloudinaryUploadSignature } from "../api/api";
 
 const MAX_CONCURRENT_UPLOADS = 4;
-const SUPPORTED_UPLOAD_PURPOSES = new Set(["product", "blog"]);
+const SUPPORTED_UPLOAD_PURPOSES = new Set(["product", "blog", "library"]);
 let activeUploads = 0;
 const pendingUploads = [];
 
@@ -133,26 +133,5 @@ export const uploadMultipleImagesToCloudinary = async (
   return results.map((result) => result.value);
 };
 
-// Delete image from Cloudinary (you'll need to implement this on your backend)
-export const deleteImageFromCloudinary = async (publicId) => {
-  try {
-    // This should be a call to your backend endpoint that handles Cloudinary deletion
-    const response = await fetch('/api/cloudinary/delete', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('User_Data_token')}`
-      },
-      body: JSON.stringify({ public_id: publicId })
-    });
-
-    if (!response.ok) {
-      throw new Error('Delete failed');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Cloudinary delete error:', error);
-    throw error;
-  }
-};
+// Deletion is an admin-only, server-side concern: see deleteAdminMedia in
+// src/api/api.js, which destroys the Cloudinary asset alongside its record.
